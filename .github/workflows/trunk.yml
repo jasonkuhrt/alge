@@ -39,9 +39,46 @@ jobs:
       - run: git tag test && git push --tags
 
   release-canary:
-    # needs: [test, checkNpmTokenSet]
-    if: needs.checkNpmTokenSet.outputs.isNpmTokenSet == 'true'
-    uses: prisma-labs/dripip/.github/workflows/release.yml@master
-    secrets:
-      npmToken: ${{secrets.NPM_TOKEN}}
-      githubToken: ${{secrets.DRIPIP_GITHUB_TOKEN}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+      # TODO Do not assume yarn is what the project is using
+      - name: Install Dependencies
+        run: |
+          yarn_version=$(yarn --version)
+          yarn_version_major=${yarn_version:0:1}
+
+          if [ "${yarn_version_major}" = '1' ]; then
+            yarn install --immutable
+          else
+            yarn install --frozen-lockfile
+          fi
+      # TODO Do not assume that dripip is locally installed.
+      - name: Publish Release
+        run: |
+          yarn_version=$(yarn --version)
+          yarn_version_major=${yarn_version:0:1}
+          if [ "${yarn_version_major}" = '1' ]; then
+            silent_flag='--silent'
+          else
+            silent_flag=''
+          fi
+
+          yarn ${silent_flag} dripip preview-or-pr --json ${{inputs.extraFlags}}
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  # release-canary:
+  #   # needs: [test, checkNpmTokenSet]
+  #   if: needs.checkNpmTokenSet.outputs.isNpmTokenSet == 'true'
+  #   uses: prisma-labs/dripip/.github/workflows/release.yml@master
+  #   secrets:
+  #     npmToken: ${{secrets.NPM_TOKEN}}
+  #     githubToken: ${{secrets.DRIPIP_GITHUB_TOKEN}}
