@@ -5,27 +5,26 @@ on:
     branches: [main]
 
 jobs:
-  # test:
-  #   strategy:
-  #     matrix:
-  #       os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-  #       node-version: [14.x, 16.x]
-  #   runs-on: ${{matrix.os}}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Use Node.js ${{matrix.node-version}}
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: ${{matrix.node-version}}
-  #         cache: yarn
-  #     - name: Install Dependencies
-  #       run: corepack enable && yarn install --immutable
-  #     - run: yarn build
-  #     - run: yarn test
+  test:
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        node-version: [14.x, 16.x]
+    runs-on: ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{matrix.node-version}}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{matrix.node-version}}
+          cache: yarn
+      - name: Install Dependencies
+        run: corepack enable && yarn install --immutable
+      - run: yarn build
+      - run: yarn test
 
-  # https://github.community/t/how-can-i-test-if-secrets-are-available-in-an-action/17911/10
   release-canary:
-    # needs: [test, checkNpmTokenSet]
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: prisma-labs/dripip@master
