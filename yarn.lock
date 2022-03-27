@@ -1742,6 +1742,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": 5.16.0
     "@typescript-eslint/parser": 5.16.0
     dripip: 0.10.0
+    endent: ^2.1.0
     eslint: 8.12.0
     eslint-config-prettier: 8.5.0
     eslint-plugin-deprecation: 1.3.2
@@ -1764,6 +1765,7 @@ __metadata:
     typescript: 4.6.3
     typescript-snapshots-plugin: 1.7.0
     typescript-transform-paths: 3.3.1
+    zod: ^3.14.3
   languageName: unknown
   linkType: soft
 
@@ -7287,5 +7289,12 @@ resolve@~1.19.0:
   version: 3.1.1
   resolution: "yn@npm:3.1.1"
   checksum: 2c487b0e149e746ef48cda9f8bad10fc83693cd69d7f9dcd8be4214e985de33a29c9e24f3c0d6bcf2288427040a8947406ab27f7af67ee9456e6b84854f02dd6
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.14.3":
+  version: 3.14.3
+  resolution: "zod@npm:3.14.3"
+  checksum: 55fb4feb51697f3daa806413f6e8c61e80931532b642de96d180f28e8ba3b89446ab879376443713075e39bb07b506ca7fc8119ca925a26790dfed6baa8dc8b6
   languageName: node
   linkType: hard

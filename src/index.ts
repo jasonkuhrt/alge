@@ -1,1 +1,1 @@
-export * from '~/lib/utils'
+export * as Alge from './Alge'
