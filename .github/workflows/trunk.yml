@@ -42,4 +42,4 @@ jobs:
     uses: prisma-labs/dripip/.github/workflows/release.yml@master
     secrets:
       npmToken: ${{secrets.NPM_TOKEN}}
-      githubToken: ${{secrets.GITHUB_TOKEN}}
+      githubToken: ${{secrets.DRIPIP_GITHUB_TOKEN}}
