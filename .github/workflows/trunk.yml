@@ -35,6 +35,7 @@ jobs:
         run: |
           echo "isNpmTokenSet: ${{ secrets.NPM_TOKEN != '' }}"
           echo "::set-output name=isNpmTokenSet::${{ secrets.NPM_TOKEN != '' }}"
+      - uses: actions/checkout@v3
       - run: git tag test && git push --tags
 
   release-canary:
