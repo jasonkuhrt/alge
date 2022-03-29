@@ -6,7 +6,7 @@ export type SchemaBase = Record<string, z.ZodType<unknown>>
 
 export type ExtensionsBase = Record<string, unknown>
 
-export type Builder<ADT, Members extends StoredMembers> = {
+export interface VariantBuilder<ADT, StoredVariants extends StoredVariantsBase> {
   variant<
     Name extends string,
     Schema extends SchemaBase,
@@ -33,7 +33,7 @@ export type Builder<ADT, Members extends StoredMembers> = {
           extensions: ExtensionsBase extends Extensions ? {} : Extensions
         }
       ],
-      ...Members
+      ...StoredVariants
     ]
   >
   /**
@@ -53,13 +53,22 @@ export type Builder<ADT, Members extends StoredMembers> = {
             : Schema & { _tag: z.ZodLiteral<Name> }
         }
       ],
-      ...Members
+      ...StoredVariants
     ]
   >
-  done(): ADT & GetADTMethods<Members> & MembersApi<TupleToObject<Members[number]>>
 }
 
-type GetADTMethods<Members extends StoredMembers> = {
+export type InitialBuilder<ADT, StoredVariants extends StoredVariantsBase> = VariantBuilder<
+  ADT,
+  StoredVariants
+>
+
+export interface Builder<ADT, StoredVariants extends StoredVariantsBase>
+  extends VariantBuilder<ADT, StoredVariants> {
+  done(): ADT & GetADTMethods<StoredVariants> & VariantsApi<TupleToObject<StoredVariants[number]>>
+}
+
+type GetADTMethods<Members extends StoredVariantsBase> = {
   schema: GetADTSchema<Members>
 } & (IsAllMembersHaveParse<Members> extends true
   ? {
@@ -68,24 +77,24 @@ type GetADTMethods<Members extends StoredMembers> = {
     }
   : {})
 
-type IsAllMembersHaveParse<Members extends StoredMembers> = {
+type IsAllMembersHaveParse<Members extends StoredVariantsBase> = {
   // @ts-expect-error adf
   [K in keyof Members]: IsUnknown<Members[K][1][`parse`]> extends true ? `missing` : never
 } extends [never, ...never[]]
   ? true
   : false
 
-type GetADTSchema<Members extends StoredMembers> = z.ZodUnion<{
+type GetADTSchema<Members extends StoredVariantsBase> = z.ZodUnion<{
   // @ts-expect-error adf
   [K in keyof Members]: z.ZodObject<Members[K][1][`schema`]>
 }>
 
-type MembersApi<T extends Record<string, StoredMemberDef>> = {
-  [Key in keyof T]: MemberApi<T[Key]>
+type VariantsApi<T extends Record<string, StoredMemberDef>> = {
+  [Key in keyof T]: VariantApi<T[Key]>
 }
 
 // prettier-ignore
-type MemberApi<Def extends StoredMemberDef> = {
+type VariantApi<Def extends StoredMemberDef> = {
   schema: z.ZodObject<Def[`schema`]>
   is(value: unknown): value is z.TypeOf<z.ZodObject<Def[`schema`]>>
 }
@@ -102,8 +111,8 @@ type MemberApi<Def extends StoredMemberDef> = {
 
 type Parse2<T = unknown> = (string: string) => null | T
 type Parse2OrThrow<T = unknown> = (string: string) => T
-type StoredMembers = [StoredMember, ...StoredMember[]]
-type StoredMember = [string, StoredMemberDef]
+type StoredVariantsBase = [StoredVariantBase, ...StoredVariantBase[]]
+type StoredVariantBase = [string, StoredMemberDef]
 type StoredMemberDef = {
   schema: z.ZodRawShape
   parse?: Parse2

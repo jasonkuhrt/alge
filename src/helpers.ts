@@ -14,3 +14,9 @@ export const isEmpty = (value: unknown[] | object) => {
 export const ensurePeriod = (s: string) => (s.length > 0 ? (s[s.length - 1] === `.` ? s : s + `.`) : s)
 
 export const code = (s: string) => `\`${s}\``
+
+/**
+ * Cast the value to `any`
+ */
+// eslint-disable-next-line
+export const asAny = (x: any): any => x

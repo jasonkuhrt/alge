@@ -1,3 +1,4 @@
+import { InitialBuilder } from './Builder'
 import { Errors } from './Errors'
 import { code, isEmpty } from './helpers'
 import { OmitTag } from './Types'
@@ -156,7 +157,7 @@ type ADTMember = z.ZodObject<{
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
 // @ts-expect-error empty init tuple
-export const create = <Name extends string>(name: Name): Builder<{ name: Name }, []> => {
+export const create = <Name extends string>(name: Name): InitialBuilder<{ name: Name }, []> => {
   const variants: [string, z.SomeZodObject][] = []
 
   const api = {
@@ -166,7 +167,13 @@ export const create = <Name extends string>(name: Name): Builder<{ name: Name },
     },
     done: () => {
       if (isEmpty(variants)) {
-        throw Errors.UserMistake.create(`No variants defined for ADT ${code(name)}`)
+        throw Errors.UserMistake.create(
+          `No variants defined for ADT ${code(name)} but ${code(
+            `.done()`
+          )} was called. You can only call ${code(
+            `.done()`
+          )} after your ADT has at least one variant defined (via ${code(`.variant()`)}).`
+        )
       }
       return {
         name,
