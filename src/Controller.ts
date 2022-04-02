@@ -15,7 +15,9 @@ export type GetADTMethods<Members extends StoredVariantsBase> = {
       parse: Parse2<z.TypeOf<GetADTSchema<Members>>>
       parseOrThrow: Parse2OrThrow<z.TypeOf<GetADTSchema<Members>>>
     }
-  : {})
+  : // TODO
+    // eslint-disable-next-line
+    {})
 
 type IsAllMembersHaveParse<Members extends StoredVariantsBase> = {
   // @ts-expect-error adf

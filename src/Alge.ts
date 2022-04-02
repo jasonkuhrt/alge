@@ -77,7 +77,8 @@ export const createIs = <ADTMember extends VariantBase>(
  * Helper for implementing ADT `is` functions.
  */
 export const is = <TagName extends string>(x: unknown, memberTag: TagName): boolean => {
-  // waiting for https://github.com/Microsoft/TypeScript/issues/21732
+  // TODO waiting for https://github.com/Microsoft/TypeScript/issues/21732
+  // eslint-disable-next-line
   return typeof x === `object` && x !== null && (x as any)._tag === memberTag
 }
 
@@ -122,11 +123,12 @@ export const createParseOrThrow = <ADTMember extends VariantBase>(
 
 export const deriveEnum = <S extends z.ZodUnion<[z.ZodLiteral<string>, ...z.ZodLiteral<string>[]]>>(
   schema: S
-): DeriveEnum<S[`_def`][`options`]> => {
-  return schema._def.options.reduce((_enum, literal) => {
+): DeriveEnum<S[`_def`][`options`]> =>
+  // eslint-disable-next-line
+  schema._def.options.reduce((_enum, literal) => {
     return Object.assign(_enum, { [literal._def.value]: literal._def.value })
+    // eslint-disable-next-line
   }, {}) as any
-}
 
 type DeriveEnum<Literals extends [...z.ZodLiteral<string>[]]> = {
   [k in Literals[number] as k[`_def`][`value`]]: k[`_def`][`value`]
@@ -145,6 +147,8 @@ export const deriveIs =
   <S extends ADTMember>(schema: S) =>
   (value: unknown): value is z.TypeOf<S> => {
     return (
+      // TODO
+      // eslint-disable-next-line
       typeof value === `object` && value !== null && (value as any)._tag === schema._def.shape()._tag.value
     )
   }
@@ -176,6 +180,8 @@ export const create = <Name extends string>(name: Name): InitialBuilder<{ name: 
     },
   }
 
+  // TODO
+  // eslint-disable-next-line
   return api as any
 }
 
