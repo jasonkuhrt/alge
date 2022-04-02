@@ -1,8 +1,9 @@
 import { InitialBuilder } from './Builder'
 import { Errors } from './Errors'
 import { code, isEmpty } from './helpers'
+import { r } from './lib/r'
 import { OmitTag } from './Types'
-import { ZodOmit } from './ZodPlus'
+import { Omit } from './lib/z'
 import endent from 'endent'
 import { z } from 'zod'
 
@@ -134,7 +135,7 @@ type DeriveEnum<Literals extends [...z.ZodLiteral<string>[]]> = {
 
 export const deriveCreate =
   <S extends z.ZodObject<{ _tag: z.ZodLiteral<string> }>>(schema: S) =>
-  (input: z.TypeOf<ZodOmit<S, { _tag: true }>>): z.TypeOf<S> => {
+  (input: z.TypeOf<Omit<S, { _tag: true }>>): z.TypeOf<S> => {
     return {
       ...input,
       _tag: schema._def.shape()._tag._def.value,
@@ -158,26 +159,20 @@ type ADTMember = z.ZodObject<{
  */
 // @ts-expect-error empty init tuple
 export const create = <Name extends string>(name: Name): InitialBuilder<{ name: Name }, []> => {
-  const variants: [string, z.SomeZodObject][] = []
+  const variants: { name: string; schema: z.SomeZodObject }[] = []
 
   const api = {
     variant: (name: string, schema: Record<string, z.ZodType<unknown>>) => {
-      variants.push([name, z.object(schema)])
+      variants.push({ name, schema: z.object(schema) })
       return api
     },
     done: () => {
-      if (isEmpty(variants)) {
-        throw Errors.UserMistake.create(
-          `No variants defined for ADT ${code(name)} but ${code(
-            `.done()`
-          )} was called. You can only call ${code(
-            `.done()`
-          )} after your ADT has at least one variant defined (via ${code(`.variant()`)}).`
-        )
-      }
+      if (isEmpty(variants)) throw createEmptyVariantsError({ name })
+      const variantApis = r.indexBy(variants, (_) => _.name)
       return {
         name,
-        schema: z.union([variants[0]![1]!, variants[1]![1]!, ...variants.slice(2).map((_) => _[1]!)]),
+        ...variantApis,
+        // schema: z.union([variants[0]![1]!, variants[1]![1]!, ...variants.slice(2).map((_) => _[1]!)]),
       }
     },
   }
@@ -189,3 +184,12 @@ export const create = <Name extends string>(name: Name): InitialBuilder<{ name: 
 //   `*`: z.infer<T[`schema`]>
 //   // TODO members
 // }
+
+const createEmptyVariantsError = (params: { name: string }) =>
+  Errors.UserMistake.create(
+    `No variants defined for ADT ${code(params.name)} but ${code(
+      `.done()`
+    )} was called. You can only call ${code(
+      `.done()`
+    )} after your ADT has at least one variant defined (via ${code(`.variant()`)}).`
+  )
