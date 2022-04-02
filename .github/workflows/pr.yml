@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: 16
           cache: 'yarn'
-      - uses: jasonkuhrt/action-node-cache-dependencies@main
+      - uses: prisma/action-node-cache-dependencies@main
 
   prettier:
     needs: setup
@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 16.x
           cache: yarn
-      - uses: jasonkuhrt/action-node-cache-dependencies@main
+      - uses: prisma/action-node-cache-dependencies@main
       - run: yarn format:check:prettier
 
   eslint:
@@ -35,7 +35,7 @@ jobs:
         with:
           node-version: 16.x
           cache: yarn
-      - uses: jasonkuhrt/action-node-cache-dependencies@main
+      - uses: prisma/action-node-cache-dependencies@main
       - run: yarn lint:check
 
   type-check:
@@ -48,7 +48,7 @@ jobs:
         with:
           node-version: 16.x
           cache: yarn
-      - uses: jasonkuhrt/action-node-cache-dependencies@main
+      - uses: prisma/action-node-cache-dependencies@main
       - run: yarn type-check
 
   test:
@@ -66,6 +66,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
-      - uses: jasonkuhrt/action-node-cache-dependencies@main
+      - uses: prisma/action-node-cache-dependencies@main
       - run: yarn build
       - run: yarn test
