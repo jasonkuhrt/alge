@@ -13,7 +13,6 @@ jobs:
           node-version: 16
           cache: 'yarn'
       - uses: jasonkuhrt/action-node-cache-dependencies@main
-        
 
   prettier:
     needs: setup
