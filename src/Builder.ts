@@ -42,6 +42,8 @@ type CreateStoredVariant<
   {
     schema: SchemaBase extends Schema ? { _tag: z.ZodLiteral<Name> } : Schema & { _tag: z.ZodLiteral<Name> }
     parse: Parse
+    // TODO
+    // eslint-disable-next-line
     extensions: ExtensionsBase extends Extensions ? {} : Extensions
   }
 ]
