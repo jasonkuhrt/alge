@@ -12,8 +12,8 @@ jobs:
         with:
           node-version: 16
           cache: 'yarn'
-      - id: Install or Cache
-        uses: jasonkuhrt/action-node-cache-dependencies@main
+      - uses: jasonkuhrt/action-node-cache-dependencies@main
+        
 
   prettier:
     needs: setup
