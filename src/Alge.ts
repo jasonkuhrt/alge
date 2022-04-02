@@ -2,10 +2,9 @@ import { InitialBuilder } from './Builder'
 import { Errors } from './Errors'
 import { code, isEmpty } from './helpers'
 import { r } from './lib/r'
+import { z } from './lib/z'
 import { OmitTag } from './Types'
-import { Omit } from './lib/z'
 import endent from 'endent'
-import { z } from 'zod'
 
 /**
  * Base properties of a data type.
@@ -135,7 +134,7 @@ type DeriveEnum<Literals extends [...z.ZodLiteral<string>[]]> = {
 
 export const deriveCreate =
   <S extends z.ZodObject<{ _tag: z.ZodLiteral<string> }>>(schema: S) =>
-  (input: z.TypeOf<Omit<S, { _tag: true }>>): z.TypeOf<S> => {
+  (input: z.TypeOf<z.Omit<S, { _tag: true }>>): z.TypeOf<S> => {
     return {
       ...input,
       _tag: schema._def.shape()._tag._def.value,
