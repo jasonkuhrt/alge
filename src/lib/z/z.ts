@@ -1,6 +1,7 @@
+export * from 'zod'
 import { z } from 'zod'
 
-export type ZodOmit<
+export type Omit<
   T extends z.ZodObject<z.ZodRawShape>,
   Mask extends {
     [k in keyof T[`shape`]]?: true

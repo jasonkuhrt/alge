@@ -1,10 +1,10 @@
 import { InitialBuilder } from './Builder'
 import { Errors } from './Errors'
 import { code, isEmpty } from './helpers'
+import { r } from './lib/r'
+import { z } from './lib/z'
 import { OmitTag } from './Types'
-import { ZodOmit } from './ZodPlus'
 import endent from 'endent'
-import { z } from 'zod'
 
 /**
  * Base properties of a data type.
@@ -77,7 +77,8 @@ export const createIs = <ADTMember extends VariantBase>(
  * Helper for implementing ADT `is` functions.
  */
 export const is = <TagName extends string>(x: unknown, memberTag: TagName): boolean => {
-  // waiting for https://github.com/Microsoft/TypeScript/issues/21732
+  // TODO waiting for https://github.com/Microsoft/TypeScript/issues/21732
+  // eslint-disable-next-line
   return typeof x === `object` && x !== null && (x as any)._tag === memberTag
 }
 
@@ -122,11 +123,12 @@ export const createParseOrThrow = <ADTMember extends VariantBase>(
 
 export const deriveEnum = <S extends z.ZodUnion<[z.ZodLiteral<string>, ...z.ZodLiteral<string>[]]>>(
   schema: S
-): DeriveEnum<S[`_def`][`options`]> => {
-  return schema._def.options.reduce((_enum, literal) => {
+): DeriveEnum<S[`_def`][`options`]> =>
+  // eslint-disable-next-line
+  schema._def.options.reduce((_enum, literal) => {
     return Object.assign(_enum, { [literal._def.value]: literal._def.value })
+    // eslint-disable-next-line
   }, {}) as any
-}
 
 type DeriveEnum<Literals extends [...z.ZodLiteral<string>[]]> = {
   [k in Literals[number] as k[`_def`][`value`]]: k[`_def`][`value`]
@@ -134,7 +136,7 @@ type DeriveEnum<Literals extends [...z.ZodLiteral<string>[]]> = {
 
 export const deriveCreate =
   <S extends z.ZodObject<{ _tag: z.ZodLiteral<string> }>>(schema: S) =>
-  (input: z.TypeOf<ZodOmit<S, { _tag: true }>>): z.TypeOf<S> => {
+  (input: z.TypeOf<z.Omit<S, { _tag: true }>>): z.TypeOf<S> => {
     return {
       ...input,
       _tag: schema._def.shape()._tag._def.value,
@@ -145,6 +147,8 @@ export const deriveIs =
   <S extends ADTMember>(schema: S) =>
   (value: unknown): value is z.TypeOf<S> => {
     return (
+      // TODO
+      // eslint-disable-next-line
       typeof value === `object` && value !== null && (value as any)._tag === schema._def.shape()._tag.value
     )
   }
@@ -158,30 +162,26 @@ type ADTMember = z.ZodObject<{
  */
 // @ts-expect-error empty init tuple
 export const create = <Name extends string>(name: Name): InitialBuilder<{ name: Name }, []> => {
-  const variants: [string, z.SomeZodObject][] = []
+  const variants: { name: string; schema: z.SomeZodObject }[] = []
 
   const api = {
     variant: (name: string, schema: Record<string, z.ZodType<unknown>>) => {
-      variants.push([name, z.object(schema)])
+      variants.push({ name, schema: z.object(schema) })
       return api
     },
     done: () => {
-      if (isEmpty(variants)) {
-        throw Errors.UserMistake.create(
-          `No variants defined for ADT ${code(name)} but ${code(
-            `.done()`
-          )} was called. You can only call ${code(
-            `.done()`
-          )} after your ADT has at least one variant defined (via ${code(`.variant()`)}).`
-        )
-      }
+      if (isEmpty(variants)) throw createEmptyVariantsError({ name })
+      const variantApis = r.indexBy(variants, (_) => _.name)
       return {
         name,
-        schema: z.union([variants[0]![1]!, variants[1]![1]!, ...variants.slice(2).map((_) => _[1]!)]),
+        ...variantApis,
+        // schema: z.union([variants[0]![1]!, variants[1]![1]!, ...variants.slice(2).map((_) => _[1]!)]),
       }
     },
   }
 
+  // TODO
+  // eslint-disable-next-line
   return api as any
 }
 
@@ -189,3 +189,12 @@ export const create = <Name extends string>(name: Name): InitialBuilder<{ name: 
 //   `*`: z.infer<T[`schema`]>
 //   // TODO members
 // }
+
+const createEmptyVariantsError = (params: { name: string }) =>
+  Errors.UserMistake.create(
+    `No variants defined for ADT ${code(params.name)} but ${code(
+      `.done()`
+    )} was called. You can only call ${code(
+      `.done()`
+    )} after your ADT has at least one variant defined (via ${code(`.variant()`)}).`
+  )

@@ -2,7 +2,9 @@ export type IsUnknown<T> = IsEqual<T, unknown>
 
 export type IsEqual<T, U> = [T] extends [U] ? ([U] extends [T] ? true : false) : false
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TupleToObject<T extends [string, any]> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key in T[0]]: Extract<T, [key, any]>[1]
 }
 
