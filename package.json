@@ -48,7 +48,7 @@
   "devDependencies": {
     "@jest/types": "27.5.1",
     "@prisma-labs/prettier-config": "0.1.0",
-    "@swc/core": "1.2.162",
+    "@swc/core": "1.2.163",
     "@swc/helpers": "0.3.8",
     "@swc/jest": "0.2.20",
     "@tsconfig/recommended": "1.0.1",
@@ -70,7 +70,7 @@
     "jest-watch-typeahead": "1.0.0",
     "konn": "0.7.0",
     "markdown-toc": "1.2.0",
-    "prettier": "2.6.1",
+    "prettier": "2.6.2",
     "ts-jest": "27.1.4",
     "ts-node": "10.7.0",
     "ts-patch": "2.0.1",
