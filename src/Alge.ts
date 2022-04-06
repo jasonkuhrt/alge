@@ -162,7 +162,10 @@ type ADTMember = z.ZodObject<{
  */
 // @ts-expect-error empty init tuple
 export const create = <Name extends string>(name: Name): InitialBuilder<{ name: Name }, []> => {
-  const variants: { name: string; schema: z.SomeZodObject }[] = []
+  const variants: {
+    name: string
+    schema: z.SomeZodObject
+  }[] = []
 
   const api = {
     variant: (name: string, schema: Record<string, z.ZodType<unknown>>) => {
@@ -171,7 +174,19 @@ export const create = <Name extends string>(name: Name): InitialBuilder<{ name: 
     },
     done: () => {
       if (isEmpty(variants)) throw createEmptyVariantsError({ name })
-      const variantApis = r.indexBy(variants, (_) => _.name)
+
+      const variantApis = r.pipe(
+        variants,
+        r.map((v) => ({
+          ...v,
+          create: (input?: object) => ({
+            _tag: v.name,
+            ...input,
+          }),
+        })),
+        r.indexBy(r.prop(`name`))
+      )
+
       return {
         name,
         ...variantApis,
