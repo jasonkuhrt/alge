@@ -1,24 +1,19 @@
-export type IsUnknown<T> = IsEqual<T, unknown>
-
-export type IsEqual<T, U> = [T] extends [U] ? ([U] extends [T] ? true : false) : false
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TupleToObject<T extends [string, any]> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key in T[0]]: Extract<T, [key, any]>[1]
-}
-
-export const isEmpty = (value: unknown[] | object) => {
-  if (Array.isArray(value)) value.length === 0
-  return Object.keys(value).length === 0
-}
-
-export const ensurePeriod = (s: string) => (s.length > 0 ? (s[s.length - 1] === `.` ? s : s + `.`) : s)
-
-export const code = (s: string) => `\`${s}\``
-
 /**
- * Cast the value to `any`
+ * Helper for implementing ADT `is` functions.
  */
-// eslint-disable-next-line
-export const asAny = (x: any): any => x
+export const is$ = (value: unknown, symbol: symbol): boolean => {
+  // TODO waiting for https://github.com/Microsoft/TypeScript/issues/21732
+  return (
+    typeof value === `object` &&
+    value !== null &&
+    `_` in value &&
+    // eslint-disable-next-line
+    typeof (value as any)._ === `object` &&
+    // eslint-disable-next-line
+    (value as any)._ !== null &&
+    // eslint-disable-next-line
+    typeof (value as any)._.symbol === `symbol` &&
+    // eslint-disable-next-line
+    (value as any)._.symbol === symbol
+  )
+}

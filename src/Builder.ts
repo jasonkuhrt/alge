@@ -1,5 +1,5 @@
 import { GetADTMethods, GetVariantsNamespacedMethods } from './Controller'
-import { TupleToObject } from './helpers'
+import { TupleToObject } from './lib/utils'
 import { z } from './lib/z'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>

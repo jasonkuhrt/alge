@@ -1,16 +1,19 @@
 import { InitialBuilder } from './Builder'
 import { Errors } from './Errors'
-import { code, isEmpty } from './helpers'
+import { is$ } from './helpers'
 import { r } from './lib/r'
+import { code, isEmpty } from './lib/utils'
 import { z } from './lib/z'
 import { OmitTag } from './Types'
-import endent from 'endent'
 
 /**
  * Base properties of a data type.
  */
-export type VariantBase<Tag extends string = string> = {
+export type VariantBase<Tag extends symbol = symbol> = {
   _tag: Tag
+  _: {
+    symbol: symbol
+  }
 }
 
 export type VariantNamespaceBase = {
@@ -36,7 +39,7 @@ export type Stringify<T> = (data: T) => string
  * Helper for creating ADT `create` functions.
  */
 export const createCreate = <ADTMember extends VariantBase>(
-  memberTag: ADTMember[`_tag`],
+  tag: ADTMember[`_tag`],
   config: {
     create?: (params: OmitTag<ADTMember>) => OmitTag<ADTMember>
   } = {}
@@ -44,7 +47,7 @@ export const createCreate = <ADTMember extends VariantBase>(
   return (params: OmitTag<ADTMember>): ADTMember => {
     const params_ = config.create ? config.create(params) : params
     return {
-      _tag: memberTag,
+      _tag: tag,
       ...params_,
     } as ADTMember
   }
@@ -65,97 +68,88 @@ export const createCreate = <ADTMember extends VariantBase>(
 /**
  * Helper for creating ADT `is` functions.
  */
-export const createIs = <ADTMember extends VariantBase>(
-  memberTag: ADTMember[`_tag`]
-): ((x: unknown) => x is ADTMember) => {
-  return (x: unknown): x is ADTMember => {
-    return is(x, memberTag)
-  }
-}
+// export const createIs = <ADTMember extends VariantBase>(
+//   memberTag: ADTMember[`_tag`]
+// ): ((x: unknown) => x is ADTMember) => {
+//   return (x: unknown): x is ADTMember => {
+//     return is$(x, memberTag)
+//   }
+// }
 
-/**
- * Helper for implementing ADT `is` functions.
- */
-export const is = <TagName extends string>(x: unknown, memberTag: TagName): boolean => {
-  // TODO waiting for https://github.com/Microsoft/TypeScript/issues/21732
-  // eslint-disable-next-line
-  return typeof x === `object` && x !== null && (x as any)._tag === memberTag
-}
+// /**
+//  * Helper for implementing parseOrThrow.
+//  *
+//  * @param parser -  The parse function. This wraps it to automate an implementation of parseOrThrow.
+//  * @param  dataTypeMemberName - The name of the data type trying to be parsed. Used for nicer error messages.
+//  * @returns The data type.
+//  * @throws An error if parsing fails.
+//  */
+// export const createParseOrThrow = <ADTMember extends VariantBase>(
+//   parser: Parse<ADTMember>,
+//   dataTypeMemberName: ADTMember[`_tag`] | ADTMember[`_tag`][]
+// ): ((x: string) => ADTMember) => {
+//   return (x) => {
+//     const result = parser(x)
 
-/**
- * Helper for implementing parseOrThrow.
- *
- * @param parser -  The parse function. This wraps it to automate an implementation of parseOrThrow.
- * @param  dataTypeMemberName - The name of the data type trying to be parsed. Used for nicer error messages.
- * @returns The data type.
- * @throws An error if parsing fails.
- */
-export const createParseOrThrow = <ADTMember extends VariantBase>(
-  parser: Parse<ADTMember>,
-  dataTypeMemberName: ADTMember[`_tag`] | ADTMember[`_tag`][]
-): ((x: string) => ADTMember) => {
-  return (x) => {
-    const result = parser(x)
+//     if (result === null) {
+//       // prettier-ignore
+//       const message =
+//         Array.isArray(dataTypeMemberName)
+//         ? endent`
+//             Could not parse the given string into any of the data types: ${dataTypeMemberName.map(_=>`"${_}"`).join(`, `)}.
+//           `
+//         : endent`
+//             Could not parse the given string into the data type "${dataTypeMemberName}".
+//           `
 
-    if (result === null) {
-      // prettier-ignore
-      const message =
-        Array.isArray(dataTypeMemberName)
-        ? endent`
-            Could not parse the given string into any of the data types: ${dataTypeMemberName.map(_=>`"${_}"`).join(`, `)}.
-          `
-        : endent`
-            Could not parse the given string into the data type "${dataTypeMemberName}".
-          `
+//       throw new Error(endent`
+//         ${message}
 
-      throw new Error(endent`
-        ${message}
+//         The given string was:
 
-        The given string was:
+//         ${x}
+//       `)
+//     }
 
-        ${x}
-      `)
-    }
+//     return result
+//   }
+// }
 
-    return result
-  }
-}
+// export const deriveEnum = <S extends z.ZodUnion<[z.ZodLiteral<string>, ...z.ZodLiteral<string>[]]>>(
+//   schema: S
+// ): DeriveEnum<S[`_def`][`options`]> =>
+//   // eslint-disable-next-line
+//   schema._def.options.reduce((_enum, literal) => {
+//     return Object.assign(_enum, { [literal._def.value]: literal._def.value })
+//     // eslint-disable-next-line
+//   }, {}) as any
 
-export const deriveEnum = <S extends z.ZodUnion<[z.ZodLiteral<string>, ...z.ZodLiteral<string>[]]>>(
-  schema: S
-): DeriveEnum<S[`_def`][`options`]> =>
-  // eslint-disable-next-line
-  schema._def.options.reduce((_enum, literal) => {
-    return Object.assign(_enum, { [literal._def.value]: literal._def.value })
-    // eslint-disable-next-line
-  }, {}) as any
+// type DeriveEnum<Literals extends [...z.ZodLiteral<string>[]]> = {
+//   [k in Literals[number] as k[`_def`][`value`]]: k[`_def`][`value`]
+// }
 
-type DeriveEnum<Literals extends [...z.ZodLiteral<string>[]]> = {
-  [k in Literals[number] as k[`_def`][`value`]]: k[`_def`][`value`]
-}
+// export const deriveCreate =
+//   <S extends z.ZodObject<{ _tag: z.ZodLiteral<string> }>>(schema: S) =>
+//   (input: z.TypeOf<z.Omit<S, { _tag: true }>>): z.TypeOf<S> => {
+//     return {
+//       ...input,
+//       _tag: schema._def.shape()._tag._def.value,
+//     }
+//   }
 
-export const deriveCreate =
-  <S extends z.ZodObject<{ _tag: z.ZodLiteral<string> }>>(schema: S) =>
-  (input: z.TypeOf<z.Omit<S, { _tag: true }>>): z.TypeOf<S> => {
-    return {
-      ...input,
-      _tag: schema._def.shape()._tag._def.value,
-    }
-  }
+// export const deriveIs =
+//   <S extends ADTMember>(schema: S) =>
+//   (value: unknown): value is z.TypeOf<S> => {
+//     return (
+//       // TODO
+//       // eslint-disable-next-line
+//       typeof value === `object` && value !== null && (value as any)._tag === schema._def.shape()._tag.value
+//     )
+//   }
 
-export const deriveIs =
-  <S extends ADTMember>(schema: S) =>
-  (value: unknown): value is z.TypeOf<S> => {
-    return (
-      // TODO
-      // eslint-disable-next-line
-      typeof value === `object` && value !== null && (value as any)._tag === schema._def.shape()._tag.value
-    )
-  }
-
-type ADTMember = z.ZodObject<{
-  _tag: z.ZodLiteral<string>
-}>
+// type ADTMember = z.ZodObject<{
+//   _tag: z.ZodLiteral<string>
+// }>
 
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
@@ -177,13 +171,23 @@ export const create = <Name extends string>(name: Name): InitialBuilder<{ name: 
 
       const variantApis = r.pipe(
         variants,
-        r.map((v) => ({
-          ...v,
-          create: (input?: object) => ({
-            _tag: v.name,
-            ...input,
-          }),
-        })),
+        r.map((v) => {
+          const symbol = Symbol(v.name)
+          const api = {
+            ...v,
+            create: (input?: object) => ({
+              _tag: v.name,
+              _: {
+                symbol,
+              },
+              ...input,
+            }),
+            symbol,
+            //eslint-disable-next-line
+            is$: (x: unknown) => is$(x, symbol),
+          }
+          return api
+        }),
         r.indexBy(r.prop(`name`))
       )
 

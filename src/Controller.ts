@@ -5,7 +5,7 @@ import {
   StoredVariantRecordBase,
   StoredVariantsBase,
 } from './Builder'
-import { IsUnknown } from './helpers'
+import { IsUnknown } from './lib/utils'
 import { z } from './lib/z'
 
 export type GetADTMethods<Members extends StoredVariantsBase> = {
@@ -39,6 +39,7 @@ export type GetVariantsNamespacedMethods<Vs extends StoredVariantRecordBase> = {
 type VariantApi<Name, V extends StoredVariantData> =
   {
     name: Name
+    symbol: symbol
     schema: z.ZodObject<V[`schema`]>
     // TODO need access to the ADT
     // is(value: unknown): value is z.TypeOf<z.ZodObject<V[`schema`]>>
