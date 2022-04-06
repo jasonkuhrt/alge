@@ -42,19 +42,19 @@ type VariantApi<Name, V extends StoredVariantData> =
     schema: z.ZodObject<V[`schema`]>
     // TODO need access to the ADT
     // is(value: unknown): value is z.TypeOf<z.ZodObject<V[`schema`]>>
-    isUnknown(value: unknown): value is z.TypeOf<z.ZodObject<V[`schema`]>>
+    is$(value: unknown): value is z.TypeOf<z.ZodObject<V[`schema`]>>
   }
-// & (
-//   Record<string,unknown> extends z.TypeOf<z.Omit<z.ZodObject<Def[`schema`]>, { _tag: true }>>
-//   ?
-//     {
-//       create(): z.TypeOf<z.ZodObject<Def[`schema`]>>
-//     }
-//   :
-//     {
-//       create(input: z.TypeOf<z.Omit<z.ZodObject<Def[`schema`]>, { _tag: true }>>): z.TypeOf<z.ZodObject<Def[`schema`]>>
-//     }
-//   )
+& (
+  SomeRecord extends z.TypeOf<z.Omit<z.ZodObject<V[`schema`]>, { _tag: true }>>
+  ?
+    {
+      create(): z.TypeOf<z.ZodObject<V[`schema`]>>
+    }
+  :
+    {
+      create(input: z.TypeOf<z.Omit<z.ZodObject<V[`schema`]>, { _tag: true }>>): z.TypeOf<z.ZodObject<V[`schema`]>>
+    }
+  )
 // & (
 //   IsUnknown<Def[`parse`]> extends true
 //     ?
@@ -67,3 +67,5 @@ type VariantApi<Name, V extends StoredVariantData> =
 // )
 
 // & Def[`extensions`]
+
+type SomeRecord = Record<string, unknown>
