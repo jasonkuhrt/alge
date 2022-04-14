@@ -6,9 +6,9 @@ const $A = `A`
 const $N = `N`
 const $M = `M`
 
-type A = typeof $A
-type N = typeof $N
-type M = typeof $M
+type $A = typeof $A
+type $N = typeof $N
+type $M = typeof $M
 
 describe(`.create()`, () => {
   describe(`errors`, () => {
@@ -39,7 +39,7 @@ describe(`.variant()`, () => {
   describe(`namespace api`, () => {
     it(`The name of variant is statically known and available at runtime`, () => {
       const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
-      expectType<M>(A.M.name)
+      expectType<$M>(A.M.name)
       expect(A.M.name).toBe($M)
     })
     it(`The tag (symbol) of variant is statically known and available at runtime`, () => {
@@ -60,10 +60,35 @@ describe(`.variant()`, () => {
       expect(n).toEqual({ _tag: $N, _: { symbol: A.N.symbol }, a: `x` })
     })
 
-    it(`.is$() is a type guard / predicate function`, () => {
+    it(`.is() is a type guard / predicate function accepting only variants of the ADT`, () => {
+      const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { x: z.number().int() }).done()
+      const m = A.M.create({ a: `x` })
+      const n = A.N.create({ x: 1 })
+      const mn = Math.random() > 0.5 ? m : n
+
+      // @ts-expect-error: value is not an ADT variant.
+      A.M.is(`whatever`)
+
+      // @ts-expect-error The type has not been narrowed yet.
+      expectType<typeof m>(mn)
+
+      if (A.M.is(mn)) {
+        expectType<typeof m>(mn)
+      }
+
+      expect(A.M.is(n)).toBe(false)
+      expect(A.M.is(m)).toBe(true)
+      expect(A.N.is(m)).toBe(false)
+      expect(A.N.is(n)).toBe(true)
+    })
+
+    it(`.is$() is a type guard / predicate function accepting any value`, () => {
       const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
       const m = A.M.create({ a: `x` })
       const mMaybe = Math.random() > 0.5 ? m : false
+
+      // Statically fine, any value may be checked here.
+      A.M.is$(`whatever`)
 
       // @ts-expect-error The type has not being narrowed yet.
       expectType<typeof m>(mMaybe)

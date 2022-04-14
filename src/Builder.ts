@@ -1,5 +1,8 @@
+/**
+ * This module is concerned with the static types for the API of building up an ADT.
+ */
+
 import { GetADTMethods, GetVariantsNamespacedMethods } from './Controller'
-import { TupleToObject } from './lib/utils'
 import { z } from './lib/z'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>
@@ -8,7 +11,17 @@ export type ExtensionsBase = Record<string, unknown>
 
 export type NameBase = string
 
-export interface VariantBuilder<ADT, StoredVariants extends StoredVariantsBase> {
+/**
+ * The initial API for building an ADT.
+ */
+export type Initial<ADT, StoredVariants extends StoredVariantsBase> = VariantRequired<ADT, StoredVariants>
+
+/**
+ * The builder API when it is in a state where a variant is required.
+ *
+ * @remarks This happens to be the initial state of the builder API.
+ */
+export interface VariantRequired<ADT, StoredVariants extends StoredVariantsBase> {
   /**
    * Create a variant of this ADT.
    */
@@ -32,6 +45,21 @@ export interface VariantBuilder<ADT, StoredVariants extends StoredVariantsBase> 
   ): PostVariantBuilder<ADT, [CreateStoredVariant<Name, Schema, never, never>, ...StoredVariants]>
 }
 
+/**
+ * The builder API when it is a state of having at least one variant defined.
+ * At this point the ADT can be marked as done.
+ */
+export interface PostVariantBuilder<ADT, Vs extends StoredVariantsBase> extends VariantRequired<ADT, Vs> {
+  // prettier-ignore
+  done():
+    ADT
+    & GetADTMethods<Vs>
+    // & GetVariantsNamespacedMethods<TupleToObject<Vs[number]>>
+    & GetVariantsNamespacedMethods<Vs>
+}
+
+// Helpers
+
 type CreateStoredVariant<
   Name extends NameBase,
   Schema extends SchemaBase,
@@ -49,20 +77,6 @@ type CreateStoredVariant<
 ]
 
 export type GetName<V extends StoredVariantsBase> = V[0]
-
-export type InitialBuilder<ADT, StoredVariants extends StoredVariantsBase> = VariantBuilder<
-  ADT,
-  StoredVariants
->
-
-export interface PostVariantBuilder<ADT, StoredVariants extends StoredVariantsBase>
-  extends VariantBuilder<ADT, StoredVariants> {
-  // prettier-ignore
-  done():
-    ADT
-    & GetADTMethods<StoredVariants>
-    & GetVariantsNamespacedMethods<TupleToObject<StoredVariants[number]>>
-}
 
 export type Parse2<T = unknown> = (string: string) => null | T
 
