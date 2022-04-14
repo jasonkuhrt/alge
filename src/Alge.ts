@@ -1,6 +1,6 @@
-import { InitialBuilder } from './Builder'
+import { Initial } from './Builder'
 import { Errors } from './Errors'
-import { is$ } from './helpers'
+import { is } from './helpers'
 import { r } from './lib/r'
 import { code, isEmpty } from './lib/utils'
 import { z } from './lib/z'
@@ -155,7 +155,7 @@ export const createCreate = <ADTMember extends VariantBase>(
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
 // @ts-expect-error empty init tuple
-export const create = <Name extends string>(name: Name): InitialBuilder<{ name: Name }, []> => {
+export const create = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
   const variants: {
     name: string
     schema: z.SomeZodObject
@@ -184,7 +184,8 @@ export const create = <Name extends string>(name: Name): InitialBuilder<{ name: 
             }),
             symbol,
             //eslint-disable-next-line
-            is$: (x: unknown) => is$(x, symbol),
+            is$: (x: unknown) => is(x, symbol),
+            is: (x: unknown) => is(x, symbol),
           }
           return api
         }),
