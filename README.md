@@ -1,8 +1,18 @@
-# alge
+# alge 🌱
 
 [![trunk](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml/badge.svg)](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml)
 
 Type safe fluent API for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript.
+
+Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae).
+
+## Installation
+
+```
+npm add alge
+```
+
+## Guide
 
 This library is at alpha stage. For current examples of usage you can try the following:
 
