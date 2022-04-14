@@ -5,6 +5,7 @@
     "project": ["tsconfig.json"]
   },
   "plugins": [
+    "codegen",
     // This enables using new lint rules powered by the TypeScript compiler API.
     // https://github.com/typescript-eslint/typescript-eslint
     "@typescript-eslint",
@@ -38,6 +39,7 @@
   ],
   "overrides": [],
   "rules": {
+    "codegen/codegen": "error",
     "quotes": ["warn", "backtick"],
     "tsdoc/syntax": "warn",
     "simple-import-sort/imports": [
