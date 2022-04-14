@@ -36,16 +36,41 @@ describe(`.variant()`, () => {
     expect(A.M).toBeDefined()
     expect(A.N).toBeDefined()
   })
-  describe(`namespace api`, () => {
-    it(`The name of variant is statically known and available at runtime`, () => {
-      const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
-      expectType<$M>(A.M.name)
-      expect(A.M.name).toBe($M)
-    })
-    it(`The tag (symbol) of variant is statically known and available at runtime`, () => {
+  describe(`api`, () => {
+    it(`.symbol contains the unique symbol for this variant`, () => {
       const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
       expectType<symbol>(A.M.symbol)
       expect(typeof A.M.symbol).toBe(`symbol`)
+    })
+
+    it(`.name contains the name of the variant`, () => {
+      const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
+      expectType<$M>(A.M.name)
+      expect(A.M.name).toBe($M)
+      expectType<$N>(A.N.name)
+      expect(A.N.name).toBe($N)
+    })
+
+    it(`.schema contains the zod schema for the variant`, () => {
+      const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
+      expectType<z.ZodSchema>(A.M.schema)
+      expect(A.M.schema).toBeDefined()
+      expect(A.M.schema.safeParse(``).success).toBe(false)
+      expectType<z.ZodSchema>(A.N.schema)
+      expect(A.N.schema).toBeDefined()
+      expect(A.N.schema.safeParse(``).success).toBe(false)
+    })
+
+    it(`.create() constructs data of that variant`, () => {
+      const A = Alge.create($A).variant($M, { m: z.string() }).variant($N, { n: z.number() }).done()
+      // @ts-expect-error: Invalid input
+      A.M.create({ x: 1 })
+      // @ts-expect-error: Input required
+      A.M.create()
+      // @ts-expect-error: Input required
+      A.M.create({ m: `m`, n: 2 })
+      expect(A.M.create({ m: `m` })).toEqual({ m: `m`, _tag: $M, _: { symbol: A.M.symbol } })
+      expect(A.N.create({ n: 1 })).toEqual({ n: 1, _tag: $N, _: { symbol: A.N.symbol } })
     })
 
     it(`.create()`, () => {
