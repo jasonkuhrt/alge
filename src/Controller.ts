@@ -7,6 +7,7 @@ import {
 } from './Builder'
 import { IsUnknown, TupleToObject } from './lib/utils'
 import { z } from './lib/z'
+import { ZodRawShape, ZodSchema } from 'zod'
 
 export type GetADTMethods<Vs extends StoredVariantsBase> = {
   schema: GetADTSchema<Vs>
@@ -62,27 +63,32 @@ type VariantApi<Vs extends StoredVariantsBase, Name, V extends StoredVariantData
   // @ts-expect-error TODO
   is(value: z.TypeOf<GetADTSchema<Vs>>): value is z.TypeOf<z.ZodObject<V[`schema`]>>
   /**
-     * Loose predicate/type guard for this variant.
-     * 
-     * Unlike `is` this is typed to accept any value, not just variants of this ADT.
-     * 
-     * Use this when you have to deal with situations where you know the value could not be an ADT variant, but might be.
-     * 
-     * Prefer `is` over this function since it will catch more errors. For example if you
-     * are writing code that you think is dealing with the ADT then `is` would catch
-     * the error of that not being the case while this function would not.
-     * 
-     */
+   * Loose predicate/type guard for this variant.
+   *
+   * Unlike `is` this is typed to accept any value, not just variants of this ADT.
+   *
+   * Use this when you have to deal with situations where you know the value could not be an ADT variant, but might be.
+   *
+   * Prefer `is` over this function since it will catch more errors. For example if you
+   * are writing code that you think is dealing with the ADT then `is` would catch
+   * the error of that not being the case while this function would not.
+   *
+   */
   is$(value: unknown): value is z.TypeOf<z.ZodObject<V[`schema`]>>
-} & (SomeRecord extends z.TypeOf<z.Omit<z.ZodObject<V[`schema`]>, { _tag: true }>>
+} &
+(
+  keyof GetInput<V[`schema`]> extends never
   ? {
-      create(): z.TypeOf<z.ZodObject<V[`schema`]>>
+      create(): GetOutput<V[`schema`]>
+    }
+  : keyof OmitRequired<GetInput<V[`schema`]>> extends never
+  ? {
+      create(input?: GetInput<V[`schema`]>): z.TypeOf<z.ZodObject<V[`schema`]>>
     }
   : {
-      create(
-        input: z.TypeOf<z.Omit<z.ZodObject<V[`schema`]>, { _tag: true }>>
-      ): z.TypeOf<z.ZodObject<V[`schema`]>>
-    })
+      create(input: GetInput<V[`schema`]>): z.TypeOf<z.ZodObject<V[`schema`]>>
+    }
+)
 // & (
 //   IsUnknown<Def[`parse`]> extends true
 //     ?
@@ -96,4 +102,17 @@ type VariantApi<Vs extends StoredVariantsBase, Name, V extends StoredVariantData
 
 // & Def[`extensions`]
 
+type OmitRequired<T> = {
+  [K in keyof T as undefined extends T[K] ? never : K]: T[K]
+}
+
+type y = OmitRequired<{ a: 1; b?: 2 }>
+
+type GetInput<Schema extends ZodRawShape> = z.TypeOf<z.Omit<z.ZodObject<Schema>, { _tag: true }>>
+
+type GetOutput<Schema extends ZodRawShape> = z.TypeOf<z.ZodObject<Schema>>
+
 type SomeRecord = Record<string, unknown>
+
+type HasInput = keyof {}
+type x = never extends never ? `a` : `b`

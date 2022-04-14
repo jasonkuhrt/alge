@@ -36,6 +36,7 @@ describe(`.variant()`, () => {
     expect(A.M).toBeDefined()
     expect(A.N).toBeDefined()
   })
+
   describe(`api`, () => {
     it(`.symbol contains the unique symbol for this variant`, () => {
       const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
@@ -61,28 +62,45 @@ describe(`.variant()`, () => {
       expect(A.N.schema.safeParse(``).success).toBe(false)
     })
 
-    it(`.create() constructs data of that variant`, () => {
-      const A = Alge.create($A).variant($M, { m: z.string() }).variant($N, { n: z.number() }).done()
-      // @ts-expect-error: Invalid input
-      A.M.create({ x: 1 })
-      // @ts-expect-error: Input required
-      A.M.create()
-      // @ts-expect-error: Input required
-      A.M.create({ m: `m`, n: 2 })
-      expect(A.M.create({ m: `m` })).toEqual({ m: `m`, _tag: $M, _: { symbol: A.M.symbol } })
-      expect(A.N.create({ n: 1 })).toEqual({ n: 1, _tag: $N, _: { symbol: A.N.symbol } })
-    })
+    describe(`.create()`, () => {
+      it(`If schema not given (aka. no properties), then constructor does not accept input`, () => {
+        const A = Alge.create($A).variant($N).variant($M).done()
+        // @ts-expect-error: input not accepted
+        A.N.create({})
+        expect(A.N.create()).toEqual({ _tag: $N, _: { symbol: A.N.symbol } })
+        expect(A.M.create()).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
+        // @ts-expect-error: empty object still not like empty variant
+        expect(A.M.is({})).toEqual(false)
+        expect(A.M.is$({})).toEqual(false)
+      })
+      it(`If schema only has optional properties then constructor input is optional`, () => {
+        const A = Alge.create($A).variant($M, { m: z.number().optional() }).done()
+        A.M.create()
+        A.M.create({})
+        expect(A.M.create()).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
+        expect(A.M.create({})).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
+        expect(A.M.create({ m: 1 })).toEqual({ m: 1, _tag: $M, _: { symbol: A.M.symbol } })
+      })
+      it(`creates the variant`, () => {
+        const A = Alge.create($A).variant($M, { m: z.string() }).variant($N, { n: z.number() }).done()
 
-    it(`.create()`, () => {
-      const A = Alge.create($A).variant($M, { a: z.string() }).variant($N, { a: z.string() }).done()
+        // @ts-expect-error: Invalid input
+        A.M.create({ x: 1 })
 
-      const m = A.M.create({ a: `x` })
-      expectType<{ _tag: `M`; a: string }>(m)
-      expect(m).toEqual({ _tag: $M, _: { symbol: A.M.symbol }, a: `x` })
+        // @ts-expect-error: Input required
+        A.M.create()
 
-      const n = A.N.create({ a: `x` })
-      expectType<{ _tag: `N`; a: string }>(n)
-      expect(n).toEqual({ _tag: $N, _: { symbol: A.N.symbol }, a: `x` })
+        // @ts-expect-error: Excess invalid input
+        A.M.create({ m: `m`, n: 2 })
+
+        const m = A.M.create({ m: `m` })
+        expectType<{ _tag: $M; m: string }>(m)
+        expect(m).toEqual({ _tag: $M, _: { symbol: A.M.symbol }, m: `m` })
+
+        const n = A.N.create({ n: 1 })
+        expectType<{ _tag: $N; n: number }>(n)
+        expect(n).toEqual({ _tag: $N, _: { symbol: A.N.symbol }, n: 1 })
+      })
     })
 
     it(`.is() is a type guard / predicate function accepting only variants of the ADT`, () => {
