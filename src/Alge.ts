@@ -1,4 +1,4 @@
-import { Initial } from './Builder'
+import { CodecParams, Initial, StoredVariant } from './Builder'
 import { Errors } from './Errors'
 import { is } from './helpers'
 import { r } from './lib/r'
@@ -151,19 +151,32 @@ export const createCreate = <ADTMember extends VariantBase>(
 //   _tag: z.ZodLiteral<string>
 // }>
 
+type SomeVariantDef = Omit<StoredVariant, `codec` | `schema`> & {
+  codec?: CodecParams
+  schema?: z.SomeZodObject
+}
+
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
 // @ts-expect-error empty init tuple
 export const create = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
-  const variants: {
-    name: string
-    schema: z.SomeZodObject
-  }[] = []
+  let currentVariant: null | SomeVariantDef = null
+  const variants: SomeVariantDef[] = []
 
   const api = {
     variant: (name: string, schema: Record<string, z.ZodType<unknown>>) => {
-      variants.push({ name, schema: z.object(schema) })
+      currentVariant = {
+        name,
+        schema: z.object(schema),
+      }
+      variants.push(currentVariant)
+      return api
+    },
+    codec: (codecDef: CodecParams) => {
+      if (!currentVariant) throw new Error(`Define variant first.`)
+      if (currentVariant.codec) throw new Error(`Codec already defined.`)
+      currentVariant.codec = codecDef
       return api
     },
     done: () => {
@@ -186,6 +199,14 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             //eslint-disable-next-line
             is$: (x: unknown) => is(x, symbol),
             is: (x: unknown) => is(x, symbol),
+            decode: (data: string) => {
+              if (!v.codec) throw new Error(`Codec not implemented.`)
+              return api.create(v.codec.decode(data) as any)
+            },
+            encode: (data: object) => {
+              if (!v.codec) throw new Error(`Codec not implemented.`)
+              return v.codec.encode(data)
+            },
           }
           return api
         }),
