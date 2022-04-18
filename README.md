@@ -16,9 +16,10 @@ npm add alge
 
 This library is at alpha stage. For current examples of usage you can try the following:
 
-1. Look at the tests.
+1. Look at the examples under [`/examples`](/examples).
 2. Just install it and try it out.
-3. Read the source code.
+3. Look at the tests.
+4. Read the source code.
 
 Cheers! <3
 
