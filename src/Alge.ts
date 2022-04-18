@@ -153,7 +153,7 @@ export const createCreate = <ADTMember extends VariantBase>(
 
 type SomeVariantDef = Omit<StoredVariant, `codec` | `schema`> & {
   codec?: CodecParams
-  schema?: z.SomeZodObject
+  schema: z.SomeZodObject
 }
 
 /**
@@ -201,7 +201,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             is: (x: unknown) => is(x, symbol),
             decode: (data: string) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
-              return api.create(v.codec.decode(data) as any)
+              return api.create(v.codec.decode(data))
             },
             encode: (data: object) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
@@ -216,7 +216,19 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
       return {
         name,
         ...variantApis,
-        // schema: z.union([variants[0]![1]!, variants[1]![1]!, ...variants.slice(2).map((_) => _[1]!)]),
+        schema:
+          variants.length >= 2
+            ? z.union([
+                // eslint-disable-next-line
+                variants[0]!.schema,
+                // eslint-disable-next-line
+                variants[1]!.schema,
+                ...variants.slice(2).map((_) => _.schema),
+              ])
+            : variants.length === 1
+            ? // eslint-disable-next-line
+              variants[0]!.schema
+            : null,
       }
     },
   }

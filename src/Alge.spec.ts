@@ -12,78 +12,97 @@ type $M = typeof $M
 
 const A = Alge.create($A).variant($M, { m: z.string() }).variant($N, { n: z.number() }).done()
 
-describe(`.create()`, () => {
-  describe(`errors`, () => {
-    it(`call .done() without any variants`, () => {
-      const a = Alge.create($A)
-      // @ts-expect-error .done is not statically available.
-      // eslint-disable-next-line
-      const done = a.done
-      // eslint-disable-next-line
-      expect(done).toThrowErrorMatchingInlineSnapshot(
-        `"Alge User Mistake: No variants defined for ADT \`A\` but \`.done()\` was called. You can only call \`.done()\` after your ADT has at least one variant defined (via \`.variant()\`)."`
-      )
+describe(`builder`, () => {
+  describe(`.create()`, () => {
+    describe(`errors`, () => {
+      it(`call .done() without any variants`, () => {
+        const a = Alge.create($A)
+        // @ts-expect-error .done is not statically available.
+        // eslint-disable-next-line
+        const done = a.done
+        // eslint-disable-next-line
+        expect(done).toThrowErrorMatchingInlineSnapshot(
+          `"Alge User Mistake: No variants defined for ADT \`A\` but \`.done()\` was called. You can only call \`.done()\` after your ADT has at least one variant defined (via \`.variant()\`)."`
+        )
+      })
+    })
+    it(`The name is statically available.`, () => {
+      const A = Alge.create($A).variant($N).variant($M).done()
+      expectType<typeof $A>(A.name)
+      expect(A.name).toBe($A)
     })
   })
-  it(`The name is statically available.`, () => {
-    const A = Alge.create($A).variant($N).variant($M).done()
-    expectType<typeof $A>(A.name)
-    expect(A.name).toBe($A)
-  })
-})
-
-describe(`.codec()`, () => {
-  it(`if not defined then variant API codec methods not available`, () => {
-    expectType<never>(A.M.encode)
-    expectType<never>(A.M.decode)
-    //eslint-disable-next-line
-    expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
-    //eslint-disable-next-line
-    expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
-  })
-  it(`defines an encode and decode method`, () => {
-    const A = Alge.create($A)
-      .variant($M, { m: z.string() })
-      .codec({
-        encode: (data) => data.m,
-        decode: (data) => ({ m: data }),
-      })
-      .done()
-
-    const m = A.M.create({ m: `m` })
-
-    expect(A.M.encode(m)).toEqual(`m`)
-    expect(A.M.decode(`m`)).toEqual(m)
-  })
-  it(`cannot define codec multiple times in the chain`, () => {
-    // eslint-disable-next-line
-    const _A = Alge.create($A)
-      .variant($M, { m: z.string() })
-      .codec({
-        encode: (data) => data.m,
-        decode: (data) => ({ m: data }),
-      })
-    // @ts-expect-error: second codec method not present.
-    _A.codec
-    expect(() =>
+  describe(`.codec()`, () => {
+    it(`if not defined then variant API codec methods not available`, () => {
+      expectType<never>(A.M.encode)
+      expectType<never>(A.M.decode)
       //eslint-disable-next-line
-      (_A as any).codec({
+      expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      //eslint-disable-next-line
+      expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+    })
+    it(`defines an encode and decode method`, () => {
+      const A = Alge.create($A)
+        .variant($M, { m: z.string() })
+        .codec({
+          encode: (data) => data.m,
+          decode: (data) => ({ m: data }),
+        })
+        .done()
+
+      const m = A.M.create({ m: `m` })
+
+      expect(A.M.encode(m)).toEqual(`m`)
+      expect(A.M.decode(`m`)).toEqual(m)
+    })
+    it(`cannot define codec multiple times in the chain`, () => {
+      // eslint-disable-next-line
+      const _A = Alge.create($A)
+        .variant($M, { m: z.string() })
+        .codec({
+          encode: (data) => data.m,
+          decode: (data) => ({ m: data }),
+        })
+      // @ts-expect-error: second codec method not present.
+      _A.codec
+      expect(() =>
         //eslint-disable-next-line
-        encode: (data: any) => data.m,
-        //eslint-disable-next-line
-        decode: (data: any) => ({ m: data }),
-      })
-    ).toThrowErrorMatchingInlineSnapshot(`"Codec already defined."`)
+        (_A as any).codec({
+          //eslint-disable-next-line
+          encode: (data: any) => data.m,
+          //eslint-disable-next-line
+          decode: (data: any) => ({ m: data }),
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`"Codec already defined."`)
+    })
+  })
+
+  describe(`.variant()`, () => {
+    it(`Can be given a name which becomes a static namespace on the ADT`, () => {
+      expect(A.M).toBeDefined()
+      expect(A.N).toBeDefined()
+    })
   })
 })
 
-describe(`.variant()`, () => {
-  it(`Can be given a name which becomes a static namespace on the ADT`, () => {
-    expect(A.M).toBeDefined()
-    expect(A.N).toBeDefined()
+describe(`Controller`, () => {
+  describe(`ADT API`, () => {
+    it(`.schema points to a zod union schema combining all the defined variants`, () => {
+      expect(A.schema.safeParse(``).success).toEqual(false)
+      expectType<{ _tag: $M; m: string } | { _tag: $N; n: number }>(`` as unknown as z.infer<typeof A.schema>)
+      expectType<z.infer<typeof A.M.schema> | z.infer<typeof A.N.schema>>(
+        `` as unknown as z.infer<typeof A.schema>
+      )
+    })
+    it(`.schema points to a zod object if only one variant is defined`, () => {
+      const B = Alge.create(`B`).variant($M, { m: z.string() }).done()
+      expect(B.schema.safeParse(``).success).toEqual(false)
+      expectType<{ _tag: $M; m: string }>(`` as unknown as z.infer<typeof B.schema>)
+      expectType<z.infer<typeof B.M.schema>>(`` as unknown as z.infer<typeof B.schema>)
+    })
   })
 
-  describe(`api`, () => {
+  describe(`Variant API`, () => {
     it(`.symbol contains the unique symbol for this variant`, () => {
       expectType<symbol>(A.M.symbol)
       expect(typeof A.M.symbol).toBe(`symbol`)
