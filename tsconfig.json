@@ -37,7 +37,7 @@
       { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ]
   },
-  "include": ["src", "tests", "scripts", "jest.*"],
+  "include": ["src", "tests", "scripts", "jest.*", "examples/Moniker.ts"],
   // Prevent unwanted things like auto-import from built modules
   "exclude": ["dist-*"],
   "plugins": [
