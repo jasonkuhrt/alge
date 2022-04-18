@@ -42,7 +42,8 @@ export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariant
   variant<Name extends string, Schema extends SchemaBase>(
     name: Name,
     schema?: Schema
-  ): PostVariantBuilder<ADT, CreateStoredVariant<Name, Schema, false, never, never>, Vs>
+    //eslint-disable-next-line
+  ): PostVariantBuilder<ADT, CreateStoredVariant<Name, Schema, false, never, {}>, Vs>
 }
 
 /**
@@ -52,15 +53,27 @@ export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariant
 export interface PostVariantBuilder<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
   extends VariantRequired<ADT, [V, ...Vs]> {
   codec(params: CodecParams<V>): PostCodecBuilder<ADT, StoredVariant.EnableCodec<V>, Vs>
+  /**
+   * Extend the ADT with new properties.
+   * TODO
+   */
+  extend<Extensions extends ExtensionsBase>(
+    extensions: Extensions
+  ): PostVariantBuilder<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
   done(): Controller<ADT, [V, ...Vs]>
 }
 
 export interface CodecParams<V extends StoredVariant = StoredVariant> {
   encode: Encoder<V>
-  decode: Decoder<V>
+  decode: DecoderDefinition<V>
 }
 
 export type Encoder<V extends StoredVariant> = (decodedData: StoredVariant.GetType<V>) => string
+
+export type DecoderDefinition<V extends StoredVariant> = (
+  encodedData: string,
+  extensions: V[`extensions`]
+) => null | GetConstructorInput<V>
 
 export type Decoder<V extends StoredVariant> = (encodedData: string) => null | GetConstructorInput<V>
 
@@ -70,6 +83,13 @@ export type Decoder<V extends StoredVariant> = (encodedData: string) => null | G
  */
 export interface PostCodecBuilder<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
   extends VariantRequired<ADT, [V, ...Vs]> {
+  /**
+   * Extend the ADT with new properties.
+   * TODO
+   */
+  extend<Extensions extends ExtensionsBase>(
+    extensions: Extensions
+  ): PostCodecBuilder<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
   done(): Controller<ADT, [V, ...Vs]>
 }
 
@@ -99,14 +119,17 @@ export type StoredVariant = {
   name: string
   schema: z.ZodRawShape
   codec: boolean
+  extensions: ExtensionsBase
   parse?: Parse2
-  extensions?: ExtensionsBase
 }
 
 // eslint-disable-next-line
 export namespace StoredVariant {
   export type EnableCodec<V extends StoredVariant> = Omit<V, `codec`> & {
     codec: true
+  }
+  export type AddExtensions<Extensions extends ExtensionsBase, V extends StoredVariant> = V & {
+    extensions: Extensions
   }
   export type GetType<V extends StoredVariant> = z.TypeOf<z.ZodObject<V[`schema`]>>
   export type GetZodSchema<V extends StoredVariant> = z.ZodObject<V[`schema`]>

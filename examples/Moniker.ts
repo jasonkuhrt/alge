@@ -13,10 +13,16 @@ export const Moniker = Alge.create(`Moniker`)
       // Strip leading @ on scope if given
       .transform(replace(/^@/, ``)),
   })
+  .extend({
+    /**
+     * https://regex101.com/r/F0YjpY/1
+     */
+    pattern: /^(?:@([a-z0-9-~][a-z0-9-._~]*)\/)([a-z0-9-~][a-z0-9-._~]*)$/,
+  })
   .codec({
     encode: (moniker) => `@${moniker.scope}/${moniker.name}`,
-    decode: (value) => {
-      const match = Patterns.Modern.local.exec(value)
+    decode: (value, extensions) => {
+      const match = extensions.pattern.exec(value)
       if (match === null) return null
       // eslint-disable-next-line
       return { name: match[1]!, scope: match[2]! }
@@ -25,31 +31,30 @@ export const Moniker = Alge.create(`Moniker`)
   .variant(`Global`, {
     name: z.string().nonempty(),
   })
+  .extend({
+    /**
+     * Regular expressions of allowed npm package names.
+     * Divided into modern and legacy. Npm package name rules changed once a long time ago.
+     */
+    pattern: {
+      /**
+       * https://regex101.com/r/F0YjpY/1
+       */
+      modern: /^([a-z0-9-~][a-z0-9-._~]*)$/,
+      /**
+       * Upper-case used to be allowed, example: https://www.npmjs.com/package/A.
+       *
+       * They are no longer allowed however: https://blog.npmjs.org/post/168978377570/new-package-moniker-rules.html.
+       */
+      legacy: /^([A-Za-z0-9-~][a-z0-9-._~]*)$/,
+    },
+  })
   .codec({
     encode: (moniker) => moniker.name,
-    decode: (value) => {
-      const match = Patterns.Modern.global.exec(value)
+    decode: (value, extensions) => {
+      const match = extensions.pattern.modern.exec(value)
       if (match === null) return null
       // eslint-disable-next-line
       return { name: match[1]! }
     },
   })
-
-//eslint-disable-next-line
-export namespace Patterns {
-  //eslint-disable-next-line
-  export namespace Modern {
-    /**
-     * https://regex101.com/r/F0YjpY/1
-     */
-    export const global = /^([a-z0-9-~][a-z0-9-._~]*)$/
-    export const local = /^(?:@([a-z0-9-~][a-z0-9-._~]*)\/)([a-z0-9-~][a-z0-9-._~]*)$/
-  }
-
-  /**
-   * Upper-case used to be allowed, example: https://www.npmjs.com/package/A.
-   *
-   * They are no longer allowed however: https://blog.npmjs.org/post/168978377570/new-package-moniker-rules.html.
-   */
-  export const legacy = /^(?:@([a-z0-9-~][a-z0-9-._~]*)\/)?([A-Za-z0-9-~][a-z0-9-._~]*)$/
-}

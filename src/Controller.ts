@@ -143,7 +143,9 @@ type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
          */
 
         decode: never
-      })
+      }) &
+      (V[`extensions`])
+
 // & (
 //   IsUnknown<Def[`parse`]> extends true
 //     ?

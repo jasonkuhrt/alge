@@ -1,4 +1,4 @@
-import { CodecParams, Initial, StoredVariant } from './Builder'
+import { CodecParams, ExtensionsBase, Initial, StoredVariant } from './Builder'
 import { Errors } from './Errors'
 import { is } from './helpers'
 import { r } from './lib/r'
@@ -169,8 +169,17 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
       currentVariant = {
         name,
         schema: z.object(schema),
+        extensions: {},
       }
       variants.push(currentVariant)
+      return api
+    },
+    extend: (extensions: ExtensionsBase) => {
+      if (!currentVariant) throw new Error(`Define variant first.`)
+      currentVariant.extensions = {
+        ...currentVariant.extensions,
+        ...extensions,
+      }
       return api
     },
     codec: (codecDef: CodecParams) => {
@@ -201,7 +210,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             is: (x: unknown) => is(x, symbol),
             decode: (value: string) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
-              const data = v.codec.decode(value)
+              const data = v.codec.decode(value, v.extensions)
               // TODO inspect the value for better rendering.
               if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
               return api.create(data)
@@ -210,6 +219,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
               if (!v.codec) throw new Error(`Codec not implemented.`)
               return v.codec.encode(data)
             },
+            ...v.extensions,
           }
           return api
         }),

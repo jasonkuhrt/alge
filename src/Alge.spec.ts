@@ -32,6 +32,35 @@ describe(`builder`, () => {
       expect(A.name).toBe($A)
     })
   })
+  describe(`.extend()`, () => {
+    it(`extends the ADT with properties`, () => {
+      const A = Alge.create($A)
+        .variant($M)
+        .extend({ foo: 1 as const })
+        .done()
+      expectType<1>(A.M.foo)
+      expect(A.M.foo).toBe(1)
+    })
+    // TODO make available to encoder as well.
+    it(`extensions are available to decoder`, () => {
+      const A = Alge.create($A)
+        .variant($M, {
+          m: z.string(),
+        })
+        .extend({ foo: 1 as const })
+        .codec({
+          encode: (data) => data.m,
+          decode: (value, extensions) => {
+            expectType<1>(extensions.foo)
+            expect(extensions).toEqual({ foo: 1 })
+            return { m: value }
+          },
+        })
+        .done()
+      expectType<1>(A.M.foo)
+      expect(A.M.foo).toBe(1)
+    })
+  })
   describe(`.codec()`, () => {
     it(`if not defined then variant API codec methods not available`, () => {
       expectType<never>(A.M.encode)
