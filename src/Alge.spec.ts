@@ -46,7 +46,7 @@ describe(`builder`, () => {
         .variant($M, { m: z.string() })
         .codec({
           encode: (data) => data.m,
-          decode: (data) => ({ m: data }),
+          decode: (data) => (data === `m` ? { m: data } : null),
         })
         .done()
 
@@ -54,6 +54,9 @@ describe(`builder`, () => {
 
       expect(A.M.encode(m)).toEqual(`m`)
       expect(A.M.decode(`m`)).toEqual(m)
+      expect(() => A.M.decode(``)).toThrowErrorMatchingInlineSnapshot(
+        `"Failed to decode value \`\` into a A."`
+      )
     })
     it(`cannot define codec multiple times in the chain`, () => {
       // eslint-disable-next-line

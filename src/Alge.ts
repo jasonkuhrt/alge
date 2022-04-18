@@ -199,9 +199,12 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             //eslint-disable-next-line
             is$: (x: unknown) => is(x, symbol),
             is: (x: unknown) => is(x, symbol),
-            decode: (data: string) => {
+            decode: (value: string) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
-              return api.create(v.codec.decode(data))
+              const data = v.codec.decode(value)
+              // TODO inspect the value for better rendering.
+              if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
+              return api.create(data)
             },
             encode: (data: object) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)

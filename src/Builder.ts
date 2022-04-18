@@ -62,7 +62,7 @@ export interface CodecParams<V extends StoredVariant = StoredVariant> {
 
 export type Encoder<V extends StoredVariant> = (decodedData: StoredVariant.GetType<V>) => string
 
-export type Decoder<V extends StoredVariant> = (encodedData: string) => GetConstructorInput<V>
+export type Decoder<V extends StoredVariant> = (encodedData: string) => null | GetConstructorInput<V>
 
 /**
  * The builder API when it is a state of having at least one variant defined.
