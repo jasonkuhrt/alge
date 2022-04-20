@@ -68,14 +68,18 @@ export interface CodecParams<V extends StoredVariant = StoredVariant> {
   decode: DecoderDefinition<V>
 }
 
-export type Encoder<V extends StoredVariant> = (decodedData: StoredVariant.GetType<V>) => string
+export type Encoder<V extends StoredVariant> = (variant: StoredVariant.GetType<V>) => string
+
+export type ADTEncoder<Vs extends StoredVariants> = (adt: StoredVariants.Union<Vs>) => string
 
 export type DecoderDefinition<V extends StoredVariant> = (
   encodedData: string,
   extensions: V[`extensions`]
 ) => null | GetConstructorInput<V>
 
-export type Decoder<V extends StoredVariant> = (encodedData: string) => null | GetConstructorInput<V>
+export type Decoder<V extends StoredVariant> = (value: string) => null | StoredVariant.GetType<V>
+
+export type ADTDecoder<Vs extends StoredVariants> = (value: string) => null | StoredVariants.Union<Vs>
 
 /**
  * The builder API when it is a state of having at least one variant defined.
@@ -140,7 +144,23 @@ export type StoredVariants = [StoredVariant, ...StoredVariant[]]
 // eslint-disable-next-line
 export namespace StoredVariants {
   export type ZodUnion<Vs extends StoredVariants> = z.ZodUnion<ToZodObjects<Vs>>
+
   export type Union<Vs extends StoredVariants> = z.TypeOf<ZodUnion<Vs>>
+
+  export type IsAllHaveCodec<Vs extends StoredVariants> = {
+    // @ts-expect-error TODO
+    [I in keyof Vs]: Vs[I][`codec`] extends true ? true : false
+  } extends [true, ...true[]]
+    ? true
+    : false
+
+  export type IsAllHaveParse<Vs extends StoredVariants> = {
+    // @ts-expect-error adf
+    [K in keyof Vs]: IsUnknown<Vs[K][1][`parse`]> extends true ? `missing` : never
+  } extends [never, ...never[]]
+    ? true
+    : false
+
   type ToZodObjects<Vs extends StoredVariants> = {
     // @ts-expect-error todo
     [Index in keyof Vs]: z.ZodObject<Vs[Index][`schema`]>

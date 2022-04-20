@@ -58,3 +58,4 @@ export const Moniker = Alge.create(`Moniker`)
       return { name: match[1]! }
     },
   })
+  .done()

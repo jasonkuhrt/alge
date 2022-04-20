@@ -1,5 +1,15 @@
-import { Decoder, Encoder, Parse2, Parse2OrThrow, StoredADT, StoredVariant, StoredVariants } from './Builder'
-import { IsUnknown, OmitRequired } from './lib/utils'
+import {
+  ADTDecoder,
+  ADTEncoder,
+  Decoder,
+  Encoder,
+  Parse2,
+  Parse2OrThrow,
+  StoredADT,
+  StoredVariant,
+  StoredVariants,
+} from './Builder'
+import { OmitRequired } from './lib/utils'
 import { z } from './lib/z'
 
 export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
@@ -14,23 +24,38 @@ export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
  * // A.<...>  <-- Methods here
  * ```
  */
+// prettier-ignore
 type ADTMethods<Vs extends StoredVariants> = {
   schema: StoredVariants.ZodUnion<Vs>
-} & (IsAllMembersHaveParse<Vs> extends true
-  ? {
-      parse: Parse2<StoredVariants.Union<Vs>>
-      parseOrThrow: Parse2OrThrow<StoredVariants.Union<Vs>>
-    }
-  : // TODO
-    // eslint-disable-next-line
-    {})
+}
+  & (
+   StoredVariants.IsAllHaveCodec<Vs> extends true
+   ? {
+     encode: ADTEncoder<Vs>
+     decode: ADTDecoder<Vs>
+   }
+   : {
+     /**
+      * TODO Useful JSDoc about why this is never
+      */
+     encode: never
+     /**
+      * TODO Useful JSDoc about why this is never
+      */
+     decode: never
+   }
+  )
 
-type IsAllMembersHaveParse<Vs extends StoredVariants> = {
-  // @ts-expect-error adf
-  [K in keyof Vs]: IsUnknown<Vs[K][1][`parse`]> extends true ? `missing` : never
-} extends [never, ...never[]]
-  ? true
-  : false
+  & (
+    StoredVariants.IsAllHaveParse<Vs> extends true
+    ? {
+        parse: Parse2<StoredVariants.Union<Vs>>
+        parseOrThrow: Parse2OrThrow<StoredVariants.Union<Vs>>
+      }
+    : // TODO
+      // eslint-disable-next-line
+      {}
+  )
 
 /**
  * build up the API for each variant defined in the ADT:

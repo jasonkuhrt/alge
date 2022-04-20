@@ -12,6 +12,9 @@ type $M = typeof $M
 
 const A = Alge.create($A).variant($M, { m: z.string() }).variant($N, { n: z.number() }).done()
 
+const m = A.M.create({ m: `m` })
+const n = A.N.create({ n: 1 })
+
 describe(`builder`, () => {
   describe(`.create()`, () => {
     describe(`errors`, () => {
@@ -82,10 +85,15 @@ describe(`builder`, () => {
       const m = A.M.create({ m: `m` })
 
       expect(A.M.encode(m)).toEqual(`m`)
+
+      const decodeResult = A.M.decode(`m`)
+      expectType<null | z.infer<typeof A.M.schema>>(decodeResult)
       expect(A.M.decode(`m`)).toEqual(m)
-      expect(() => A.M.decode(``)).toThrowErrorMatchingInlineSnapshot(
-        `"Failed to decode value \`\` into a A."`
-      )
+      expect(A.M.decode(``)).toEqual(null)
+      // TODO this should be .decodeOrThrow
+      // expect(() => A.M.decode(``)).toThrowErrorMatchingInlineSnapshot(
+      //   `"Failed to decode value \`\` into a A."`
+      // )
     })
     it(`cannot define codec multiple times in the chain`, () => {
       // eslint-disable-next-line
@@ -106,6 +114,51 @@ describe(`builder`, () => {
           decode: (data: any) => ({ m: data }),
         })
       ).toThrowErrorMatchingInlineSnapshot(`"Codec already defined."`)
+    })
+    describe(`ADT API`, () => {
+      it(`If defined for every variant then an aggregate codec is available on the ADT`, () => {
+        const A = Alge.create($A)
+          .variant($M, { m: z.string() })
+          .codec({
+            encode: (data) => data.m,
+            decode: (data) => (data === `m` ? { m: data } : null),
+          })
+          .variant($N, { n: z.number() })
+          .codec({
+            encode: (data) => String(data.n),
+            decode: (data) => (data.match(/\d/) !== null ? { n: Number(data) } : null),
+          })
+          .done()
+
+        const m = A.M.create({ m: `m` })
+        const n = A.N.create({ n: 1 })
+
+        expectType<string>(A.encode(m))
+        expectType<string>(A.encode(n))
+        expect(A.encode).toBeDefined()
+        expect(A.encode(m)).toEqual(`m`)
+        expect(A.encode(n)).toEqual(`1`)
+
+        expectType<null | typeof m | typeof n>(A.decode(`m`))
+        expect(A.decode).toBeDefined()
+        expect(A.decode(`m`)).toEqual(m)
+        expect(A.decode(`1`)).toEqual(n)
+      })
+      it(`if not defined for every variant then the aggregate codec is not available with clear runtime and static time feedback about why.`, () => {
+        expectType<never>(A.encode)
+        // @ts-expect-error: codec not defined for every variant.
+        // eslint-disable-next-line
+        expect(() => A.encode(n)).toThrowErrorMatchingInlineSnapshot(
+          `"ADT level codec not available because some variants did not define a codec: M, N"`
+        )
+
+        expectType<never>(A.decode)
+        // @ts-expect-error: codec not defined for every variant.
+        // eslint-disable-next-line
+        expect(() => A.decode('m')).toThrowErrorMatchingInlineSnapshot(
+          `"ADT level codec not available because some variants did not define a codec: M, N"`
+        )
+      })
     })
   })
 

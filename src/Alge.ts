@@ -206,18 +206,20 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             }),
             symbol,
             //eslint-disable-next-line
-            is$: (x: unknown) => is(x, symbol),
-            is: (x: unknown) => is(x, symbol),
+            is$: (value: unknown) => is(value, symbol),
+            is: (value: unknown) => is(value, symbol),
             decode: (value: string) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
               const data = v.codec.decode(value, v.extensions)
+              // TODO orThrow variant
               // TODO inspect the value for better rendering.
-              if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
+              // if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
+              if (data === null) return null
               return api.create(data)
             },
-            encode: (data: object) => {
+            encode: (variant: object) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
-              return v.codec.encode(data)
+              return v.codec.encode(variant)
             },
             ...v.extensions,
           }
@@ -228,7 +230,6 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
 
       return {
         name,
-        ...variantApis,
         schema:
           variants.length >= 2
             ? z.union([
@@ -242,6 +243,37 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             ? // eslint-disable-next-line
               variants[0]!.schema
             : null,
+        encode: (variant: object) => {
+          const variantsMissingCodecDef = variants.filter((v) => v.codec === undefined)
+          if (variantsMissingCodecDef.length)
+            throw new Error(
+              `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
+                .map(r.prop(`name`))
+                .join(`, `)}`
+            )
+          // TODO
+          // eslint-disable-next-line
+          const variantApi = variantApis[(variant as any)._tag]
+          // TODO
+          // eslint-disable-next-line
+          if (!variantApi) throw new Error(`Failed to find Variant tagged ${(variant as any)._tag}`)
+          return variantApi.encode(variant)
+        },
+        decode: (value: string) => {
+          const variantsMissingCodecDef = variants.filter((v) => v.codec === undefined)
+          if (variantsMissingCodecDef.length)
+            throw new Error(
+              `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
+                .map(r.prop(`name`))
+                .join(`, `)}`
+            )
+          for (const variantApi of Object.values(variantApis)) {
+            const result = variantApi.decode(value)
+            if (result) return result
+          }
+          return null
+        },
+        ...variantApis,
       }
     },
   }
