@@ -1,0 +1,20 @@
+name: Setup
+inputs:
+  node-version:
+    type: string
+    require: false
+    default: 16.x
+  install-deps:
+    type: boolean
+    require: false
+    default: true
+runs:
+  using: composite
+  steps:
+    - name: Use Node.js ${{inputs.node-version}}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{inputs.node-version}}
+        cache: 'yarn'
+    - uses: prisma/action-node-cache-dependencies@main
+      if: inputs.install-deps

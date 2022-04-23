@@ -6,44 +6,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'yarn'
-      - uses: prisma/action-node-cache-dependencies@main
+      - uses: ./.github/actions/setup
   prettier:
     needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: yarn
-      - uses: prisma/action-node-cache-dependencies@main
+      - uses: ./.github/actions/setup
       - run: yarn format:check:prettier
   eslint:
     needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: yarn
-      - uses: prisma/action-node-cache-dependencies@main
+      - uses: ./.github/actions/setup
       - run: yarn lint:check
   type-check:
     needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: yarn
-      - uses: prisma/action-node-cache-dependencies@main
+      - uses: ./.github/actions/setup
       - run: yarn type-check
   test:
     needs: setup

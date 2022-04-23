@@ -10,11 +10,8 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{matrix.node-version}}
-        uses: actions/setup-node@v3
+      - uses: ./.github/actions/setup
         with:
           node-version: ${{matrix.node-version}}
-          cache: yarn
-      - uses: prisma/action-node-cache-dependencies@main
       - run: yarn build
       - run: yarn test
