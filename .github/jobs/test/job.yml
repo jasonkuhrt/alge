@@ -1,0 +1,20 @@
+name: test
+on:
+  - workflow_call
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        node-version: [14.x, 16.x]
+    runs-on: ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{matrix.node-version}}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version}}
+          cache: yarn
+      - uses: prisma/action-node-cache-dependencies@main
+      - run: yarn build
+      - run: yarn test
