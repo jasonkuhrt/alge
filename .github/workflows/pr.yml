@@ -55,8 +55,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        # Remove macos because node_modules cache job currently prevents from OS binaries being installed
-        os: ['ubuntu-latest', 'windows-latest']
+        os: ['ubuntu-latest']
         node-version: [14.x, 16.x]
     runs-on: ${{ matrix.os }}
     steps:
