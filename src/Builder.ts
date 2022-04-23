@@ -79,7 +79,11 @@ export type DecoderDefinition<V extends StoredVariant> = (
 
 export type Decoder<V extends StoredVariant> = (value: string) => null | StoredVariant.GetType<V>
 
+export type DecoderThatThrows<V extends StoredVariant> = (value: string) => StoredVariant.GetType<V>
+
 export type ADTDecoder<Vs extends StoredVariants> = (value: string) => null | StoredVariants.Union<Vs>
+
+export type ADTDecoderThatThrows<Vs extends StoredVariants> = (value: string) => StoredVariants.Union<Vs>
 
 /**
  * The builder API when it is a state of having at least one variant defined.
