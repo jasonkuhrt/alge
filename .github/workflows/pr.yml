@@ -5,23 +5,27 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
   prettier:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
       - run: yarn format:check:prettier
   eslint:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
       - run: yarn lint:check
   type-check:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
       - run: yarn type-check
   test:
