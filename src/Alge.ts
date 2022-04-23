@@ -1,4 +1,4 @@
-import { Initial } from './Builder'
+import { CodecParams, ExtensionsBase, Initial, StoredVariant } from './Builder'
 import { Errors } from './Errors'
 import { is } from './helpers'
 import { r } from './lib/r'
@@ -151,19 +151,41 @@ export const createCreate = <ADTMember extends VariantBase>(
 //   _tag: z.ZodLiteral<string>
 // }>
 
+type SomeVariantDef = Omit<StoredVariant, `codec` | `schema`> & {
+  codec?: CodecParams
+  schema: z.SomeZodObject
+}
+
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
 // @ts-expect-error empty init tuple
 export const create = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
-  const variants: {
-    name: string
-    schema: z.SomeZodObject
-  }[] = []
+  let currentVariant: null | SomeVariantDef = null
+  const variants: SomeVariantDef[] = []
 
   const api = {
     variant: (name: string, schema: Record<string, z.ZodType<unknown>>) => {
-      variants.push({ name, schema: z.object(schema) })
+      currentVariant = {
+        name,
+        schema: z.object(schema),
+        extensions: {},
+      }
+      variants.push(currentVariant)
+      return api
+    },
+    extend: (extensions: ExtensionsBase) => {
+      if (!currentVariant) throw new Error(`Define variant first.`)
+      currentVariant.extensions = {
+        ...currentVariant.extensions,
+        ...extensions,
+      }
+      return api
+    },
+    codec: (codecDef: CodecParams) => {
+      if (!currentVariant) throw new Error(`Define variant first.`)
+      if (currentVariant.codec) throw new Error(`Codec already defined.`)
+      currentVariant.codec = codecDef
       return api
     },
     done: () => {
@@ -184,8 +206,22 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             }),
             symbol,
             //eslint-disable-next-line
-            is$: (x: unknown) => is(x, symbol),
-            is: (x: unknown) => is(x, symbol),
+            is$: (value: unknown) => is(value, symbol),
+            is: (value: unknown) => is(value, symbol),
+            decode: (value: string) => {
+              if (!v.codec) throw new Error(`Codec not implemented.`)
+              const data = v.codec.decode(value, v.extensions)
+              // TODO orThrow variant
+              // TODO inspect the value for better rendering.
+              // if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
+              if (data === null) return null
+              return api.create(data)
+            },
+            encode: (variant: object) => {
+              if (!v.codec) throw new Error(`Codec not implemented.`)
+              return v.codec.encode(variant)
+            },
+            ...v.extensions,
           }
           return api
         }),
@@ -194,8 +230,50 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
 
       return {
         name,
+        schema:
+          variants.length >= 2
+            ? z.union([
+                // eslint-disable-next-line
+                variants[0]!.schema,
+                // eslint-disable-next-line
+                variants[1]!.schema,
+                ...variants.slice(2).map((_) => _.schema),
+              ])
+            : variants.length === 1
+            ? // eslint-disable-next-line
+              variants[0]!.schema
+            : null,
+        encode: (variant: object) => {
+          const variantsMissingCodecDef = variants.filter((v) => v.codec === undefined)
+          if (variantsMissingCodecDef.length)
+            throw new Error(
+              `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
+                .map(r.prop(`name`))
+                .join(`, `)}`
+            )
+          // TODO
+          // eslint-disable-next-line
+          const variantApi = variantApis[(variant as any)._tag]
+          // TODO
+          // eslint-disable-next-line
+          if (!variantApi) throw new Error(`Failed to find Variant tagged ${(variant as any)._tag}`)
+          return variantApi.encode(variant)
+        },
+        decode: (value: string) => {
+          const variantsMissingCodecDef = variants.filter((v) => v.codec === undefined)
+          if (variantsMissingCodecDef.length)
+            throw new Error(
+              `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
+                .map(r.prop(`name`))
+                .join(`, `)}`
+            )
+          for (const variantApi of Object.values(variantApis)) {
+            const result = variantApi.decode(value)
+            if (result) return result
+          }
+          return null
+        },
         ...variantApis,
-        // schema: z.union([variants[0]![1]!, variants[1]![1]!, ...variants.slice(2).map((_) => _[1]!)]),
       }
     },
   }
