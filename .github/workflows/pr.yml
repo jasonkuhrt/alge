@@ -1,8 +1,6 @@
 name: pr
-
 on:
   - pull_request
-
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -13,7 +11,6 @@ jobs:
           node-version: 16
           cache: 'yarn'
       - uses: prisma/action-node-cache-dependencies@main
-
   prettier:
     needs: setup
     runs-on: ubuntu-latest
@@ -25,7 +22,6 @@ jobs:
           cache: yarn
       - uses: prisma/action-node-cache-dependencies@main
       - run: yarn format:check:prettier
-
   eslint:
     needs: setup
     runs-on: ubuntu-latest
@@ -37,7 +33,6 @@ jobs:
           cache: yarn
       - uses: prisma/action-node-cache-dependencies@main
       - run: yarn lint:check
-
   type-check:
     needs: setup
     runs-on: ubuntu-latest
@@ -50,21 +45,6 @@ jobs:
           cache: yarn
       - uses: prisma/action-node-cache-dependencies@main
       - run: yarn type-check
-
   test:
     needs: setup
-    strategy:
-      matrix:
-        os: ['ubuntu-latest']
-        node-version: [14.x, 16.x]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: yarn
-      - uses: prisma/action-node-cache-dependencies@main
-      - run: yarn build
-      - run: yarn test
+    uses: ./.github/jobs/test/job.yml
