@@ -65,6 +65,13 @@ describe(`builder`, () => {
     })
   })
   describe(`.codec()`, () => {
+    const B = Alge.create($A)
+      .variant($M, { m: z.string() })
+      .codec({
+        encode: (data) => data.m,
+        decode: (data) => (data === `m` ? { m: data } : null),
+      })
+      .done()
     it(`if not defined then variant API codec methods not available`, () => {
       expectType<never>(A.M.encode)
       expectType<never>(A.M.decode)
@@ -74,26 +81,18 @@ describe(`builder`, () => {
       expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
     })
     it(`defines an encode and decode method`, () => {
-      const A = Alge.create($A)
-        .variant($M, { m: z.string() })
-        .codec({
-          encode: (data) => data.m,
-          decode: (data) => (data === `m` ? { m: data } : null),
-        })
-        .done()
+      const m = B.M.create({ m: `m` })
+      expect(B.M.encode(m)).toEqual(`m`)
 
-      const m = A.M.create({ m: `m` })
-
-      expect(A.M.encode(m)).toEqual(`m`)
-
-      const decodeResult = A.M.decode(`m`)
+      const decodeResult = B.M.decode(`m`)
       expectType<null | z.infer<typeof A.M.schema>>(decodeResult)
-      expect(A.M.decode(`m`)).toEqual(m)
-      expect(A.M.decode(``)).toEqual(null)
-      // TODO this should be .decodeOrThrow
-      // expect(() => A.M.decode(``)).toThrowErrorMatchingInlineSnapshot(
-      //   `"Failed to decode value \`\` into a A."`
-      // )
+      expect(B.M.decode(`m`)).toEqual(m)
+      expect(B.M.decode(``)).toEqual(null)
+    })
+    it(`.decodeOrThrow throws if decoding fails`, () => {
+      expect(() => B.M.decodeOrThrow(``)).toThrowErrorMatchingInlineSnapshot(
+        `"Failed to decode value \`\` into a A."`
+      )
     })
     it(`cannot define codec multiple times in the chain`, () => {
       // eslint-disable-next-line

@@ -2,6 +2,7 @@ import {
   ADTDecoder,
   ADTEncoder,
   Decoder,
+  DecoderThatThrows,
   Encoder,
   Parse2,
   Parse2OrThrow,
@@ -129,6 +130,12 @@ type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
          * Deserialize a string representation of this variant.
          */
         decode: Decoder<V>
+        /**
+         * Deserialize a string representation of this variant.
+         * @throws Error if decode fails.
+         */
+        decodeOrThrow: DecoderThatThrows<V>
+
       }
     : {
         /**

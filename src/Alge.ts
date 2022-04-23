@@ -211,11 +211,13 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             decode: (value: string) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
               const data = v.codec.decode(value, v.extensions)
-              // TODO orThrow variant
-              // TODO inspect the value for better rendering.
-              // if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
               if (data === null) return null
               return api.create(data)
+            },
+            decodeOrThrow: (value: string) => {
+              const data = api.decode(value)
+              if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
+              return data
             },
             encode: (variant: object) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
