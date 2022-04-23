@@ -156,7 +156,7 @@ export namespace StoredVariants {
 
   export type IsAllHaveParse<Vs extends StoredVariants> = {
     // @ts-expect-error adf
-    [K in keyof Vs]: IsUnknown<Vs[K][1][`parse`]> extends true ? `missing` : never
+    [K in keyof Vs]: unknown extends Vs[K][1][`parse`] ? `missing` : never
   } extends [never, ...never[]]
     ? true
     : false

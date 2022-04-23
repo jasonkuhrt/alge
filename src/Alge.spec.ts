@@ -249,8 +249,6 @@ describe(`Controller`, () => {
     })
 
     it(`.is() is a type guard / predicate function accepting only variants of the ADT`, () => {
-      const m = A.M.create({ m: `x` })
-      const n = A.N.create({ n: 1 })
       const mn = Math.random() > 0.5 ? m : n
 
       // @ts-expect-error: value is not an ADT variant.
@@ -269,7 +267,6 @@ describe(`Controller`, () => {
     })
 
     it(`.is$() is a type guard / predicate function accepting any value`, () => {
-      const m = A.M.create({ m: `x` })
       const mMaybe = Math.random() > 0.5 ? m : false
 
       // Statically fine, any value may be checked here.
