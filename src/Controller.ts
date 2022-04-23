@@ -7,7 +7,7 @@ import {
 } from './Builder'
 import { IsUnknown, TupleToObject } from './lib/utils'
 import { z } from './lib/z'
-import { ZodRawShape, ZodSchema } from 'zod'
+import { ZodRawShape } from 'zod'
 
 export type GetADTMethods<Vs extends StoredVariantsBase> = {
   schema: GetADTSchema<Vs>
@@ -106,13 +106,6 @@ type OmitRequired<T> = {
   [K in keyof T as undefined extends T[K] ? never : K]: T[K]
 }
 
-type y = OmitRequired<{ a: 1; b?: 2 }>
-
 type GetInput<Schema extends ZodRawShape> = z.TypeOf<z.Omit<z.ZodObject<Schema>, { _tag: true }>>
 
 type GetOutput<Schema extends ZodRawShape> = z.TypeOf<z.ZodObject<Schema>>
-
-type SomeRecord = Record<string, unknown>
-
-type HasInput = keyof {}
-type x = never extends never ? `a` : `b`
