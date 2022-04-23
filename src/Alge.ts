@@ -230,7 +230,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
         r.indexBy(r.prop(`name`))
       )
 
-      return {
+      const api = {
         name,
         schema:
           variants.length >= 2
@@ -275,8 +275,16 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
           }
           return null
         },
+        decodeOrThrow: (value: string) => {
+          const data = api.decode(value)
+          if (data === null)
+            throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
+          return data
+        },
         ...variantApis,
       }
+
+      return api
     },
   }
 

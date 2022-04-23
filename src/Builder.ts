@@ -83,6 +83,8 @@ export type DecoderThatThrows<V extends StoredVariant> = (value: string) => Stor
 
 export type ADTDecoder<Vs extends StoredVariants> = (value: string) => null | StoredVariants.Union<Vs>
 
+export type ADTDecoderThatThrows<Vs extends StoredVariants> = (value: string) => StoredVariants.Union<Vs>
+
 /**
  * The builder API when it is a state of having at least one variant defined.
  * At this point the ADT can be marked as done.

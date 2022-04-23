@@ -74,11 +74,15 @@ describe(`builder`, () => {
       .done()
     it(`if not defined then variant API codec methods not available`, () => {
       expectType<never>(A.M.encode)
-      expectType<never>(A.M.decode)
       //eslint-disable-next-line
       expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      expectType<never>(A.M.decode)
       //eslint-disable-next-line
       expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      expectType<never>(A.M.decodeOrThrow)
+      //prettier-ignore
+      //eslint-disable-next-line
+      expect(() => (A.M as any).decodeOrThrow()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
     })
     it(`defines an encode and decode method`, () => {
       const m = B.M.create({ m: `m` })
@@ -155,6 +159,12 @@ describe(`builder`, () => {
         // @ts-expect-error: codec not defined for every variant.
         // eslint-disable-next-line
         expect(() => A.decode('m')).toThrowErrorMatchingInlineSnapshot(
+          `"ADT level codec not available because some variants did not define a codec: M, N"`
+        )
+        expectType<never>(A.decodeOrThrow)
+        // @ts-expect-error: codec not defined for every variant.
+        // eslint-disable-next-line
+        expect(() => A.decodeOrThrow('m')).toThrowErrorMatchingInlineSnapshot(
           `"ADT level codec not available because some variants did not define a codec: M, N"`
         )
       })

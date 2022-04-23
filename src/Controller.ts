@@ -28,35 +28,34 @@ export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
 // prettier-ignore
 type ADTMethods<Vs extends StoredVariants> = {
   schema: StoredVariants.ZodUnion<Vs>
-}
-  & (
-   StoredVariants.IsAllHaveCodec<Vs> extends true
-   ? {
-     encode: ADTEncoder<Vs>
-     decode: ADTDecoder<Vs>
-   }
-   : {
-     /**
-      * TODO Useful JSDoc about why this is never
-      */
-     encode: never
-     /**
-      * TODO Useful JSDoc about why this is never
-      */
-     decode: never
-   }
-  )
-
-  & (
-    StoredVariants.IsAllHaveParse<Vs> extends true
+} & (StoredVariants.IsAllHaveCodec<Vs> extends true
+  ? {
+      encode: ADTEncoder<Vs>
+      decode: ADTDecoder<Vs>
+      decodeOrThrow: ADTDecoder<Vs>
+    }
+  : {
+      /**
+       * TODO Useful JSDoc about why this is never
+       */
+      encode: never
+      /**
+       * TODO Useful JSDoc about why this is never
+       */
+      decode: never
+      /**
+       * TODO Useful JSDoc about why this is never
+       */
+      decodeOrThrow: never
+    }) &
+  (StoredVariants.IsAllHaveParse<Vs> extends true
     ? {
         parse: Parse2<StoredVariants.Union<Vs>>
         parseOrThrow: Parse2OrThrow<StoredVariants.Union<Vs>>
       }
     : // TODO
       // eslint-disable-next-line
-      {}
-  )
+      {})
 
 /**
  * build up the API for each variant defined in the ADT:
@@ -173,8 +172,25 @@ type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
          *  })
          * ```
          */
-
         decode: never
+        /**
+         * This method is not available. You have not defined a codec on this variant.
+         *
+         * Define a codec on your variant like this:
+         *
+         * ```ts
+         * Alge
+         *  .create('Foo')
+         *  .variant('Bar', {
+         *    qux: z.string(),
+         *  })
+         *  .codec({
+         *    encode: (data) => data.qux,
+         *    decode: (data) => ({ qux: data }),
+         *  })
+         * ```
+         */
+        decodeOrThrow: never
       }) &
       (V[`extensions`])
 
