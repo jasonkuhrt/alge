@@ -220,7 +220,7 @@ describe(`builder`, () => {
   })
 })
 
-describe(`.Infer`, () => {
+describe(`.Infer<>`, () => {
   it(`Can infer the ADT types from the runtime`, () => {
     expectType<Alge.Infer<typeof A>>({
       [`*`]: { _tag: `M`, m: `m` },
