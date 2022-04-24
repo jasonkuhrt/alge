@@ -1484,14 +1484,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/semver-utils@npm:1":
+"@types/semver-utils@npm:1.1.1":
   version: 1.1.1
   resolution: "@types/semver-utils@npm:1.1.1"
   checksum: fd53e2ef9712e20c69caacc608b42050e815573d9755afe344299b8131a14978e35a3b56a13a9bdb58d9a0025e940672d27ddd8d77c67004535af0e991baeb12
   languageName: node
   linkType: hard
 
-"@types/semver@npm:7":
+"@types/semver@npm:7.3.9":
   version: 7.3.9
   resolution: "@types/semver@npm:7.3.9"
   checksum: 60bfcfdfa7f937be2c6f4b37ddb6714fb0f27b05fe4cbdfdd596a97d35ed95d13ee410efdd88e72a66449d0384220bf20055ab7d6b5df10de4990fbd20e5cbe0
@@ -1786,8 +1786,8 @@ __metadata:
     "@tsconfig/recommended": 1.0.1
     "@types/jest": 27.4.1
     "@types/node": 17.0.23
-    "@types/semver": 7
-    "@types/semver-utils": 1
+    "@types/semver": 7.3.9
+    "@types/semver-utils": 1.1.1
     "@typescript-eslint/eslint-plugin": 5.20.0
     "@typescript-eslint/parser": 5.20.0
     dripip: 0.10.0
