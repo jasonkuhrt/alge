@@ -4,7 +4,6 @@
 
 import { Controller, GetConstructorInput } from './Controller'
 import { z } from './lib/z'
-import { SomeZodObject } from 'zod'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>
 
