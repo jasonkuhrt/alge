@@ -1484,6 +1484,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/semver-utils@npm:1":
+  version: 1.1.1
+  resolution: "@types/semver-utils@npm:1.1.1"
+  checksum: fd53e2ef9712e20c69caacc608b42050e815573d9755afe344299b8131a14978e35a3b56a13a9bdb58d9a0025e940672d27ddd8d77c67004535af0e991baeb12
+  languageName: node
+  linkType: hard
+
+"@types/semver@npm:^7":
+  version: 7.3.9
+  resolution: "@types/semver@npm:7.3.9"
+  checksum: 60bfcfdfa7f937be2c6f4b37ddb6714fb0f27b05fe4cbdfdd596a97d35ed95d13ee410efdd88e72a66449d0384220bf20055ab7d6b5df10de4990fbd20e5cbe0
+  languageName: node
+  linkType: hard
+
 "@types/stack-utils@npm:^2.0.0":
   version: 2.0.1
   resolution: "@types/stack-utils@npm:2.0.1"
@@ -1772,6 +1786,8 @@ __metadata:
     "@tsconfig/recommended": 1.0.1
     "@types/jest": 27.4.1
     "@types/node": 17.0.23
+    "@types/semver": ^7
+    "@types/semver-utils": 1
     "@typescript-eslint/eslint-plugin": 5.20.0
     "@typescript-eslint/parser": 5.20.0
     dripip: 0.10.0
@@ -1792,6 +1808,8 @@ __metadata:
     markdown-toc: 1.2.0
     prettier: 2.6.2
     remeda: ^0.0.32
+    semver: ^7.3.7
+    semver-utils: ^1.1.4
     ts-jest: 27.1.4
     ts-node: 10.7.0
     ts-patch: 2.0.1
@@ -6741,6 +6759,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"semver-utils@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "semver-utils@npm:1.1.4"
+  checksum: 93fd955a30f5bdf532163d94981aa03dfbaddf29dad6388415b264c95d7046a6b47d947c6e3e37c0d7867ed3f024aa6e50fc308c9487378354e9d300c9dd68b6
+  languageName: node
+  linkType: hard
+
 "semver@npm:2 || 3 || 4 || 5":
   version: 5.7.1
   resolution: "semver@npm:5.7.1"
@@ -6750,7 +6775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.x, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5":
+"semver@npm:7.x, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7":
   version: 7.3.7
   resolution: "semver@npm:7.3.7"
   dependencies:

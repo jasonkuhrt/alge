@@ -210,8 +210,12 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             is: (value: unknown) => is(value, symbol),
             decode: (value: string) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
-              const data = v.codec.decode(value, v.extensions)
+              // TODO
+              // eslint-disable-next-line
+              const data = v.codec.decode(value, { ...v.extensions, schema: v.schema as any, name: v.name })
               if (data === null) return null
+              // TODO
+              // eslint-disable-next-line
               return api.create(data)
             },
             decodeOrThrow: (value: string) => {

@@ -74,8 +74,10 @@ export type ADTEncoder<Vs extends StoredVariants> = (adt: StoredVariants.Union<V
 
 export type DecoderDefinition<V extends StoredVariant> = (
   encodedData: string,
-  extensions: V[`extensions`]
-) => null | GetConstructorInput<V>
+  extensions: V[`extensions`] & { schema: StoredVariant.GetZodSchema<V>; name: V[`name`] }
+  // TODO
+  // eslint-disable-next-line
+) => any // null | GetConstructorInput<V>
 
 export type Decoder<V extends StoredVariant> = (value: string) => null | StoredVariant.GetType<V>
 
