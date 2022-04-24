@@ -2,9 +2,8 @@ import { ExtensionsBase, Initial, StoredVariant } from './Builder'
 import { Errors } from './Errors'
 import { is } from './helpers'
 import { r } from './lib/r'
-import { code, isEmpty } from './lib/utils'
+import { code, isEmpty, TupleToObject } from './lib/utils'
 import { z } from './lib/z'
-import { SomeZodObject } from 'zod'
 
 type SomeVariant = object
 
@@ -17,15 +16,24 @@ type SomeCodecDefinition = {
 
 type SomeEncoderDefinition = (variant: SomeVariant) => string
 
+type SomeVariantSchema = z.SomeZodObject
+
 type SomeDecoderDefinition = (
   encodedData: string,
-  extensions: { schema: SomeZodObject; name: string; [key: string]: unknown }
+  extensions: { schema: SomeVariantSchema; name: string; [key: string]: unknown }
 ) => null | SomeVariantConstructorInput
 
-type SomeVariantDefinition = Omit<StoredVariant, `codec` | `schema`> & {
+type SomeVariantDefinition = Omit<StoredVariant, 'codec' | 'schema'> & {
   codec?: SomeCodecDefinition
   schema: z.SomeZodObject
 }
+
+type SomeADT = {
+  name: string
+  schema: SomeZodADT
+}
+
+type SomeZodADT = z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
 
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
@@ -166,11 +174,6 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
   return api as any
 }
 
-// export type Infer<T extends { schema: z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]> }> = {
-//   `*`: z.infer<T[`schema`]>
-//   // TODO members
-// }
-
 const createEmptyVariantsError = (params: { name: string }) =>
   Errors.UserMistake.create(
     `No variants defined for ADT ${code(params.name)} but ${code(
@@ -179,3 +182,18 @@ const createEmptyVariantsError = (params: { name: string }) =>
       `.done()`
     )} after your ADT has at least one variant defined (via ${code(`.variant()`)}).`
   )
+
+export type Infer<ADT extends SomeADT> = {
+  // eslint-ignore-next-line
+  '*': z.infer<ADT['schema']>
+} & TupleToObject<SchemaToTuple<ADT['schema']['_def']['options']>[number]>
+
+export type SchemaToTuple<Schemas extends [z.SomeZodObject, ...z.SomeZodObject[]]> = {
+  [Index in keyof Schemas]: [
+    // @ts-expect-error TODO
+    // z.TypeOf<ReturnType<Schemas[Index]['_def']['shape']>['_tag']>,
+    z.TypeOf<Schemas[Index]>['_tag'],
+    // @ts-expect-error TODO
+    z.TypeOf<Schemas[Index]>
+  ]
+}

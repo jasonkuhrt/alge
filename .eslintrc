@@ -42,6 +42,7 @@
     "codegen/codegen": "error",
     // note you must disable the base rule as it can report incorrect errors
     "quotes": "off",
+    "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/quotes": ["warn", "backtick"],
     "tsdoc/syntax": "warn",
     "simple-import-sort/imports": [
