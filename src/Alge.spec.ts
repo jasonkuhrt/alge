@@ -72,32 +72,7 @@ describe(`builder`, () => {
         decode: (data) => (data === `m` ? { m: data } : null),
       })
       .done()
-    it(`if not defined then variant API codec methods not available`, () => {
-      expectType<never>(A.M.encode)
-      //eslint-disable-next-line
-      expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
-      expectType<never>(A.M.decode)
-      //eslint-disable-next-line
-      expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
-      expectType<never>(A.M.decodeOrThrow)
-      //prettier-ignore
-      //eslint-disable-next-line
-      expect(() => (A.M as any).decodeOrThrow()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
-    })
-    it(`defines an encode and decode method`, () => {
-      const m = B.M.create({ m: `m` })
-      expect(B.M.encode(m)).toEqual(`m`)
-
-      const decodeResult = B.M.decode(`m`)
-      expectType<null | z.infer<typeof A.M.schema>>(decodeResult)
-      expect(B.M.decode(`m`)).toEqual(m)
-      expect(B.M.decode(``)).toEqual(null)
-    })
-    it(`.decodeOrThrow throws if decoding fails`, () => {
-      expect(() => B.M.decodeOrThrow(``)).toThrowErrorMatchingInlineSnapshot(
-        `"Failed to decode value \`\` into a A."`
-      )
-    })
+    const m = B.M.create({ m: `m` })
     it(`cannot define codec multiple times in the chain`, () => {
       // eslint-disable-next-line
       const _A = Alge.create($A)
@@ -118,6 +93,72 @@ describe(`builder`, () => {
         })
       ).toThrowErrorMatchingInlineSnapshot(`"Codec already defined."`)
     })
+    describe(`Variant API`, () => {
+      it(`if not defined then variant API codec methods not available`, () => {
+        expectType<never>(A.M.encode)
+        //eslint-disable-next-line
+        expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+        expectType<never>(A.M.decode)
+        //eslint-disable-next-line
+        expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+        expectType<never>(A.M.decodeOrThrow)
+        //prettier-ignore
+        //eslint-disable-next-line
+        expect(() => (A.M as any).decodeOrThrow()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      })
+      describe(`.decode()`, () => {
+        it(`converts string into data or null on failure`, () => {
+          const decodeResult = B.M.decode(`m`)
+          expectType<null | z.infer<typeof A.M.schema>>(decodeResult)
+          expect(B.M.decode(`m`)).toEqual(m)
+          expect(B.M.decode(``)).toEqual(null)
+        })
+        it(`definition has access to the ADT schema`, () => {
+          const A = Alge.create(`A`)
+            .variant(`M`, { m: z.string() })
+            .codec({
+              encode: (data) => data.m,
+              decode: (value, { schema }) => {
+                expectType<typeof A.M.schema>(schema)
+                return schema.parse({ m: value, _tag: `M` })
+              },
+            })
+            .done()
+          expect(A.M.decode(`m`)).toEqual(A.M.create({ m: `m` }))
+        })
+        it(`definition has access to the ADT name`, () => {
+          const A = Alge.create(`A`)
+            .variant(`M`, { m: z.string() })
+            .codec({
+              encode: (data) => data.m,
+              decode: (_value, { name }) => {
+                expectType<typeof A.M.name>(name)
+                return { m: name }
+              },
+            })
+            .done()
+          expect(A.M.decode(`m`)).toEqual(A.M.create({ m: A.M.name }))
+        })
+      })
+      describe(`.encode()`, () => {
+        it(`converts data into string`, () => {
+          const m = B.M.create({ m: `m` })
+          const encodeResult = B.M.encode(m)
+          expectType<string>(encodeResult)
+          expect(encodeResult).toEqual(`m`)
+        })
+      })
+      describe(`.decodeOrThrow() `, () => {
+        it(`converts string into data or throws error on failure`, () => {
+          const decodeResult = B.M.decodeOrThrow(`m`)
+          expectType<z.infer<typeof A.M.schema>>(decodeResult)
+          expect(() => B.M.decodeOrThrow(``)).toThrowErrorMatchingInlineSnapshot(
+            `"Failed to decode value \`\` into a A."`
+          )
+        })
+      })
+    })
+
     describe(`ADT API`, () => {
       it(`If defined for every variant then an aggregate codec is available on the ADT`, () => {
         const A = Alge.create($A)
