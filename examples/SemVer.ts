@@ -134,9 +134,13 @@ export const SemVer = Alge.create(`SemVer`)
         }
       )
 
-      const result = schema.safeParse({ _tag: `Range`, parts: partsRaw })
+      const result = schema._def.shape().parts.safeParse({ parts: partsRaw })
+
       if (!result.success) return null // TODO allow returning zod error
-      return result
+
+      return {
+        parts: result.data,
+      }
     },
     encode: (range) => range.parts.join(` `),
   })
