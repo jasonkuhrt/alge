@@ -1,6 +1,15 @@
 import { Alge } from '../src'
 import { z } from 'zod'
 
+type MonikerInferred = Alge.Infer<typeof Moniker>
+
+export type Moniker = MonikerInferred['*']
+
+export namespace Moniker {
+  export type Local = MonikerInferred['Local']
+  export type Global = MonikerInferred['Global']
+}
+
 const replace = (pattern: RegExp, replacementValue: string) => (value: string) =>
   value.replace(pattern, replacementValue)
 

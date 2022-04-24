@@ -6,6 +6,15 @@ import semver from 'semver'
 import semverUtils from 'semver-utils'
 import { z } from 'zod'
 
+type SemVerInferred = Alge.Infer<typeof SemVer>
+
+export type SemVer = SemVerInferred['*']
+
+export namespace SemVer {
+  export type Exact = SemVerInferred['Exact']
+  export type Range = SemVerInferred['Range']
+}
+
 const schemaAliases = {
   semverPatchMinorMajor: z.number().int().nonnegative(),
 }
@@ -82,30 +91,27 @@ export const SemVer = Alge.create(`SemVer`)
       ])
     ),
   })
-  .extend({
-    maxSatisfying: (
-      // TODO Exact[]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      versions: any[],
-      // TODO Range
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      range: any
-      // TODO Exact
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ): any => {
-      //eslint-disable-next-line
-      const result = semver.maxSatisfying(
-        //eslint-disable-next-line
-        versions.map((_) => _.raw),
-        //eslint-disable-next-line
-        SemVer.Range.encode(range)
-      ) as string | null
-
-      if (!result) return null
-
-      return SemVer.Exact.decodeOrThrow(result)
-    },
-  })
+  // TODO find a way to allow referring to static types in extensions...
+  // .extend({
+  //   maxSatisfying: (
+  //     // TODO Exact[]
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     versions: any[],
+  //     // TODO Range
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     range: any
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   ): SemVer.Exact => {
+  //     const result = semver.maxSatisfying(
+  //       //eslint-disable-next-line
+  //       versions.map((_) => _.raw),
+  //       //eslint-disable-next-line
+  //       SemVer.Range.encode(range)
+  //     )
+  //     if (!result) return null
+  //     return SemVer.Exact.decodeOrThrow(result)
+  //   },
+  // })
   .codec({
     decode: (value, { schema }) => {
       const versions = semverUtils.parseRange(value)
@@ -145,3 +151,11 @@ export const SemVer = Alge.create(`SemVer`)
     encode: (range) => range.parts.join(` `),
   })
   .done()
+
+// Helpers
+
+export const maxSatisfying = (versions: SemVer.Exact[], range: SemVer.Range): null | SemVer.Exact => {
+  const result = semver.maxSatisfying(versions.map(SemVer.Exact.encode), SemVer.Range.encode(range))
+  if (!result) return null
+  return SemVer.Exact.decodeOrThrow(result)
+}
