@@ -1,10 +1,27 @@
-import { CodecParams, ExtensionsBase, Initial, StoredVariant } from './Builder'
+import { ExtensionsBase, Initial, StoredVariant } from './Builder'
 import { Errors } from './Errors'
 import { is } from './helpers'
 import { r } from './lib/r'
 import { code, isEmpty } from './lib/utils'
 import { z } from './lib/z'
 import { OmitTag } from './Types'
+import { SomeZodObject } from 'zod'
+
+export type SomeVariant = object
+
+export type SomeVariantConstructorInput = Record<string, unknown>
+
+export type SomeCodecDefinition = {
+  encode: SomeEncoderDefinition
+  decode: SomeDecoderDefinition
+}
+
+export type SomeEncoderDefinition = (variant: SomeVariant) => string
+
+export type SomeDecoderDefinition = (
+  encodedData: string,
+  extensions: { schema: SomeZodObject; name: string; [key: string]: unknown }
+) => null | SomeVariantConstructorInput
 
 /**
  * Base properties of a data type.
@@ -152,7 +169,7 @@ export const createCreate = <ADTMember extends VariantBase>(
 // }>
 
 type SomeVariantDef = Omit<StoredVariant, `codec` | `schema`> & {
-  codec?: CodecParams
+  codec?: SomeCodecDefinition
   schema: z.SomeZodObject
 }
 
@@ -182,7 +199,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
       }
       return api
     },
-    codec: (codecDef: CodecParams) => {
+    codec: (codecDef: SomeCodecDefinition) => {
       if (!currentVariant) throw new Error(`Define variant first.`)
       if (currentVariant.codec) throw new Error(`Codec already defined.`)
       currentVariant.codec = codecDef
@@ -210,8 +227,10 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
             is: (value: unknown) => is(value, symbol),
             decode: (value: string) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
-              const data = v.codec.decode(value, v.extensions)
+              const data = v.codec.decode(value, { ...v.extensions, schema: v.schema, name: v.name })
               if (data === null) return null
+              // TODO
+              // eslint-disable-next-line
               return api.create(data)
             },
             decodeOrThrow: (value: string) => {
@@ -230,7 +249,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
         r.indexBy(r.prop(`name`))
       )
 
-      const api = {
+      const adtApi = {
         name,
         schema:
           variants.length >= 2
@@ -276,7 +295,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
           return null
         },
         decodeOrThrow: (value: string) => {
-          const data = api.decode(value)
+          const data = adtApi.decode(value)
           if (data === null)
             throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
           return data
@@ -284,7 +303,7 @@ export const create = <Name extends string>(name: Name): Initial<{ name: Name },
         ...variantApis,
       }
 
-      return api
+      return adtApi
     },
   }
 

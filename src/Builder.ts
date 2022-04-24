@@ -52,7 +52,7 @@ export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariant
  */
 export interface PostVariantBuilder<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
   extends VariantRequired<ADT, [V, ...Vs]> {
-  codec(params: CodecParams<V>): PostCodecBuilder<ADT, StoredVariant.EnableCodec<V>, Vs>
+  codec(definition: CodecDefiniton<V>): PostCodecBuilder<ADT, StoredVariant.EnableCodec<V>, Vs>
   /**
    * Extend the ADT with new properties.
    * TODO
@@ -63,18 +63,20 @@ export interface PostVariantBuilder<ADT extends StoredADT, V extends StoredVaria
   done(): Controller<ADT, [V, ...Vs]>
 }
 
-export interface CodecParams<V extends StoredVariant = StoredVariant> {
-  encode: Encoder<V>
+export interface CodecDefiniton<V extends StoredVariant = StoredVariant> {
+  encode: EncoderDefinition<V>
   decode: DecoderDefinition<V>
 }
 
-export type Encoder<V extends StoredVariant> = (variant: StoredVariant.GetType<V>) => string
+export type EncoderDefinition<V extends StoredVariant> = (variant: StoredVariant.GetType<V>) => string
+
+export type Encoder<V extends StoredVariant> = EncoderDefinition<V>
 
 export type ADTEncoder<Vs extends StoredVariants> = (adt: StoredVariants.Union<Vs>) => string
 
 export type DecoderDefinition<V extends StoredVariant> = (
   encodedData: string,
-  extensions: V[`extensions`]
+  extensions: V[`extensions`] & { schema: StoredVariant.GetZodSchema<V>; name: V[`name`] }
 ) => null | GetConstructorInput<V>
 
 export type Decoder<V extends StoredVariant> = (value: string) => null | StoredVariant.GetType<V>
