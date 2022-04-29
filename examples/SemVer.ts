@@ -20,7 +20,8 @@ const schemaAliases = {
 }
 
 export const SemVer = Alge.data(`SemVer`)
-  .variant(`Exact`, {
+  .variant(`Exact`)
+  .schema({
     major: schemaAliases.semverPatchMinorMajor,
     minor: schemaAliases.semverPatchMinorMajor,
     patch: schemaAliases.semverPatchMinorMajor,
@@ -50,7 +51,8 @@ export const SemVer = Alge.data(`SemVer`)
       // prettier-ignore
       `${version.major}.${version.minor}.${version.patch}${version.release ? `-${version.release}` : ``}${version.build ? `+${version.build}` : ``}`,
   })
-  .variant(`Range`, {
+  .variant(`Range`)
+  .schema({
     parts: z.array(
       z.union([
         z.object({

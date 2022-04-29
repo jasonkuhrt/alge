@@ -23,43 +23,44 @@ export type Initial<ADT extends StoredADT, Vs extends StoredVariants> = VariantR
  */
 export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariants> {
   /**
-   * Create a variant of this ADT.
-   */
-  variant<
-    Name extends NameBase,
-    Schema extends SchemaBase,
-    Parse extends (expression: string, extensions: Extensions) => null | z.TypeOf<z.ZodObject<Schema>>,
-    Extensions extends ExtensionsBase
-  >(
-    name: Name,
-    params: { schema?: Schema; parse?: Parse; extensions?: Extensions }
-    // @ts-expect-error ...
-  ): PostVariantBuilder<ADT, CreateStoredVariant<Name, Schema, false, Parse, Extensions>, Vs>
-
-  /**
    * Sugar for quickly defining ADT members that only have a schema.
    */
-  variant<Name extends string, Schema extends SchemaBase>(
-    name: Name,
-    schema?: Schema
+  variant<Name extends string>(
+    name: Name
     //eslint-disable-next-line
-  ): PostVariantBuilder<ADT, CreateStoredVariant<Name, Schema, false, never, {}>, Vs>
+  ): PostVariant<ADT, CreateStoredVariant<Name>, Vs>
+}
+
+/**
+ * The builder API when it is in a state where a variant is required.
+ *
+ * @remarks This happens to be the initial state of the builder API.
+ */
+export interface PostVariant<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
+  extends PostSchema<ADT, V, Vs> {
+  /**
+   * TODO
+   */
+  schema<Schema extends SchemaBase>(
+    schema: Schema
+    //eslint-disable-next-line
+  ): PostSchema<ADT, StoredVariant.AddSchema<Schema, V>, Vs>
 }
 
 /**
  * The builder API when it is a state of having at least one variant defined.
  * At this point the ADT can be marked as done.
  */
-export interface PostVariantBuilder<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
+export interface PostSchema<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
   extends VariantRequired<ADT, [V, ...Vs]> {
-  codec(definition: CodecDefiniton<V>): PostCodecBuilder<ADT, StoredVariant.EnableCodec<V>, Vs>
+  codec(definition: CodecDefiniton<V>): PostCodecBuilder<ADT, StoredVariant.AddCodec<V>, Vs>
   /**
    * Extend the ADT with new properties.
    * TODO
    */
   extend<Extensions extends ExtensionsBase>(
     extensions: Extensions
-  ): PostVariantBuilder<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
+  ): PostSchema<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
   done(): Controller<ADT, [V, ...Vs]>
 }
 
@@ -105,20 +106,13 @@ export interface PostCodecBuilder<ADT extends StoredADT, V extends StoredVariant
 
 // Helpers
 
-type CreateStoredVariant<
-  Name extends NameBase,
-  Schema extends SchemaBase,
-  Codec extends boolean,
-  Parse extends (expression: string, extensions: Extensions) => null | z.TypeOf<z.ZodObject<Schema>>,
-  Extensions extends ExtensionsBase
-> = {
+export type CreateStoredVariant<Name extends NameBase> = {
   name: Name
-  schema: SchemaBase extends Schema ? { _tag: z.ZodLiteral<Name> } : Schema & { _tag: z.ZodLiteral<Name> }
-  codec: Codec
-  parse: Parse
+  schema: { _tag: z.ZodLiteral<Name> }
+  codec: false
   // TODO
   // eslint-disable-next-line
-  extensions: ExtensionsBase extends Extensions ? {} : Extensions
+  extensions: {}
 }
 
 export type StoredADT<Name extends string = string> = {
@@ -133,16 +127,23 @@ export type StoredVariant = {
   parse?: Parse2
 }
 
+// prettier-ignore
 // eslint-disable-next-line
 export namespace StoredVariant {
-  export type EnableCodec<V extends StoredVariant> = Omit<V, `codec`> & {
-    codec: true
-  }
-  export type AddExtensions<Extensions extends ExtensionsBase, V extends StoredVariant> = V & {
-    extensions: Extensions
-  }
-  export type GetType<V extends StoredVariant> = z.TypeOf<z.ZodObject<V[`schema`]>>
-  export type GetZodSchema<V extends StoredVariant> = z.ZodObject<V[`schema`]>
+  export type AddSchema<Schema extends SchemaBase, V extends StoredVariant> =
+    Omit<V, `schema`> & { schema: Schema & { _tag: z.ZodLiteral<V['name']> } }
+    
+  export type AddCodec<V extends StoredVariant> =
+    Omit<V, `codec`> & { codec: true }
+
+  export type AddExtensions<Extensions extends ExtensionsBase, V extends StoredVariant> =
+    V & { extensions: Extensions }
+
+  export type GetType<V extends StoredVariant> =
+    z.TypeOf<z.ZodObject<V[`schema`]>>
+
+  export type GetZodSchema<V extends StoredVariant> =
+    z.ZodObject<V[`schema`]>
 }
 
 export type StoredVariants = [StoredVariant, ...StoredVariant[]]

@@ -34,6 +34,7 @@ type SomeADT = {
 }
 
 type SomeZodADT = z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
+type SomeSchema = Record<string, z.ZodType<unknown>>
 
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
@@ -44,13 +45,18 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
   const variants: SomeVariantDefinition[] = []
 
   const api = {
-    variant: (name: string, schema: Record<string, z.ZodType<unknown>>) => {
+    variant: (name: string) => {
       currentVariant = {
         name,
-        schema: z.object(schema),
+        schema: z.object({ _tag: z.literal(name) }),
         extensions: {},
       }
       variants.push(currentVariant)
+      return api
+    },
+    schema: (schema: SomeSchema) => {
+      if (!currentVariant) throw new Error(`Define variant first.`)
+      currentVariant.schema = z.object({ ...schema, _tag: z.literal(currentVariant.name) })
       return api
     },
     extend: (extensions: ExtensionsBase) => {
