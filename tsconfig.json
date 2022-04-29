@@ -27,7 +27,8 @@
     "noErrorTruncation": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "~/": ["./src/index"]
     },
 
     // Transformer Plugins made possible by https://github.com/nonara/ts-patch
