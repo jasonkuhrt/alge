@@ -10,7 +10,7 @@ type $A = typeof $A
 type $N = typeof $N
 type $M = typeof $M
 
-const A = Alge.create($A).variant($M, { m: z.string() }).variant($N, { n: z.number() }).done()
+const A = Alge.data($A).variant($M, { m: z.string() }).variant($N, { n: z.number() }).done()
 
 const m = A.M.create({ m: `m` })
 const n = A.N.create({ n: 1 })
@@ -19,7 +19,7 @@ describe(`builder`, () => {
   describe(`.create()`, () => {
     describe(`errors`, () => {
       it(`call .done() without any variants`, () => {
-        const a = Alge.create($A)
+        const a = Alge.data($A)
         // @ts-expect-error .done is not statically available.
         // eslint-disable-next-line
         const done = a.done
@@ -30,14 +30,14 @@ describe(`builder`, () => {
       })
     })
     it(`The name is statically available.`, () => {
-      const A = Alge.create($A).variant($N).variant($M).done()
+      const A = Alge.data($A).variant($N).variant($M).done()
       expectType<typeof $A>(A.name)
       expect(A.name).toBe($A)
     })
   })
   describe(`.extend()`, () => {
     it(`extends the ADT with properties`, () => {
-      const A = Alge.create($A)
+      const A = Alge.data($A)
         .variant($M)
         .extend({ foo: 1 as const })
         .done()
@@ -46,7 +46,7 @@ describe(`builder`, () => {
     })
     // TODO make available to encoder as well.
     it(`extensions are available to decoder`, () => {
-      const A = Alge.create($A)
+      const A = Alge.data($A)
         .variant($M, {
           m: z.string(),
         })
@@ -65,7 +65,7 @@ describe(`builder`, () => {
     })
   })
   describe(`.codec()`, () => {
-    const B = Alge.create($A)
+    const B = Alge.data($A)
       .variant($M, { m: z.string() })
       .codec({
         encode: (data) => data.m,
@@ -75,7 +75,7 @@ describe(`builder`, () => {
     const m = B.M.create({ m: `m` })
     it(`cannot define codec multiple times in the chain`, () => {
       // eslint-disable-next-line
-      const _A = Alge.create($A)
+      const _A = Alge.data($A)
         .variant($M, { m: z.string() })
         .codec({
           encode: (data) => data.m,
@@ -114,7 +114,7 @@ describe(`builder`, () => {
           expect(B.M.decode(``)).toEqual(null)
         })
         it(`definition has access to the ADT schema`, () => {
-          const A = Alge.create(`A`)
+          const A = Alge.data(`A`)
             .variant(`M`, { m: z.string() })
             .codec({
               encode: (data) => data.m,
@@ -127,7 +127,7 @@ describe(`builder`, () => {
           expect(A.M.decode(`m`)).toEqual(A.M.create({ m: `m` }))
         })
         it(`definition has access to the ADT name`, () => {
-          const A = Alge.create(`A`)
+          const A = Alge.data(`A`)
             .variant(`M`, { m: z.string() })
             .codec({
               encode: (data) => data.m,
@@ -161,7 +161,7 @@ describe(`builder`, () => {
 
     describe(`ADT API`, () => {
       it(`If defined for every variant then an aggregate codec is available on the ADT`, () => {
-        const A = Alge.create($A)
+        const A = Alge.data($A)
           .variant($M, { m: z.string() })
           .codec({
             encode: (data) => data.m,
@@ -245,7 +245,7 @@ describe(`Controller`, () => {
       )
     })
     it(`.schema points to a zod object if only one variant is defined`, () => {
-      const B = Alge.create(`B`).variant($M, { m: z.string() }).done()
+      const B = Alge.data(`B`).variant($M, { m: z.string() }).done()
       expect(B.schema.safeParse(``).success).toEqual(false)
       expectType<{ _tag: $M; m: string }>(`` as unknown as z.infer<typeof B.schema>)
       expectType<z.infer<typeof B.M.schema>>(`` as unknown as z.infer<typeof B.schema>)
@@ -276,7 +276,7 @@ describe(`Controller`, () => {
 
     describe(`.create()`, () => {
       it(`If schema not given (aka. no properties), then constructor does not accept input`, () => {
-        const A = Alge.create($A).variant($N).variant($M).done()
+        const A = Alge.data($A).variant($N).variant($M).done()
         // @ts-expect-error: empty object still not like empty variant
         A.N.create({})
         expect(A.N.create()).toEqual({ _tag: $N, _: { symbol: A.N.symbol } })
@@ -286,7 +286,7 @@ describe(`Controller`, () => {
         expect(A.M.is$({})).toEqual(false)
       })
       it(`If schema only has optional properties then constructor input is optional`, () => {
-        const A = Alge.create($A).variant($M, { m: z.number().optional() }).done()
+        const A = Alge.data($A).variant($M, { m: z.number().optional() }).done()
         A.M.create()
         A.M.create({})
         expect(A.M.create()).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })

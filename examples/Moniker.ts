@@ -1,4 +1,4 @@
-import { Alge } from '../src'
+import { Alge } from '~/'
 import { z } from 'zod'
 
 type MonikerInferred = Alge.Infer<typeof Moniker>
@@ -13,7 +13,7 @@ export namespace Moniker {
 const replace = (pattern: RegExp, replacementValue: string) => (value: string) =>
   value.replace(pattern, replacementValue)
 
-export const Moniker = Alge.create(`Moniker`)
+export const Moniker = Alge.data(`Moniker`)
   .variant(`Local`, {
     name: z.string().nonempty(),
     scope: z

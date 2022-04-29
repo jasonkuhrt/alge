@@ -1,7 +1,7 @@
 /**
  * @see https://semver.org/
  */
-import { Alge } from '../src'
+import { Alge } from '~/'
 import semver from 'semver'
 import semverUtils from 'semver-utils'
 import { z } from 'zod'
@@ -19,7 +19,7 @@ const schemaAliases = {
   semverPatchMinorMajor: z.number().int().nonnegative(),
 }
 
-export const SemVer = Alge.create(`SemVer`)
+export const SemVer = Alge.data(`SemVer`)
   .variant(`Exact`, {
     major: schemaAliases.semverPatchMinorMajor,
     minor: schemaAliases.semverPatchMinorMajor,

@@ -39,7 +39,7 @@ type SomeZodADT = z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
 // @ts-expect-error empty init tuple
-export const create = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
+export const data = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
   let currentVariant: null | SomeVariantDefinition = null
   const variants: SomeVariantDefinition[] = []
 
