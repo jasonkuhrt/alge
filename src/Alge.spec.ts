@@ -1,5 +1,4 @@
 import { Alge } from '.'
-import { CreateStoredVariant } from './Builder'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 
