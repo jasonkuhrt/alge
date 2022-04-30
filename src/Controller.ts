@@ -4,8 +4,6 @@ import {
   Decoder,
   DecoderThatThrows,
   Encoder,
-  Parse2,
-  Parse2OrThrow,
   StoredADT,
   StoredVariant,
   StoredVariants,
@@ -47,15 +45,7 @@ type ADTMethods<Vs extends StoredVariants> = {
        * TODO Useful JSDoc about why this is never
        */
       decodeOrThrow: never
-    }) &
-  (StoredVariants.IsAllHaveParse<Vs> extends true
-    ? {
-        parse: Parse2<StoredVariants.Union<Vs>>
-        parseOrThrow: Parse2OrThrow<StoredVariants.Union<Vs>>
-      }
-    : // TODO
-      // eslint-disable-next-line
-      {})
+    })
 
 /**
  * build up the API for each variant defined in the ADT:
@@ -193,19 +183,6 @@ type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
         decodeOrThrow: never
       }) &
       (V[`extensions`])
-
-// & (
-//   IsUnknown<Def[`parse`]> extends true
-//     ?
-//       {}
-//     :
-//       {
-//         parse: Def[`parse`]
-//         parseOrThrow: Parse2OrThrow<z.TypeOf<z.ZodObject<Def[`schema`]>>>
-//       }
-// )
-
-// & Def[`extensions`]
 
 export type GetConstructorInput<V extends StoredVariant> = z.TypeOf<
   z.Omit<StoredVariant.GetZodSchema<V>, { _tag: true }>

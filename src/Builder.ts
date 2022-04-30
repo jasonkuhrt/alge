@@ -124,7 +124,6 @@ export type StoredVariant = {
   schema: z.ZodRawShape
   codec: boolean
   extensions: ExtensionsBase
-  parse?: Parse2
 }
 
 // prettier-ignore
@@ -173,7 +172,3 @@ export namespace StoredVariants {
     [Index in keyof Vs]: z.ZodObject<Vs[Index][`schema`]>
   }
 }
-
-export type Parse2<T = unknown> = (string: string) => null | T
-
-export type Parse2OrThrow<T = unknown> = (string: string) => T
