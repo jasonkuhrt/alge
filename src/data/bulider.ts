@@ -1,40 +1,11 @@
-import { ExtensionsBase, Initial, StoredVariant } from './Builder'
-import { Errors } from './Errors'
-import { is } from './helpers'
-import { r } from './lib/r'
-import { code, isEmpty, TupleToObject } from './lib/utils'
-import { z } from './lib/z'
-
-type SomeVariant = object
-
-type SomeVariantConstructorInput = Record<string, unknown>
-
-type SomeCodecDefinition = {
-  encode: SomeEncoderDefinition
-  decode: SomeDecoderDefinition
-}
-
-type SomeEncoderDefinition = (variant: SomeVariant) => string
-
-type SomeVariantSchema = z.SomeZodObject
-
-type SomeDecoderDefinition = (
-  encodedData: string,
-  extensions: { schema: SomeVariantSchema; name: string; [key: string]: unknown }
-) => null | SomeVariantConstructorInput
-
-type SomeVariantDefinition = Omit<StoredVariant, 'codec' | 'schema'> & {
-  codec?: SomeCodecDefinition
-  schema: z.SomeZodObject
-}
-
-type SomeADT = {
-  name: string
-  schema: SomeZodADT
-}
-
-type SomeZodADT = z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
-type SomeSchema = Record<string, z.ZodType<unknown>>
+import { is } from '../core/helpers'
+import { ExtensionsBase } from '../core/types'
+import { SomeADT, SomeCodecDefinition, SomeSchema, SomeVariantDefinition } from '../core/typesInternal'
+import { Errors } from '../Errors'
+import { r } from '../lib/r'
+import { code, isEmpty, TupleToObject } from '../lib/utils'
+import { z } from '../lib/z'
+import { Initial } from './types'
 
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
@@ -44,7 +15,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
   let currentVariant: null | SomeVariantDefinition = null
   const variants: SomeVariantDefinition[] = []
 
-  const api = {
+  const builder = {
     variant: (name: string) => {
       currentVariant = {
         name,
@@ -52,12 +23,12 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
         extensions: {},
       }
       variants.push(currentVariant)
-      return api
+      return builder
     },
     schema: (schema: SomeSchema) => {
       if (!currentVariant) throw new Error(`Define variant first.`)
       currentVariant.schema = z.object({ ...schema, _tag: z.literal(currentVariant.name) })
-      return api
+      return builder
     },
     extend: (extensions: ExtensionsBase) => {
       if (!currentVariant) throw new Error(`Define variant first.`)
@@ -65,13 +36,13 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
         ...currentVariant.extensions,
         ...extensions,
       }
-      return api
+      return builder
     },
     codec: (codecDef: SomeCodecDefinition) => {
       if (!currentVariant) throw new Error(`Define variant first.`)
       if (currentVariant.codec) throw new Error(`Codec already defined.`)
       currentVariant.codec = codecDef
-      return api
+      return builder
     },
     done: () => {
       if (isEmpty(variants)) throw createEmptyVariantsError({ name })
@@ -117,7 +88,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
         r.indexBy(r.prop(`name`))
       )
 
-      const adtApi = {
+      const controller = {
         name,
         schema:
           variants.length >= 2
@@ -163,7 +134,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
           return null
         },
         decodeOrThrow: (value: string) => {
-          const data = adtApi.decode(value)
+          const data = controller.decode(value)
           if (data === null)
             throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
           return data
@@ -171,13 +142,13 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
         ...variantApis,
       }
 
-      return adtApi
+      return controller
     },
   }
 
   // TODO
   // eslint-disable-next-line
-  return api as any
+  return builder as any
 }
 
 const createEmptyVariantsError = (params: { name: string }) =>

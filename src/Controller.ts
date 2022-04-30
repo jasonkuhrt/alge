@@ -4,10 +4,10 @@ import {
   Decoder,
   DecoderThatThrows,
   Encoder,
-  StoredADT,
   StoredVariant,
   StoredVariants,
-} from './Builder'
+} from './core/types'
+import { StoredADT } from './data/types'
 import { OmitRequired } from './lib/utils'
 import { z } from './lib/z'
 
@@ -60,7 +60,7 @@ export type VariantsNamespacedMethods<Vs extends StoredVariants> = {
 }
 
 // prettier-ignore
-type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
+export type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
   name: V[`name`]
   symbol: symbol
   schema: StoredVariant.GetZodSchema<V>
