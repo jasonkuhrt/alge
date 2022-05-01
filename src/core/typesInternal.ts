@@ -1,7 +1,12 @@
 import { StoredVariant } from './types'
 import { z } from 'zod'
 
-export type SomeVariant = object
+export type SomeVariant = {
+  name: string
+  schema: z.SomeZodObject
+  encode: never | SomeEncoderDefinition
+  decode: never | SomeDecoderDefinition
+}
 
 export type SomeVariantConstructorInput = Record<string, unknown>
 

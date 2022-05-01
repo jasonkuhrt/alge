@@ -1,4 +1,5 @@
-import { GetConstructorInput } from '~/Controller'
+import { GetConstructorInput } from '~/data/Controller'
+import { SomeDatum } from '~/datum/controller'
 import { z } from 'zod'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>
@@ -24,6 +25,11 @@ export type DecoderDefinition<V extends StoredVariant> = (
 ) => null | GetConstructorInput<V>
 
 export type Decoder<V extends StoredVariant> = (value: string) => null | StoredVariant.GetType<V>
+
+export type SomeDecoder = (value: string) => null | object
+
+// eslint-disable-next-line
+export type SomeEncoder = (value: any, context: { schema: z.ZodSchema }) => string
 
 export type DecoderThatThrows<V extends StoredVariant> = (value: string) => StoredVariant.GetType<V>
 
@@ -92,4 +98,11 @@ export type CreateStoredVariant<Name extends NameBase> = {
   // TODO
   // eslint-disable-next-line
   extensions: {}
+}
+
+export type CreateStoredVariantFromDatum<Datum extends SomeDatum> = {
+  name: Datum['name']
+  schema: Datum['schema']['shape']
+  codec: Datum['encode'] extends never ? false : true
+  extensions: Omit<Datum, 'symbol' | 'create' | 'name' | 'schema' | 'encode' | 'decode' | 'is' | '$is'>
 }

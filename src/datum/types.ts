@@ -3,7 +3,7 @@
  */
 
 import { z } from '../lib/z'
-import { VariantApi } from '~/Controller'
+import { Datum } from './controller'
 import { CodecDefiniton, ExtensionsBase, NameBase, SchemaBase, StoredVariant } from '~/core/types'
 
 /**
@@ -61,7 +61,7 @@ export interface Extend<V extends StoredVariant> {
 }
 
 export interface Done<V extends StoredVariant> {
-  done(): VariantApi<[V], V>
+  done(): Datum<[V], V>
 }
 
 // Helpers

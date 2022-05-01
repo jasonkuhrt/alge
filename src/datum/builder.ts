@@ -1,7 +1,7 @@
 import { Initial } from './types'
 import { is } from '~/core/helpers'
 import { ExtensionsBase } from '~/core/types'
-import { SomeCodecDefinition, SomeSchema, SomeVariantDefinition } from '~/core/typesInternal'
+import { SomeCodecDefinition, SomeSchema, SomeVariant, SomeVariantDefinition } from '~/core/typesInternal'
 import { z } from 'zod'
 
 export const datum = <Name extends string>(name: Name): Initial<Name> => {
@@ -60,7 +60,7 @@ export const datum = <Name extends string>(name: Name): Initial<Name> => {
           if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
           return data
         },
-        encode: (variant: object) => {
+        encode: (variant: SomeVariant) => {
           if (!currentVariant.codec) throw new Error(`Codec not implemented.`)
           return currentVariant.codec.encode(variant)
         },

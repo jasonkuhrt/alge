@@ -1,6 +1,12 @@
 import { is } from '../core/helpers'
 import { ExtensionsBase } from '../core/types'
-import { SomeADT, SomeCodecDefinition, SomeSchema, SomeVariantDefinition } from '../core/typesInternal'
+import {
+  SomeADT,
+  SomeCodecDefinition,
+  SomeSchema,
+  SomeVariant,
+  SomeVariantDefinition,
+} from '../core/typesInternal'
 import { Errors } from '../Errors'
 import { r } from '../lib/r'
 import { code, isEmpty, TupleToObject } from '../lib/utils'
@@ -16,12 +22,20 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
   const variants: SomeVariantDefinition[] = []
 
   const builder = {
-    variant: (name: string) => {
-      currentVariant = {
-        name,
-        schema: z.object({ _tag: z.literal(name) }),
-        extensions: {},
-      }
+    variant: (nameOrVariant: string | SomeVariant) => {
+      currentVariant =
+        typeof nameOrVariant === `string`
+          ? {
+              name: nameOrVariant,
+              schema: z.object({ _tag: z.literal(nameOrVariant) }),
+              extensions: {},
+            }
+          : {
+              name: nameOrVariant.name,
+              schema: nameOrVariant.schema,
+              // codec: { encode: nameOrVariant.encode, decode: nameOrVariant.decode },
+              extensions: nameOrVariant,
+            }
       variants.push(currentVariant)
       return builder
     },
@@ -77,7 +91,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
               if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
               return data
             },
-            encode: (variant: object) => {
+            encode: (variant: SomeVariant) => {
               if (!v.codec) throw new Error(`Codec not implemented.`)
               return v.codec.encode(variant)
             },
@@ -103,7 +117,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             ? // eslint-disable-next-line
               variants[0]!.schema
             : null,
-        encode: (variant: object) => {
+        encode: (variant: SomeVariant) => {
           const variantsMissingCodecDef = variants.filter((v) => v.codec === undefined)
           if (variantsMissingCodecDef.length)
             throw new Error(

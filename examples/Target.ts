@@ -11,8 +11,7 @@ import { z } from 'zod'
 type Version = Alge.Infer<typeof Version>
 
 const Version = Alge.data(`Version`)
-  // TODO
-  // .variant(SemVer.Exact)
+  .variant(SemVer.Exact)
   .variant(`Tag`)
   .schema({
     name: z.string().min(1), // TODO regexp
@@ -48,9 +47,7 @@ export const Target = Alge.datum(`Target`)
       if (!moniker || !version) return null
       return {
         moniker,
-        // TODO
-        // version,
-        version: { _tag: `Tag`, name: `abc` },
+        version,
       }
     },
   })

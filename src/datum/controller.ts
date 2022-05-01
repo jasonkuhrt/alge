@@ -1,66 +1,32 @@
 import {
-  ADTDecoder,
-  ADTEncoder,
   Decoder,
   DecoderThatThrows,
   Encoder,
+  SomeDecoder,
+  SomeEncoder,
   StoredVariant,
   StoredVariants,
-} from './core/types'
-import { StoredADT } from './data/types'
-import { OmitRequired } from './lib/utils'
-import { z } from './lib/z'
+} from '~/core/types'
+import { GetConstructorInput } from '~/data/Controller'
+import { OmitRequired } from '~/lib/utils'
+import { z } from 'zod'
 
-export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
-  ADTMethods<Vs> &
-  VariantsNamespacedMethods<Vs>
-
-/**
- * Build up the API on the ADT itself:
- *
- * ```ts
- * const A = Alge.create('A')...
- * // A.<...>  <-- Methods here
- * ```
- */
-// prettier-ignore
-type ADTMethods<Vs extends StoredVariants> = {
-  schema: StoredVariants.ZodUnion<Vs>
-} & (StoredVariants.IsAllHaveCodec<Vs> extends true
-  ? {
-      encode: ADTEncoder<Vs>
-      decode: ADTDecoder<Vs>
-      decodeOrThrow: ADTDecoder<Vs>
-    }
-  : {
-      /**
-       * TODO Useful JSDoc about why this is never
-       */
-      encode: never
-      /**
-       * TODO Useful JSDoc about why this is never
-       */
-      decode: never
-      /**
-       * TODO Useful JSDoc about why this is never
-       */
-      decodeOrThrow: never
-    })
-
-/**
- * build up the API for each variant defined in the ADT:
- *
- * ```ts
- * const A = Alge.create('A').variant('B',...)...
- * // A.B.<...>  <-- Methods here
- * ```
- */
-export type VariantsNamespacedMethods<Vs extends StoredVariants> = {
-  [V in Vs[number] as V[`name`]]: VariantApi<Vs, V>
+export type SomeDatum = {
+  name: string
+  symbol: symbol
+  schema: z.SomeZodObject
+  // eslint-disable-next-line
+  is: (value: any) => boolean
+  is$: (value: unknown) => boolean
+  // eslint-disable-next-line
+  create: (params: any) => any
+  encode: SomeEncoder
+  decode: SomeDecoder
 }
 
 // prettier-ignore
-export type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
+export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
+  // _: V
   name: V[`name`]
   symbol: symbol
   schema: StoredVariant.GetZodSchema<V>
@@ -183,7 +149,3 @@ export type VariantApi<Vs extends StoredVariants, V extends StoredVariant> = {
         decodeOrThrow: never
       }) &
       (V[`extensions`])
-
-export type GetConstructorInput<V extends StoredVariant> = z.TypeOf<
-  z.Omit<StoredVariant.GetZodSchema<V>, { _tag: true }>
->

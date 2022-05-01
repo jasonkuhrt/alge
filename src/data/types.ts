@@ -2,15 +2,17 @@
  * This module is concerned with the static types for the API of building up an ADT.
  */
 
-import { Controller } from '../Controller'
 import {
   CodecDefiniton,
   CreateStoredVariant,
+  CreateStoredVariantFromDatum,
   ExtensionsBase,
   SchemaBase,
   StoredVariant,
   StoredVariants,
 } from '../core/types'
+import { Controller } from './Controller'
+import { SomeDatum } from '~/datum/controller'
 
 /**
  * The initial API for building an ADT.
@@ -24,12 +26,15 @@ export type Initial<ADT extends StoredADT, Vs extends StoredVariants> = VariantR
  */
 export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariants> {
   /**
-   * Sugar for quickly defining ADT members that only have a schema.
+   * TODO
    */
-  variant<Name extends string>(
-    name: Name
-    //eslint-disable-next-line
-  ): PostVariant<ADT, CreateStoredVariant<Name>, Vs>
+  // prettier-ignore
+  variant<Name extends string>(name: Name): PostVariant<ADT, CreateStoredVariant<Name>, Vs>
+  /**
+   * TODO
+   */
+  // prettier-ignore
+  variant<TDatumn extends SomeDatum>(datum: TDatumn): PostVariant<ADT, CreateStoredVariantFromDatum<TDatumn>, Vs>
 }
 
 /**
@@ -42,10 +47,7 @@ export interface PostVariant<ADT extends StoredADT, V extends StoredVariant, Vs 
   /**
    * TODO
    */
-  schema<Schema extends SchemaBase>(
-    schema: Schema
-    //eslint-disable-next-line
-  ): PostSchema<ADT, StoredVariant.AddSchema<Schema, V>, Vs>
+  schema<Schema extends SchemaBase>(schema: Schema): PostSchema<ADT, StoredVariant.AddSchema<Schema, V>, Vs>
 }
 
 /**
@@ -60,9 +62,8 @@ export interface PostSchema<ADT extends StoredADT, V extends StoredVariant, Vs e
    * Extend the ADT with new properties.
    * TODO
    */
-  extend<Extensions extends ExtensionsBase>(
-    extensions: Extensions
-  ): PostSchema<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
+  //prettier-ignore
+  extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostSchema<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
 }
 
 /**
@@ -76,9 +77,8 @@ export interface PostCodecBuilder<ADT extends StoredADT, V extends StoredVariant
    * Extend the ADT with new properties.
    * TODO
    */
-  extend<Extensions extends ExtensionsBase>(
-    extensions: Extensions
-  ): PostCodecBuilder<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
+  //prettier-ignore
+  extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostCodecBuilder<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
 }
 
 export interface Done<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants> {

@@ -1,4 +1,6 @@
 import { data, Infer } from './bulider'
+import { SomeDecoder, SomeEncoder } from '~/core/types'
+import { datum } from '~/index_'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 
@@ -12,231 +14,292 @@ type $M = typeof $M
 
 const A = data($A).variant($M).schema({ m: z.string() }).variant($N).schema({ n: z.number() }).done()
 
-const m = A.M.create({ m: `m` })
+// const m = A.M.create({ m: `m` })
 const n = A.N.create({ n: 1 })
 
-describe(`Builder`, () => {
-  describe(`.create()`, () => {
-    describe(`errors`, () => {
-      it(`call .done() without any variants`, () => {
-        const a = data($A)
-        // @ts-expect-error .done is not statically available.
-        // eslint-disable-next-line
-        const done = a.done
-        // eslint-disable-next-line
-        expect(done).toThrowErrorMatchingInlineSnapshot(
-          `"Alge User Mistake: No variants defined for ADT \`A\` but \`.done()\` was called. You can only call \`.done()\` after your ADT has at least one variant defined (via \`.variant()\`)."`
-        )
+describe(`.data(<name>)`, () => {
+  describe(`errors`, () => {
+    it(`call .done() without any variants`, () => {
+      const a = data($A)
+      // @ts-expect-error .done is not statically available.
+      // eslint-disable-next-line
+      const done = a.done
+      // eslint-disable-next-line
+      expect(done).toThrowErrorMatchingInlineSnapshot(
+        `"Alge User Mistake: No variants defined for ADT \`A\` but \`.done()\` was called. You can only call \`.done()\` after your ADT has at least one variant defined (via \`.variant()\`)."`
+      )
+    })
+  })
+  it(`The name is statically available.`, () => {
+    const A = data($A).variant($N).variant($M).done()
+    expectType<typeof $A>(A.name)
+    expect(A.name).toBe($A)
+  })
+})
+describe(`.data(<datumn>)`, () => {
+  //prettier-ignore
+  const M = datum($M).schema({ m: z.literal(`m`) }).done()
+  //prettier-ignore
+  const N = datum($N).schema({ n: z.literal(1) }).done()
+  const A = data($A).variant(M).variant(N).done()
+  const m = A.M.create({ m: `m` })
+  const n = A.N.create({ n: 1 })
+  it(`The name is statically available.`, () => {
+    expectType<typeof $A>(A.name)
+    expect(A.name).toBe($A)
+  })
+  it(`can construct variants`, () => {
+    expectType<{ _tag: $M; m: `m` }>(m)
+    expectType<{ _tag: $N; n: 1 }>(n)
+    expect(m).toEqual({ _tag: $M, m: `m`, _: { symbol: A.M.symbol } })
+    expect(n).toEqual({ _tag: $N, n: 1, _: { symbol: A.N.symbol } })
+    expectType<typeof A.M.encode>(null as never)
+    expectType<typeof A.N.encode>(null as never)
+    // @ts-expect-error test
+    // eslint-disable-next-line
+    expect(() => A.M.encode(m)).toThrowError()
+    // @ts-expect-error test
+    // eslint-disable-next-line
+    expect(() => A.M.decode(`m`)).toThrowError()
+    // @ts-expect-error test
+    // eslint-disable-next-line
+    expect(() => A.N.encode(n)).toThrowError()
+    // @ts-expect-error test
+    // eslint-disable-next-line
+    expect(() => A.N.decode(1)).toThrowError()
+  })
+  it(`inherits codec`, () => {
+    //prettier-ignore
+    const M = datum($M).schema({ m: z.literal(`m`) }).codec({encode:(_)=>`m`,decode:(_)=>({m:`m`})}).done()
+    //prettier-ignore
+    const N = datum($N).schema({ n: z.literal(1) }).codec({encode:(_)=>`n`,decode:(_)=>({n:1})}).done()
+    const A = data($A).variant(M).variant(N).done()
+    const m = A.M.create({ m: `m` })
+    const n = A.N.create({ n: 1 })
+    expectType<SomeEncoder>(A.M.encode)
+    expectType<SomeDecoder>(A.N.decode)
+    expect(A.M.encode(m)).toEqual(`m`)
+    expect(A.M.decode(`m`)).toEqual(m)
+    expect(A.N.encode(n)).toEqual(`n`)
+    expect(A.N.decode(`1`)).toEqual(n)
+  })
+
+  describe(`.Infer<>`, () => {
+    it(`Can infer the ADT types from the runtime`, () => {
+      expectType<Infer<typeof A>>({
+        [`*`]: { _tag: $M, m: `m` },
+        M: { _tag: $M, m: `m` },
+        N: { _tag: $N, n: 1 },
+      })
+      expectType<Infer<typeof A>>({
+        [`*`]: { _tag: $N, n: 1 },
+        M: { _tag: $M, m: `m` },
+        N: { _tag: $N, n: 1 },
       })
     })
-    it(`The name is statically available.`, () => {
-      const A = data($A).variant($N).variant($M).done()
-      expectType<typeof $A>(A.name)
-      expect(A.name).toBe($A)
-    })
   })
-  describe(`.extend()`, () => {
-    it(`extends the ADT with properties`, () => {
-      const A = data($A)
-        .variant($M)
-        .extend({ foo: 1 as const })
-        .done()
-      expectType<1>(A.M.foo)
-      expect(A.M.foo).toBe(1)
-    })
-    // TODO make available to encoder as well.
-    it(`extensions are available to decoder`, () => {
-      const A = data($A)
-        .variant($M)
-        .schema({
-          m: z.string(),
-        })
-        .extend({ foo: 1 as const })
-        .codec({
-          encode: (data) => data.m,
-          decode: (value, extensions) => {
-            expectType<1>(extensions.foo)
-            expect(extensions).toEqual({ foo: 1 })
-            return { m: value }
-          },
-        })
-        .done()
-      expectType<1>(A.M.foo)
-      expect(A.M.foo).toBe(1)
-    })
+})
+describe(`.extend()`, () => {
+  it(`extends the ADT with properties`, () => {
+    const A = data($A)
+      .variant($M)
+      .extend({ foo: 1 as const })
+      .done()
+    expectType<1>(A.M.foo)
+    expect(A.M.foo).toBe(1)
   })
-  describe(`.codec()`, () => {
-    const B = data($A)
+  // TODO make available to encoder as well.
+  it(`extensions are available to decoder`, () => {
+    const A = data($A)
+      .variant($M)
+      .schema({
+        m: z.string(),
+      })
+      .extend({ foo: 1 as const })
+      .codec({
+        encode: (data) => data.m,
+        decode: (value, extensions) => {
+          expectType<1>(extensions.foo)
+          expect(extensions).toEqual({ foo: 1 })
+          return { m: value }
+        },
+      })
+      .done()
+    expectType<1>(A.M.foo)
+    expect(A.M.foo).toBe(1)
+  })
+})
+describe(`.codec()`, () => {
+  const B = data($A)
+    .variant($M)
+    .schema({ m: z.string() })
+    .codec({
+      encode: (data) => data.m,
+      decode: (data) => (data === `m` ? { m: data } : null),
+    })
+    .done()
+  const m = B.M.create({ m: `m` })
+  it(`cannot define codec multiple times in the chain`, () => {
+    // eslint-disable-next-line
+    const _A = data($A)
       .variant($M)
       .schema({ m: z.string() })
       .codec({
         encode: (data) => data.m,
-        decode: (data) => (data === `m` ? { m: data } : null),
+        decode: (data) => ({ m: data }),
       })
-      .done()
-    const m = B.M.create({ m: `m` })
-    it(`cannot define codec multiple times in the chain`, () => {
-      // eslint-disable-next-line
-      const _A = data($A)
-        .variant($M)
-        .schema({ m: z.string() })
-        .codec({
-          encode: (data) => data.m,
-          decode: (data) => ({ m: data }),
-        })
-      // @ts-expect-error: second codec method not present.
-      _A.codec
-      expect(() =>
+    // @ts-expect-error: second codec method not present.
+    _A.codec
+    expect(() =>
+      //eslint-disable-next-line
+      (_A as any).codec({
         //eslint-disable-next-line
-        (_A as any).codec({
-          //eslint-disable-next-line
-          encode: (data: any) => data.m,
-          //eslint-disable-next-line
-          decode: (data: any) => ({ m: data }),
-        })
-      ).toThrowErrorMatchingInlineSnapshot(`"Codec already defined."`)
+        encode: (data: any) => data.m,
+        //eslint-disable-next-line
+        decode: (data: any) => ({ m: data }),
+      })
+    ).toThrowErrorMatchingInlineSnapshot(`"Codec already defined."`)
+  })
+  describe(`Variant API`, () => {
+    it(`if not defined then variant API codec methods not available`, () => {
+      expectType<never>(A.M.encode)
+      //eslint-disable-next-line
+      expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      expectType<never>(A.M.decode)
+      //eslint-disable-next-line
+      expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      expectType<never>(A.M.decodeOrThrow)
+      //prettier-ignore
+      //eslint-disable-next-line
+      expect(() => (A.M as any).decodeOrThrow()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
     })
-    describe(`Variant API`, () => {
-      it(`if not defined then variant API codec methods not available`, () => {
-        expectType<never>(A.M.encode)
-        //eslint-disable-next-line
-        expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
-        expectType<never>(A.M.decode)
-        //eslint-disable-next-line
-        expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
-        expectType<never>(A.M.decodeOrThrow)
-        //prettier-ignore
-        //eslint-disable-next-line
-        expect(() => (A.M as any).decodeOrThrow()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+    describe(`.decode()`, () => {
+      it(`converts string into data or null on failure`, () => {
+        const decodeResult = B.M.decode(`m`)
+        expectType<null | z.infer<typeof A.M.schema>>(decodeResult)
+        expect(B.M.decode(`m`)).toEqual(m)
+        expect(B.M.decode(``)).toEqual(null)
       })
-      describe(`.decode()`, () => {
-        it(`converts string into data or null on failure`, () => {
-          const decodeResult = B.M.decode(`m`)
-          expectType<null | z.infer<typeof A.M.schema>>(decodeResult)
-          expect(B.M.decode(`m`)).toEqual(m)
-          expect(B.M.decode(``)).toEqual(null)
-        })
-        it(`definition has access to the ADT schema`, () => {
-          const A = data(`A`)
-            .variant(`M`)
-            .schema({ m: z.string() })
-            .codec({
-              encode: (data) => data.m,
-              decode: (value, { schema }) => {
-                expectType<typeof A.M.schema>(schema)
-                return schema.parse({ m: value, _tag: $M })
-              },
-            })
-            .done()
-          expect(A.M.decode(`m`)).toEqual(A.M.create({ m: `m` }))
-        })
-        it(`definition has access to the ADT schema even if no schema defined`, () => {
-          const A = data($A)
-            .variant($M)
-            .codec({
-              encode: (data) => data._tag,
-              decode: (value, { schema }) => {
-                expectType<typeof A.M.schema>(schema)
-                return schema.parse({ _tag: value })
-              },
-            })
-            .done()
-          expect(A.M.decode($M)).toEqual(A.M.create())
-        })
-        it(`definition has access to the ADT name`, () => {
-          const A = data($A)
-            .variant($M)
-            .schema({ m: z.string() })
-            .codec({
-              encode: (data) => data.m,
-              decode: (_value, { name }) => {
-                expectType<typeof A.M.name>(name)
-                return { m: name }
-              },
-            })
-            .done()
-          expect(A.M.decode(`m`)).toEqual(A.M.create({ m: A.M.name }))
-        })
+      it(`definition has access to the ADT schema`, () => {
+        const A = data(`A`)
+          .variant(`M`)
+          .schema({ m: z.string() })
+          .codec({
+            encode: (data) => data.m,
+            decode: (value, { schema }) => {
+              expectType<typeof A.M.schema>(schema)
+              return schema.parse({ m: value, _tag: $M })
+            },
+          })
+          .done()
+        expect(A.M.decode(`m`)).toEqual(A.M.create({ m: `m` }))
       })
-      describe(`.encode()`, () => {
-        it(`converts data into string`, () => {
-          const m = B.M.create({ m: `m` })
-          const encodeResult = B.M.encode(m)
-          expectType<string>(encodeResult)
-          expect(encodeResult).toEqual(`m`)
-        })
+      it(`definition has access to the ADT schema even if no schema defined`, () => {
+        const A = data($A)
+          .variant($M)
+          .codec({
+            encode: (data) => data._tag,
+            decode: (value, { schema }) => {
+              expectType<typeof A.M.schema>(schema)
+              return schema.parse({ _tag: value })
+            },
+          })
+          .done()
+        expect(A.M.decode($M)).toEqual(A.M.create())
       })
-      describe(`.decodeOrThrow() `, () => {
-        it(`converts string into data or throws error on failure`, () => {
-          const decodeResult = B.M.decodeOrThrow(`m`)
-          expectType<z.infer<typeof A.M.schema>>(decodeResult)
-          expect(() => B.M.decodeOrThrow(``)).toThrowErrorMatchingInlineSnapshot(
-            `"Failed to decode value \`\` into a A."`
-          )
-        })
-      })
-    })
-
-    describe(`ADT API`, () => {
-      it(`If defined for every variant then an aggregate codec is available on the ADT`, () => {
+      it(`definition has access to the ADT name`, () => {
         const A = data($A)
           .variant($M)
           .schema({ m: z.string() })
           .codec({
             encode: (data) => data.m,
-            decode: (data) => (data === `m` ? { m: data } : null),
-          })
-          .variant($N)
-          .schema({ n: z.number() })
-          .codec({
-            encode: (data) => String(data.n),
-            decode: (data) => (data.match(/\d/) !== null ? { n: Number(data) } : null),
+            decode: (_value, { name }) => {
+              expectType<typeof A.M.name>(name)
+              return { m: name }
+            },
           })
           .done()
-
-        const m = A.M.create({ m: `m` })
-        const n = A.N.create({ n: 1 })
-
-        expectType<string>(A.encode(m))
-        expectType<string>(A.encode(n))
-        expect(A.encode).toBeDefined()
-        expect(A.encode(m)).toEqual(`m`)
-        expect(A.encode(n)).toEqual(`1`)
-
-        expectType<null | typeof m | typeof n>(A.decode(`m`))
-        expect(A.decode).toBeDefined()
-        expect(A.decode(`m`)).toEqual(m)
-        expect(A.decode(`1`)).toEqual(n)
+        expect(A.M.decode(`m`)).toEqual(A.M.create({ m: A.M.name }))
       })
-      it(`if not defined for every variant then the aggregate codec is not available with clear runtime and static time feedback about why.`, () => {
-        expectType<never>(A.encode)
-        // @ts-expect-error: codec not defined for every variant.
-        // eslint-disable-next-line
-        expect(() => A.encode(n)).toThrowErrorMatchingInlineSnapshot(
-          `"ADT level codec not available because some variants did not define a codec: M, N"`
-        )
-
-        expectType<never>(A.decode)
-        // @ts-expect-error: codec not defined for every variant.
-        // eslint-disable-next-line
-        expect(() => A.decode('m')).toThrowErrorMatchingInlineSnapshot(
-          `"ADT level codec not available because some variants did not define a codec: M, N"`
-        )
-        expectType<never>(A.decodeOrThrow)
-        // @ts-expect-error: codec not defined for every variant.
-        // eslint-disable-next-line
-        expect(() => A.decodeOrThrow('m')).toThrowErrorMatchingInlineSnapshot(
-          `"ADT level codec not available because some variants did not define a codec: M, N"`
+    })
+    describe(`.encode()`, () => {
+      it(`converts data into string`, () => {
+        const m = B.M.create({ m: `m` })
+        const encodeResult = B.M.encode(m)
+        expectType<string>(encodeResult)
+        expect(encodeResult).toEqual(`m`)
+      })
+    })
+    describe(`.decodeOrThrow() `, () => {
+      it(`converts string into data or throws error on failure`, () => {
+        const decodeResult = B.M.decodeOrThrow(`m`)
+        expectType<z.infer<typeof A.M.schema>>(decodeResult)
+        expect(() => B.M.decodeOrThrow(``)).toThrowErrorMatchingInlineSnapshot(
+          `"Failed to decode value \`\` into a A."`
         )
       })
     })
   })
 
-  describe(`.variant()`, () => {
-    it(`Can be given a name which becomes a static namespace on the ADT`, () => {
-      expect(A.M).toBeDefined()
-      expect(A.N).toBeDefined()
+  describe(`ADT API`, () => {
+    it(`If defined for every variant then an aggregate codec is available on the ADT`, () => {
+      const A = data($A)
+        .variant($M)
+        .schema({ m: z.string() })
+        .codec({
+          encode: (data) => data.m,
+          decode: (data) => (data === `m` ? { m: data } : null),
+        })
+        .variant($N)
+        .schema({ n: z.number() })
+        .codec({
+          encode: (data) => String(data.n),
+          decode: (data) => (data.match(/\d/) !== null ? { n: Number(data) } : null),
+        })
+        .done()
+
+      const m = A.M.create({ m: `m` })
+      const n = A.N.create({ n: 1 })
+
+      expectType<string>(A.encode(m))
+      expectType<string>(A.encode(n))
+      expect(A.encode).toBeDefined()
+      expect(A.encode(m)).toEqual(`m`)
+      expect(A.encode(n)).toEqual(`1`)
+
+      expectType<null | typeof m | typeof n>(A.decode(`m`))
+      expect(A.decode).toBeDefined()
+      expect(A.decode(`m`)).toEqual(m)
+      expect(A.decode(`1`)).toEqual(n)
     })
+    it(`if not defined for every variant then the aggregate codec is not available with clear runtime and static time feedback about why.`, () => {
+      expectType<never>(A.encode)
+      // @ts-expect-error: codec not defined for every variant.
+      // eslint-disable-next-line
+      expect(() => A.encode(n)).toThrowErrorMatchingInlineSnapshot(
+        `"ADT level codec not available because some variants did not define a codec: M, N"`
+      )
+
+      expectType<never>(A.decode)
+      // @ts-expect-error: codec not defined for every variant.
+      // eslint-disable-next-line
+      expect(() => A.decode('m')).toThrowErrorMatchingInlineSnapshot(
+        `"ADT level codec not available because some variants did not define a codec: M, N"`
+      )
+      expectType<never>(A.decodeOrThrow)
+      // @ts-expect-error: codec not defined for every variant.
+      // eslint-disable-next-line
+      expect(() => A.decodeOrThrow('m')).toThrowErrorMatchingInlineSnapshot(
+        `"ADT level codec not available because some variants did not define a codec: M, N"`
+      )
+    })
+  })
+})
+
+describe(`.variant()`, () => {
+  it(`Can be given a name which becomes a static namespace on the ADT`, () => {
+    expect(A.M).toBeDefined()
+    expect(A.N).toBeDefined()
   })
 })
 
@@ -251,126 +314,6 @@ describe(`.Infer<>`, () => {
       [`*`]: { _tag: `N`, n: 1 },
       M: { _tag: `M`, m: `m` },
       N: { _tag: `N`, n: 1 },
-    })
-  })
-})
-
-describe(`Controller`, () => {
-  describe(`ADT API`, () => {
-    it(`.schema points to a zod union schema combining all the defined variants`, () => {
-      expect(A.schema.safeParse(``).success).toEqual(false)
-      expectType<{ _tag: $M; m: string } | { _tag: $N; n: number }>(`` as unknown as z.infer<typeof A.schema>)
-      expectType<z.infer<typeof A.M.schema> | z.infer<typeof A.N.schema>>(
-        `` as unknown as z.infer<typeof A.schema>
-      )
-    })
-    it(`.schema points to a zod object if only one variant is defined`, () => {
-      const B = data(`B`).variant($M).schema({ m: z.string() }).done()
-      expect(B.schema.safeParse(``).success).toEqual(false)
-      expectType<{ _tag: $M; m: string }>(`` as unknown as z.infer<typeof B.schema>)
-      expectType<z.infer<typeof B.M.schema>>(`` as unknown as z.infer<typeof B.schema>)
-    })
-  })
-
-  describe(`Variant API`, () => {
-    it(`.symbol contains the unique symbol for this variant`, () => {
-      expectType<symbol>(A.M.symbol)
-      expect(typeof A.M.symbol).toBe(`symbol`)
-    })
-
-    it(`.name contains the name of the variant`, () => {
-      expectType<$M>(A.M.name)
-      expect(A.M.name).toBe($M)
-      expectType<$N>(A.N.name)
-      expect(A.N.name).toBe($N)
-    })
-
-    it(`.schema contains the zod schema for the variant`, () => {
-      expectType<z.ZodSchema>(A.M.schema)
-      expect(A.M.schema).toBeDefined()
-      expect(A.M.schema.safeParse(``).success).toBe(false)
-      expectType<z.ZodSchema>(A.N.schema)
-      expect(A.N.schema).toBeDefined()
-      expect(A.N.schema.safeParse(``).success).toBe(false)
-    })
-
-    describe(`.create()`, () => {
-      it(`If schema not given (aka. no properties), then constructor does not accept input`, () => {
-        const A = data($A).variant($N).variant($M).done()
-        // @ts-expect-error: empty object still not like empty variant
-        A.N.create({})
-        expect(A.N.create()).toEqual({ _tag: $N, _: { symbol: A.N.symbol } })
-        expect(A.M.create()).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
-        // eslint-disable-next-line
-        expect((A.M as any).is({})).toEqual(false)
-        expect(A.M.is$({})).toEqual(false)
-      })
-      it(`If schema only has optional properties then constructor input is optional`, () => {
-        const A = data($A).variant($M).schema({ m: z.number().optional() }).done()
-        A.M.create()
-        A.M.create({})
-        expect(A.M.create()).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
-        expect(A.M.create({})).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
-        expect(A.M.create({ m: 1 })).toEqual({ m: 1, _tag: $M, _: { symbol: A.M.symbol } })
-      })
-      it(`creates the variant`, () => {
-        // @ts-expect-error: Invalid input
-        A.M.create({ x: 1 })
-
-        // @ts-expect-error: Input required
-        A.M.create()
-
-        // @ts-expect-error: Excess invalid input
-        A.M.create({ m: `m`, n: 2 })
-
-        const m = A.M.create({ m: `m` })
-        expectType<{ _tag: $M; m: string }>(m)
-        expect(m).toEqual({ _tag: $M, _: { symbol: A.M.symbol }, m: `m` })
-
-        const n = A.N.create({ n: 1 })
-        expectType<{ _tag: $N; n: number }>(n)
-        expect(n).toEqual({ _tag: $N, _: { symbol: A.N.symbol }, n: 1 })
-      })
-    })
-
-    it(`.is() is a type guard / predicate function accepting only variants of the ADT`, () => {
-      const mn = Math.random() > 0.5 ? m : n
-
-      // @ts-expect-error: value is not an ADT variant.
-      A.M.is(`whatever`)
-
-      // @ts-expect-error The type has not been narrowed yet.
-      expectType<typeof m>(mn)
-
-      if (A.M.is(mn)) expectType<typeof m>(mn)
-      if (!A.M.is(mn)) expectType<typeof n>(mn)
-
-      expect(A.M.is(n)).toBe(false)
-      expect(A.M.is(m)).toBe(true)
-      expect(A.N.is(m)).toBe(false)
-      expect(A.N.is(n)).toBe(true)
-    })
-
-    it(`.is$() is a type guard / predicate function accepting any value`, () => {
-      const mMaybe = Math.random() > 0.5 ? m : false
-
-      // Statically fine, any value may be checked here.
-      A.M.is$(`whatever`)
-
-      // @ts-expect-error The type has not being narrowed yet.
-      expectType<typeof m>(mMaybe)
-
-      if (A.M.is$(mMaybe)) expectType<typeof m>(mMaybe)
-      if (!A.M.is$(mMaybe)) expectType<false>(mMaybe)
-
-      expect(A.M.is$({})).toBe(false)
-      expect(A.M.is$([])).toBe(false)
-      expect(A.M.is$(null)).toBe(false)
-      expect(A.M.is$(1)).toBe(false)
-      expect(A.M.is$(m)).toBe(true)
-      expect(A.M.is$({ _: null })).toBe(false)
-      expect(A.M.is$({ _tag: $A, _: { symbol: A.M.symbol }, a: `` })).toBe(true)
-      expect(A.M.is$({ _: { symbol: A.M.symbol } })).toBe(true)
     })
   })
 })
