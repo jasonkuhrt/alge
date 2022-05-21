@@ -1932,7 +1932,7 @@ __metadata:
     konn: 0.7.0
     markdown-toc: 1.2.0
     prettier: 2.6.2
-    remeda: ^0.0.32
+    remeda: ^0.0.34
     semver: 7.3.7
     semver-utils: 1.1.4
     ts-jest: 27.1.5
@@ -6548,10 +6548,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remeda@npm:^0.0.32":
-  version: 0.0.32
-  resolution: "remeda@npm:0.0.32"
-  checksum: 1a2e7734f387f1f258a96ceaafe88a4b098d08fac3a1c5d2d721ee1f6b01016523dc78097fbb8d96e7aa0b736746e8952462b5d596fdfd902a1c929a4d87268b
+"remeda@npm:^0.0.34":
+  version: 0.0.34
+  resolution: "remeda@npm:0.0.34"
+  checksum: 41ea933e34f1b77555684cd412b33772a2575f1e09ed703782d747e1733817478bb27fd7fa3da799d2371ad3a418f7812a503014c35db8efbbaea4e181d24c5c
   languageName: node
   linkType: hard
 
