@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "endent": "^2.1.0",
-    "remeda": "^0.0.34",
+    "remeda": "^0.0.35",
     "tslib": "^2.4.0",
     "zod": "^3.14.4"
   },
