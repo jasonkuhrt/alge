@@ -48,8 +48,8 @@
   "devDependencies": {
     "@jest/types": "28.1.0",
     "@prisma-labs/prettier-config": "0.1.0",
-    "@swc/core": "1.2.189",
-    "@swc/helpers": "0.3.14",
+    "@swc/core": "1.2.194",
+    "@swc/helpers": "0.3.16",
     "@swc/jest": "0.2.21",
     "@tsconfig/recommended": "1.0.1",
     "@types/jest": "27.5.1",
@@ -76,12 +76,12 @@
     "prettier": "2.6.2",
     "semver": "7.3.7",
     "semver-utils": "1.1.4",
-    "ts-jest": "28.0.2",
+    "ts-jest": "28.0.3",
     "ts-node": "10.8.0",
     "ts-patch": "2.0.1",
     "tsconfig-paths": "4.0.0",
     "tsd": "0.20.0",
-    "typescript": "4.6.4",
+    "typescript": "4.7.2",
     "typescript-snapshots-plugin": "1.7.0",
     "typescript-transform-paths": "3.3.1"
   }
