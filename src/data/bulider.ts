@@ -20,7 +20,6 @@ import { Initial } from './types'
 export const data = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
   let currentVariant: null | SomeVariantDefinition = null
   const variants: SomeVariantDefinition[] = []
-
   const builder = {
     variant: (nameOrVariant: string | SomeVariant) => {
       currentVariant =
@@ -29,10 +28,12 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
               name: nameOrVariant,
               schema: z.object({ _tag: z.literal(nameOrVariant) }),
               extensions: {},
+              defaultsProvider: null,
             }
           : {
               name: nameOrVariant.name,
               schema: nameOrVariant.schema,
+              defaultsProvider: nameOrVariant._.defaultsProvider,
               // codec: { encode: nameOrVariant.encode, decode: nameOrVariant.decode },
               extensions: nameOrVariant,
             }
@@ -181,10 +182,8 @@ export type Infer<ADT extends SomeADT> = {
 
 export type SchemaToTuple<Schemas extends [z.SomeZodObject, ...z.SomeZodObject[]]> = {
   [Index in keyof Schemas]: [
-    // @ts-expect-error TODO
     // z.TypeOf<ReturnType<Schemas[Index]['_def']['shape']>['_tag']>,
     z.TypeOf<Schemas[Index]>['_tag'],
-    // @ts-expect-error TODO
     z.TypeOf<Schemas[Index]>
   ]
 }

@@ -37,28 +37,45 @@ export type ADTDecoder<Vs extends StoredVariants> = (value: string) => null | St
 
 export type ADTDecoderThatThrows<Vs extends StoredVariants> = (value: string) => StoredVariants.Union<Vs>
 
+export type DefaultsBase = object
+
+export type InputBase = object
+
 export type StoredVariant = {
   name: string
   schema: z.ZodRawShape
   codec: boolean
   extensions: ExtensionsBase
+  defaults: null | DefaultsBase
 }
 
 // prettier-ignore
 // eslint-disable-next-line
 export namespace StoredVariant {
+  export type Create<Name extends NameBase> = {
+    name: Name
+    schema: { _tag: z.ZodLiteral<Name> }
+    codec: false
+    // TODO
+    // eslint-disable-next-line
+    extensions: {}
+    defaults: null
+  }
   export type AddSchema<Schema extends SchemaBase, V extends StoredVariant> =
     Omit<V, `schema`> & { schema: Schema & { _tag: z.ZodLiteral<V['name']> } }
     
   export type AddCodec<V extends StoredVariant> =
     Omit<V, `codec`> & { codec: true }
 
+  export type AddDefaults<V extends StoredVariant, Defaults> = 
+    Omit<V, `defaults`> & { defaults: Defaults }
+
   export type AddExtensions<Extensions extends ExtensionsBase, V extends StoredVariant> =
     V & { extensions: Extensions }
 
   export type GetType<V extends StoredVariant> =
     z.TypeOf<z.ZodObject<V[`schema`]>>
-
+  
   export type GetZodSchema<V extends StoredVariant> =
     z.ZodObject<V[`schema`]>
 }
@@ -72,7 +89,6 @@ export namespace StoredVariants {
   export type Union<Vs extends StoredVariants> = z.TypeOf<ZodUnion<Vs>>
 
   export type IsAllHaveCodec<Vs extends StoredVariants> = {
-    // @ts-expect-error TODO
     [I in keyof Vs]: Vs[I][`codec`] extends true ? true : false
   } extends [true, ...true[]]
     ? true
@@ -86,7 +102,6 @@ export namespace StoredVariants {
     : false
 
   type ToZodObjects<Vs extends StoredVariants> = {
-    // @ts-expect-error todo
     [Index in keyof Vs]: z.ZodObject<Vs[Index][`schema`]>
   }
 }
@@ -98,6 +113,7 @@ export type CreateStoredVariant<Name extends NameBase> = {
   // TODO
   // eslint-disable-next-line
   extensions: {}
+  defaults: null
 }
 
 export type CreateStoredVariantFromDatum<Datum extends SomeDatum> = {
@@ -105,4 +121,7 @@ export type CreateStoredVariantFromDatum<Datum extends SomeDatum> = {
   schema: Datum['schema']['shape']
   codec: Datum['encode'] extends never ? false : true
   extensions: Omit<Datum, 'symbol' | 'create' | 'name' | 'schema' | 'encode' | 'decode' | 'is' | '$is'>
+  defaults: null extends Datum['_']['defaultsProvider']
+    ? null
+    : ReturnType<Exclude<Datum['_']['defaultsProvider'], null>>
 }

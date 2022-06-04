@@ -7,11 +7,15 @@ import {
   StoredVariant,
   StoredVariants,
 } from '~/core/types'
+import { SomeDefaultsProvider } from '~/core/typesInternal'
 import { GetConstructorInput } from '~/data/Controller'
 import { OmitRequired } from '~/lib/utils'
 import { z } from 'zod'
 
 export type SomeDatum = {
+  _: {
+    defaultsProvider: null | SomeDefaultsProvider
+  }
   name: string
   symbol: symbol
   schema: z.SomeZodObject
@@ -26,7 +30,9 @@ export type SomeDatum = {
 
 // prettier-ignore
 export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
-  // _: V
+  _: {
+    defaultsProvider: null extends V['defaults'] ? null : SomeDefaultsProvider<object,Exclude<V['defaults'],null>>
+  }
   name: V[`name`]
   symbol: symbol
   schema: StoredVariant.GetZodSchema<V>
