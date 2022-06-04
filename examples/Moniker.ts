@@ -16,10 +16,10 @@ const replace = (pattern: RegExp, replacementValue: string) => (value: string) =
 export const Moniker = Alge.data(`Moniker`)
   .variant(`Local`)
   .schema({
-    name: z.string().nonempty(),
+    name: z.string().min(1),
     scope: z
       .string()
-      .nonempty()
+      .min(1)
       // Strip leading @ on scope if given
       .transform(replace(/^@/, ``)),
   })
@@ -40,7 +40,7 @@ export const Moniker = Alge.data(`Moniker`)
   })
   .variant(`Global`)
   .schema({
-    name: z.string().nonempty(),
+    name: z.string().min(1),
   })
   .extend({
     /**

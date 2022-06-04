@@ -51,6 +51,13 @@ export type VariantsNamespacedMethods<Vs extends StoredVariants> = {
   [V in Vs[number] as V[`name`]]: Datum<Vs, V>
 }
 
-export type GetConstructorInput<V extends StoredVariant> = z.TypeOf<
-  z.Omit<StoredVariant.GetZodSchema<V>, { _tag: true }>
+export type GetConstructorInput<V extends StoredVariant> = ApplyDefaults<
+  V['defaults'],
+  z.TypeOf<z.Omit<StoredVariant.GetZodSchema<V>, { _tag: true }>>
 >
+
+export type ApplyDefaults<Defaults, Input> = {
+  [K in keyof Input as K extends keyof Defaults ? never : K]: Input[K]
+} & {
+  [K in keyof Input as K extends keyof Defaults ? K : never]?: Input[K]
+}
