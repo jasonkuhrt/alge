@@ -182,8 +182,10 @@ export type Infer<ADT extends SomeADT> = {
 
 export type SchemaToTuple<Schemas extends [z.SomeZodObject, ...z.SomeZodObject[]]> = {
   [Index in keyof Schemas]: [
+    // @ts-expect-error TODO
     // z.TypeOf<ReturnType<Schemas[Index]['_def']['shape']>['_tag']>,
     z.TypeOf<Schemas[Index]>['_tag'],
+    // @ts-expect-error TODO
     z.TypeOf<Schemas[Index]>
   ]
 }
