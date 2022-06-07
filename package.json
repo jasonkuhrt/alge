@@ -46,7 +46,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
-    "@jest/types": "28.1.0",
+    "@jest/types": "28.1.1",
     "@prisma-labs/prettier-config": "0.1.0",
     "@swc/core": "1.2.197",
     "@swc/helpers": "0.3.17",
@@ -67,7 +67,7 @@
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-simple-import-sort": "7.0.0",
     "eslint-plugin-tsdoc": "0.2.16",
-    "jest": "28.1.0",
+    "jest": "28.1.1",
     "jest-watch-select-projects": "2.0.0",
     "jest-watch-suspend": "1.1.2",
     "jest-watch-typeahead": "1.1.0",
