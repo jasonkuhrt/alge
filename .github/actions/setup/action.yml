@@ -17,3 +17,4 @@ runs:
         node-version: ${{inputs.node-version}}
         cache: 'yarn'
     - run: yarn install
+      shell: bash
