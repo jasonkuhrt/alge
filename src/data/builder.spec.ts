@@ -14,7 +14,6 @@ type $M = typeof $M
 
 const A = data($A).variant($M).schema({ m: z.string() }).variant($N).schema({ n: z.number() }).done()
 
-// const m = A.M.create({ m: `m` })
 const n = A.N.create({ n: 1 })
 
 describe(`.data(<name>)`, () => {
@@ -40,7 +39,9 @@ describe(`.data(<datumn>)`, () => {
   //prettier-ignore
   const M = datum($M).schema({ m: z.literal(`m`) }).done()
   //prettier-ignore
-  const N = datum($N).schema({ n: z.literal(1) }).done()
+  const N = datum($N)
+    .schema({ n: z.literal(1) })
+    .done()
   const A = data($A).variant(M).variant(N).done()
   const m = A.M.create({ m: `m` })
   const n = A.N.create({ n: 1 })
@@ -167,11 +168,11 @@ describe(`.codec()`, () => {
       expect(() => (A.M as any).encode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
       expectType<never>(A.M.decode)
       //eslint-disable-next-line
-      expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      expect(() => (A.M as any).decode()).toThrowErrorMatchingInlineSnapshot(`"Codec not defined."`)
       expectType<never>(A.M.decodeOrThrow)
       //prettier-ignore
       //eslint-disable-next-line
-      expect(() => (A.M as any).decodeOrThrow()).toThrowErrorMatchingInlineSnapshot(`"Codec not implemented."`)
+      expect(() => (A.M as any).decodeOrThrow()).toThrowErrorMatchingInlineSnapshot(`"Codec not defined."`)
     })
     describe(`.decode()`, () => {
       it(`converts string into data or null on failure`, () => {
@@ -234,9 +235,11 @@ describe(`.codec()`, () => {
       it(`converts string into data or throws error on failure`, () => {
         const decodeResult = B.M.decodeOrThrow(`m`)
         expectType<z.infer<typeof A.M.schema>>(decodeResult)
-        expect(() => B.M.decodeOrThrow(``)).toThrowErrorMatchingInlineSnapshot(
-          `"Failed to decode value \`\` into a A."`
-        )
+        expect(() => B.M.decodeOrThrow(``))
+          .toThrowErrorMatchingInlineSnapshot
+          // TODO
+          // `"Failed to decode value \`\` into a \`B.M\`."`
+          (`"Failed to decode value \`\` into a M."`)
       })
     })
   })
