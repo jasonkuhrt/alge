@@ -1,125 +1,59 @@
-import { is } from '../core/helpers'
-import { ExtensionsBase } from '../core/types'
-import {
-  SomeADT,
-  SomeCodecDefinition,
-  SomeSchema,
-  SomeVariant,
-  SomeVariantDefinition,
-} from '../core/typesInternal'
+import { SomeADT } from '../core/typesInternal'
 import { Errors } from '../Errors'
 import { r } from '../lib/r'
 import { code, isEmpty, TupleToObject } from '../lib/utils'
 import { z } from '../lib/z'
 import { Initial } from './types'
+import { SomeDatum } from '~/datum/controller'
+import { SomeDatumBuilder } from '~/datum/types'
+import { datum } from '~/index_'
 
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
 // @ts-expect-error empty init tuple
 export const data = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
-  let currentVariant: null | SomeVariantDefinition = null
-  const variants: SomeVariantDefinition[] = []
+  // let currentVariant: null | SomeVariantDefinition = null
+  // const variants: SomeVariantDefinition[] = []
+  let currentDatumBuilder: null | SomeDatumBuilder = null
+  const datums: SomeDatum[] = []
   const builder = {
-    variant: (nameOrVariant: string | SomeVariant) => {
-      currentVariant =
+    variant: (nameOrVariant: string | SomeDatum) => {
+      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatum)
+      currentDatumBuilder =
         typeof nameOrVariant === `string`
-          ? {
-              name: nameOrVariant,
-              schema: z.object({ _tag: z.literal(nameOrVariant) }),
-              extensions: {},
-              defaultsProvider: null,
-            }
-          : {
-              name: nameOrVariant.name,
-              schema: nameOrVariant.schema,
-              defaultsProvider: nameOrVariant._.defaultsProvider,
-              // codec: { encode: nameOrVariant.encode, decode: nameOrVariant.decode },
-              extensions: nameOrVariant,
-            }
-      variants.push(currentVariant)
-      return builder
-    },
-    schema: (schema: SomeSchema) => {
-      if (!currentVariant) throw new Error(`Define variant first.`)
-      currentVariant.schema = z.object({ ...schema, _tag: z.literal(currentVariant.name) })
-      return builder
-    },
-    extend: (extensions: ExtensionsBase) => {
-      if (!currentVariant) throw new Error(`Define variant first.`)
-      currentVariant.extensions = {
-        ...currentVariant.extensions,
-        ...extensions,
-      }
-      return builder
-    },
-    codec: (codecDef: SomeCodecDefinition) => {
-      if (!currentVariant) throw new Error(`Define variant first.`)
-      if (currentVariant.codec) throw new Error(`Codec already defined.`)
-      currentVariant.codec = codecDef
-      return builder
+          ? (datum(nameOrVariant, {
+              extensions: builder,
+            }) as SomeDatumBuilder)
+          : (datum(nameOrVariant.name, {
+              extensions: builder,
+              extend: nameOrVariant,
+            }) as SomeDatumBuilder)
+      return currentDatumBuilder
     },
     done: () => {
-      if (isEmpty(variants)) throw createEmptyVariantsError({ name })
+      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatum)
+      if (isEmpty(datums)) throw createEmptyVariantsError({ name })
 
-      const variantApis = r.pipe(
-        variants,
-        r.map((v) => {
-          const symbol = Symbol(v.name)
-          const api = {
-            ...v,
-            create: (input?: object) => ({
-              _tag: v.name,
-              _: {
-                symbol,
-              },
-              ...input,
-            }),
-            symbol,
-            //eslint-disable-next-line
-            is$: (value: unknown) => is(value, symbol),
-            is: (value: unknown) => is(value, symbol),
-            decode: (value: string) => {
-              if (!v.codec) throw new Error(`Codec not implemented.`)
-              const data = v.codec.decode(value, { ...v.extensions, schema: v.schema, name: v.name })
-              if (data === null) return null
-              // TODO
-              // eslint-disable-next-line
-              return api.create(data)
-            },
-            decodeOrThrow: (value: string) => {
-              const data = api.decode(value)
-              if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
-              return data
-            },
-            encode: (variant: SomeVariant) => {
-              if (!v.codec) throw new Error(`Codec not implemented.`)
-              return v.codec.encode(variant)
-            },
-            ...v.extensions,
-          }
-          return api
-        }),
-        r.indexBy(r.prop(`name`))
-      )
+      const datumsLookup = r.pipe(datums, r.indexBy(r.prop(`name`)))
 
       const controller = {
         name,
         schema:
-          variants.length >= 2
+          datums.length >= 2
             ? z.union([
                 // eslint-disable-next-line
-                variants[0]!.schema,
+                datums[0]!.schema,
                 // eslint-disable-next-line
-                variants[1]!.schema,
-                ...variants.slice(2).map((_) => _.schema),
+                datums[1]!.schema,
+                ...datums.slice(2).map((_) => _.schema),
               ])
-            : variants.length === 1
+            : datums.length === 1
             ? // eslint-disable-next-line
-              variants[0]!.schema
+              datums[0]!.schema
             : null,
-        encode: (variant: SomeVariant) => {
-          const variantsMissingCodecDef = variants.filter((v) => v.codec === undefined)
+        encode: (someDatum: SomeDatum) => {
+          const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
           if (variantsMissingCodecDef.length)
             throw new Error(
               `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
@@ -128,21 +62,21 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             )
           // TODO
           // eslint-disable-next-line
-          const variantApi = variantApis[(variant as any)._tag]
+          const datum = datumsLookup[(someDatum as any)._tag]
           // TODO
           // eslint-disable-next-line
-          if (!variantApi) throw new Error(`Failed to find Variant tagged ${(variant as any)._tag}`)
-          return variantApi.encode(variant)
+          if (!datum) throw new Error(`Failed to find Variant tagged ${(someDatum as any)._tag}`)
+          return datum.encode(someDatum, { schema: datum.schema })
         },
         decode: (value: string) => {
-          const variantsMissingCodecDef = variants.filter((v) => v.codec === undefined)
+          const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
           if (variantsMissingCodecDef.length)
             throw new Error(
               `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
                 .map(r.prop(`name`))
                 .join(`, `)}`
             )
-          for (const variantApi of Object.values(variantApis)) {
+          for (const variantApi of Object.values(datumsLookup)) {
             const result = variantApi.decode(value)
             if (result) return result
           }
@@ -154,7 +88,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
           return data
         },
-        ...variantApis,
+        ...datumsLookup,
       }
 
       return controller

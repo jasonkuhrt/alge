@@ -30,3 +30,43 @@ export const code = (s: string) => `\`${s}\``
  */
 // eslint-disable-next-line
 export const asAny = (x: any): any => x
+
+/**
+ * Extend a chaining API with new methods.
+ */
+export const extendChain = (params: {
+  chain: {
+    terminus: string
+    methods: Record<string, (...args: unknown[]) => unknown>
+  }
+  extensions: object
+}) => {
+  const wrapperChain = {
+    _: {
+      innerChain: params.chain.methods,
+    },
+    ...Object.fromEntries(
+      Object.entries(params.chain.methods).map(([key, f]) => [
+        key,
+        key === params.chain.terminus
+          ? f
+          : (...args: unknown[]): unknown => {
+              f(...args)
+              return wrapperChain
+            },
+      ])
+    ),
+    ...params.extensions,
+  }
+  return wrapperChain
+}
+
+export const applyDefaults = (input: object, defaults: object) => {
+  const input_ = { ...input }
+  for (const entry of Object.entries(defaults)) {
+    // @ts-expect-error dynammic
+    // eslint-disable-next-line
+    input_[entry[0]] = input_[entry[0]] === undefined ? entry[1] : input_[entry[0]]
+  }
+  return input_
+}

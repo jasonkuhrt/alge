@@ -7,7 +7,7 @@ import {
   StoredVariant,
   StoredVariants,
 } from '~/core/types'
-import { SomeDefaultsProvider } from '~/core/typesInternal'
+import { SomeCodecDefinition, SomeDefaultsProvider } from '~/core/typesInternal'
 import { GetConstructorInput } from '~/data/Controller'
 import { OmitRequired } from '~/lib/utils'
 import { z } from 'zod'
@@ -15,6 +15,7 @@ import { z } from 'zod'
 export type SomeDatum = {
   _: {
     defaultsProvider: null | SomeDefaultsProvider
+    codec?: SomeCodecDefinition
   }
   name: string
   symbol: symbol

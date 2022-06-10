@@ -1,3 +1,4 @@
+import { SomeDatum } from './controller'
 import { Initial } from './types'
 import { is } from '~/core/helpers'
 import { ExtensionsBase } from '~/core/types'
@@ -8,54 +9,73 @@ import {
   SomeVariant,
   SomeVariantDefinition,
 } from '~/core/typesInternal'
+import { applyDefaults, extendChain } from '~/lib/utils'
 import { z } from 'zod'
 
-export const datum = <Name extends string>(name: Name): Initial<Name> => {
+export const datum = <Name extends string>(
+  name: Name,
+  _: {
+    extensions?: object
+    extend?: SomeDatum
+  } = {}
+): Initial<Name> => {
+  const chainTerminus = `done`
   const initialSchema = z.object({ _tag: z.literal(name) })
-  const currentVariant: SomeVariantDefinition = {
+  const current: SomeVariantDefinition = {
     name,
     schema: initialSchema,
     extensions: {},
     defaultsProvider: null,
+    codec: undefined,
+    ...(_.extend
+      ? {
+          name: _.extend.name,
+          schema: _.extend.schema,
+          defaultsProvider: _.extend._.defaultsProvider,
+          codec: _.extend._.codec,
+          extensions: _.extend,
+        }
+      : {}),
   }
 
-  const builder = {
+  const chain = {
     schema: (schema: SomeSchema) => {
-      currentVariant.schema = z.object({ ...schema, _tag: z.literal(currentVariant.name) })
-      return builder
+      current.schema = z.object({ ...schema, _tag: z.literal(current.name) })
+      return chain
     },
     extend: (extensions: ExtensionsBase) => {
-      currentVariant.extensions = {
-        ...currentVariant.extensions,
+      current.extensions = {
+        ...current.extensions,
         ...extensions,
       }
-      return builder
+      return chain
     },
     codec: (codecDef: SomeCodecDefinition) => {
-      if (currentVariant.codec) throw new Error(`Codec already defined.`)
-      currentVariant.codec = codecDef
-      return builder
+      if (current.codec) throw new Error(`Codec already defined.`)
+      current.codec = codecDef
+      return chain
     },
     defaults: (defaultsProvider: SomeDefaultsProvider) => {
-      if (currentVariant.schema === initialSchema) throw new Error(`No schema defined.`)
-      if (currentVariant.defaultsProvider) throw new Error(`Defaults already defined.`)
-      currentVariant.defaultsProvider = defaultsProvider
-      return builder
+      if (current.schema === initialSchema) throw new Error(`No schema defined.`)
+      if (current.defaultsProvider) throw new Error(`Defaults already defined.`)
+      current.defaultsProvider = defaultsProvider
+      return chain
     },
     done: () => {
-      const symbol = Symbol(currentVariant.name)
+      const symbol = Symbol(current.name)
       const controller = {
-        ...currentVariant,
+        ...current,
         _: {
-          defaultsProvider: currentVariant.defaultsProvider,
+          codec: current.codec,
+          defaultsProvider: current.defaultsProvider,
         },
         create: (input?: object) => ({
-          _tag: currentVariant.name,
+          _tag: current.name,
           _: {
             symbol,
           },
           // TODO pass through zod validation
-          ...applyDefaults(input ?? {}, currentVariant.defaultsProvider?.(input ?? {}) ?? {}),
+          ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
         }),
         // TODO move into _
         symbol,
@@ -63,11 +83,11 @@ export const datum = <Name extends string>(name: Name): Initial<Name> => {
         is$: (value: unknown) => is(value, symbol),
         is: (value: unknown) => is(value, symbol),
         decode: (value: string) => {
-          if (!currentVariant.codec) throw new Error(`Codec not defined.`)
-          const data = currentVariant.codec.decode(value, {
-            ...currentVariant.extensions,
-            schema: currentVariant.schema,
-            name: currentVariant.name,
+          if (!current.codec) throw new Error(`Codec not defined.`)
+          const data = current.codec.decode(value, {
+            ...current.extensions,
+            schema: current.schema,
+            name: current.name,
           })
           if (data === null) return null
           // TODO
@@ -80,26 +100,28 @@ export const datum = <Name extends string>(name: Name): Initial<Name> => {
           return data
         },
         encode: (variant: SomeVariant) => {
-          if (!currentVariant.codec) throw new Error(`Codec not implemented.`)
-          return currentVariant.codec.encode(variant)
+          if (!current.codec) throw new Error(`Codec not implemented.`)
+          return current.codec.encode(variant)
         },
-        ...currentVariant.extensions,
+        ...current.extensions,
       }
       return controller
     },
   }
 
-  const applyDefaults = (input: object, defaults: object) => {
-    const input_ = { ...input }
-    for (const entry of Object.entries(defaults)) {
-      // @ts-expect-error dynammic
-      // eslint-disable-next-line
-      input_[entry[0]] = input_[entry[0]] === undefined ? entry[1] : input_[entry[0]]
-    }
-    return input_
-  }
+  const chainWrapped = _.extensions
+    ? extendChain({
+        chain: {
+          terminus: chainTerminus,
+          // TODO
+          // @ts-expect-error someting about chain not having an index signature.
+          methods: chain,
+        },
+        extensions: _.extensions,
+      })
+    : chain
 
   // TODO
   // eslint-disable-next-line
-  return builder as any
+  return chainWrapped as any
 }
