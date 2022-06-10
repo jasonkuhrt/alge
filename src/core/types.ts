@@ -89,7 +89,6 @@ export namespace StoredVariants {
   export type Union<Vs extends StoredVariants> = z.TypeOf<ZodUnion<Vs>>
 
   export type IsAllHaveCodec<Vs extends StoredVariants> = {
-    // @ts-expect-error TODO
     [I in keyof Vs]: Vs[I][`codec`] extends true ? true : false
   } extends [true, ...true[]]
     ? true
@@ -103,7 +102,6 @@ export namespace StoredVariants {
     : false
 
   type ToZodObjects<Vs extends StoredVariants> = {
-    // @ts-expect-error todo
     [Index in keyof Vs]: z.ZodObject<Vs[Index][`schema`]>
   }
 }

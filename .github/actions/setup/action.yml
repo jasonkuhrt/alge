@@ -16,5 +16,5 @@ runs:
       with:
         node-version: ${{inputs.node-version}}
         cache: 'yarn'
-    - uses: prisma/action-node-cache-dependencies@main
-      if: inputs.install-deps
+    - run: yarn install
+      shell: bash
