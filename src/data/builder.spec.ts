@@ -235,11 +235,11 @@ describe(`.codec()`, () => {
       it(`converts string into data or throws error on failure`, () => {
         const decodeResult = B.M.decodeOrThrow(`m`)
         expectType<z.infer<typeof A.M.schema>>(decodeResult)
-        expect(() => B.M.decodeOrThrow(``))
-          .toThrowErrorMatchingInlineSnapshot
+        expect(() => B.M.decodeOrThrow(``)).toThrowErrorMatchingInlineSnapshot(
           // TODO
           // `"Failed to decode value \`\` into a \`B.M\`."`
-          (`"Failed to decode value \`\` into a M."`)
+          `"Failed to decode value \`\` into a M."`
+        )
       })
     })
   })
