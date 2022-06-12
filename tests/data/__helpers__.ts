@@ -17,3 +17,5 @@ export const A = Alge.data($A)
   .done()
 
 export const m = A.M.create({ m: `m` })
+
+export const n = A.N.create({ n: 1 })

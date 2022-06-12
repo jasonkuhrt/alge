@@ -10,7 +10,7 @@ import {
   SchemaBase,
   StoredVariant,
   StoredVariants,
-} from '../core/types'
+} from '../../core/types'
 import { Controller } from './Controller'
 import { SomeDatumController } from '~/datum/types/controller'
 

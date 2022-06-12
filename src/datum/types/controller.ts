@@ -6,9 +6,14 @@ import {
   SomeEncoder,
 } from './internal'
 import { Decoder, DecoderThatThrows, Encoder, StoredVariant, StoredVariants } from '~/core/types'
-import { GetConstructorInput } from '~/data/Controller'
+import { ApplyDefaults } from '~/data/types/Controller'
 import { OmitRequired } from '~/lib/utils'
-import { z } from 'zod'
+import { z } from '~/lib/z'
+
+export type GetConstructorInput<V extends StoredVariant> = ApplyDefaults<
+  V['defaults'],
+  z.TypeOf<z.Omit<StoredVariant.GetZodSchema<V>, { _tag: true }>>
+>
 
 export type SomeDatum = {
   _tag: string

@@ -1,6 +1,5 @@
-import { GetConstructorInput } from '~/data/Controller'
 import { DefaultsBase } from '~/datum/types/builder'
-import { SomeDatumController } from '~/datum/types/controller'
+import { GetConstructorInput, SomeDatumController } from '~/datum/types/controller'
 import { z } from 'zod'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>

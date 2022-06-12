@@ -1,7 +1,6 @@
-import { ADTDecoder, ADTEncoder, StoredVariant, StoredVariants } from '../core/types'
-import { Datum } from '../datum/types/controller'
-import { z } from '../lib/z'
-import { StoredADT } from './types'
+import { ADTDecoder, ADTEncoder, StoredVariants } from '../../core/types'
+import { Datum } from '../../datum/types/controller'
+import { StoredADT } from './Builder'
 
 export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
   ADTMethods<Vs> &
@@ -50,11 +49,6 @@ type ADTMethods<Vs extends StoredVariants> = {
 export type VariantsNamespacedMethods<Vs extends StoredVariants> = {
   [V in Vs[number] as V[`name`]]: Datum<Vs, V>
 }
-
-export type GetConstructorInput<V extends StoredVariant> = ApplyDefaults<
-  V['defaults'],
-  z.TypeOf<z.Omit<StoredVariant.GetZodSchema<V>, { _tag: true }>>
->
 
 export type ApplyDefaults<Defaults, Input> = {
   [K in keyof Input as K extends keyof Defaults ? never : K]: Input[K]
