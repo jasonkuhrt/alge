@@ -4,7 +4,7 @@ import {
   SomeDecoder,
   SomeDefaultsProvider,
   SomeEncoder,
-} from '../typesInternal'
+} from './internal'
 import { Decoder, DecoderThatThrows, Encoder, StoredVariant, StoredVariants } from '~/core/types'
 import { GetConstructorInput } from '~/data/Controller'
 import { OmitRequired } from '~/lib/utils'

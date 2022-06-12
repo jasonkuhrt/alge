@@ -1,5 +1,5 @@
 import { GetConstructorInput } from '~/data/Controller'
-import { DefaultsBase } from '~/datum/types'
+import { DefaultsBase } from '~/datum/types/builder'
 import { SomeDatumController } from '~/datum/types/controller'
 import { z } from 'zod'
 

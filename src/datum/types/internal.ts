@@ -1,5 +1,5 @@
-import { DefaultsBase } from './types'
-import { SomeDatumController } from './types/controller'
+import { DefaultsBase } from './builder'
+import { SomeDatumController } from './controller'
 import { InputBase, StoredVariant } from '~/core/types'
 import { z } from 'zod'
 

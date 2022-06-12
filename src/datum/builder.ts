@@ -1,4 +1,4 @@
-import { Initial } from './types'
+import { Initial } from './types/builder'
 import { SomeDatumController } from './types/controller'
 import {
   SomeCodecDefinition,
@@ -6,7 +6,7 @@ import {
   SomeDatumDefinition,
   SomeDefaultsProvider,
   SomeSchema,
-} from './typesInternal'
+} from './types/internal'
 import { is } from '~/core/helpers'
 import { ExtensionsBase } from '~/core/types'
 import { applyDefaults, extendChain } from '~/lib/utils'

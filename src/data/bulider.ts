@@ -5,7 +5,7 @@ import { z } from '../lib/z'
 import { Initial } from './types'
 import { SomeADT } from './typesInternal'
 import { SomeDatum, SomeDatumController } from '~/datum/types/controller'
-import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '~/datum/typesInternal'
+import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '~/datum/types/internal'
 import { datum } from '~/index_'
 import { SomeZodObject } from 'zod'
 
