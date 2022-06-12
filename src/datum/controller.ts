@@ -1,13 +1,5 @@
-import {
-  Decoder,
-  DecoderThatThrows,
-  Encoder,
-  SomeDecoder,
-  SomeEncoder,
-  StoredVariant,
-  StoredVariants,
-} from '~/core/types'
-import { SomeCodecDefinition, SomeDefaultsProvider } from '~/core/typesInternal'
+import { SomeCodecDefinition, SomeDecoder, SomeDefaultsProvider, SomeEncoder } from './typesInternal'
+import { Decoder, DecoderThatThrows, Encoder, StoredVariant, StoredVariants } from '~/core/types'
 import { GetConstructorInput } from '~/data/Controller'
 import { OmitRequired } from '~/lib/utils'
 import { z } from 'zod'

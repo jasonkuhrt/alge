@@ -1,5 +1,6 @@
 import { GetConstructorInput } from '~/data/Controller'
 import { SomeDatum } from '~/datum/controller'
+import { DefaultsBase } from '~/datum/types'
 import { z } from 'zod'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>
@@ -26,18 +27,11 @@ export type DecoderDefinition<V extends StoredVariant> = (
 
 export type Decoder<V extends StoredVariant> = (value: string) => null | StoredVariant.GetType<V>
 
-export type SomeDecoder = (value: string) => null | object
-
-// eslint-disable-next-line
-export type SomeEncoder = (value: any, context: { schema: z.ZodSchema }) => string
-
 export type DecoderThatThrows<V extends StoredVariant> = (value: string) => StoredVariant.GetType<V>
 
 export type ADTDecoder<Vs extends StoredVariants> = (value: string) => null | StoredVariants.Union<Vs>
 
 export type ADTDecoderThatThrows<Vs extends StoredVariants> = (value: string) => StoredVariants.Union<Vs>
-
-export type DefaultsBase = object
 
 export type InputBase = object
 
@@ -106,7 +100,7 @@ export namespace StoredVariants {
   }
 }
 
-export type CreateStoredVariant<Name extends NameBase> = {
+export type CreateStoredDatum<Name extends NameBase> = {
   name: Name
   schema: { _tag: z.ZodLiteral<Name> }
   codec: false
@@ -116,7 +110,7 @@ export type CreateStoredVariant<Name extends NameBase> = {
   defaults: null
 }
 
-export type CreateStoredVariantFromDatum<Datum extends SomeDatum> = {
+export type CreateStoredDatumFromDatum<Datum extends SomeDatum> = {
   name: Datum['name']
   schema: Datum['schema']['shape']
   codec: Datum['encode'] extends never ? false : true

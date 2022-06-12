@@ -4,8 +4,8 @@
 
 import {
   CodecDefiniton,
-  CreateStoredVariant,
-  CreateStoredVariantFromDatum,
+  CreateStoredDatum,
+  CreateStoredDatumFromDatum,
   ExtensionsBase,
   SchemaBase,
   StoredVariant,
@@ -29,12 +29,12 @@ export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariant
    * TODO
    */
   // prettier-ignore
-  variant<Name extends string>(name: Name): PostVariant<ADT, CreateStoredVariant<Name>, Vs>
+  variant<Name extends string>(name: Name): PostVariant<ADT, CreateStoredDatum<Name>, Vs>
   /**
    * TODO
    */
   // prettier-ignore
-  variant<TDatumn extends SomeDatum>(datum: TDatumn): PostVariant<ADT, CreateStoredVariantFromDatum<TDatumn>, Vs>
+  variant<TDatumn extends SomeDatum>(datum: TDatumn): PostVariant<ADT, CreateStoredDatumFromDatum<TDatumn>, Vs>
 }
 
 /**

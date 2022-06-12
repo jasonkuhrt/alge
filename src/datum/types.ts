@@ -3,19 +3,10 @@
  */
 
 import { Datum } from './controller'
+import { SomeDefaultsProvider } from './typesInternal'
 import { CodecDefiniton, ExtensionsBase, SchemaBase, StoredVariant } from '~/core/types'
-import { SomeDefaultsProvider } from '~/core/typesInternal'
 
-export interface SomeDatumBuilder {
-  schema: object
-  extend: object
-  codec: object
-  defaults: (defaults: SomeDefaultsProvider) => object
-  done: () => object
-  _?: {
-    innerChain: SomeDatumBuilder
-  }
-}
+export type DefaultsBase = object
 
 /**
  * The initial API for building an ADT.

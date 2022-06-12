@@ -1,5 +1,5 @@
 import { data, Infer } from './bulider'
-import { SomeDecoder, SomeEncoder } from '~/core/types'
+import { SomeDecoder, SomeEncoder } from '~/datum/typesInternal'
 import { datum } from '~/index_'
 import { expectType } from 'tsd'
 import { z } from 'zod'

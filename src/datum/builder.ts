@@ -1,14 +1,8 @@
 import { SomeDatum } from './controller'
 import { Initial } from './types'
+import { SomeCodecDefinition, SomeDatumDefinition, SomeDefaultsProvider, SomeSchema } from './typesInternal'
 import { is } from '~/core/helpers'
 import { ExtensionsBase } from '~/core/types'
-import {
-  SomeCodecDefinition,
-  SomeDefaultsProvider,
-  SomeSchema,
-  SomeVariant,
-  SomeVariantDefinition,
-} from '~/core/typesInternal'
 import { applyDefaults, extendChain } from '~/lib/utils'
 import { z } from 'zod'
 
@@ -21,7 +15,7 @@ export const datum = <Name extends string>(
 ): Initial<Name> => {
   const chainTerminus = `done`
   const initialSchema = z.object({ _tag: z.literal(name) })
-  const current: SomeVariantDefinition = {
+  const current: SomeDatumDefinition = {
     name,
     schema: initialSchema,
     extensions: {},
@@ -99,7 +93,7 @@ export const datum = <Name extends string>(
           if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
           return data
         },
-        encode: (variant: SomeVariant) => {
+        encode: (variant: SomeDatum) => {
           if (!current.codec) throw new Error(`Codec not implemented.`)
           return current.codec.encode(variant)
         },

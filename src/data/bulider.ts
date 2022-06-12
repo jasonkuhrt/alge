@@ -1,12 +1,21 @@
-import { SomeADT } from '../core/typesInternal'
 import { Errors } from '../Errors'
 import { r } from '../lib/r'
 import { code, isEmpty, TupleToObject } from '../lib/utils'
 import { z } from '../lib/z'
 import { Initial } from './types'
+import { SomeADT } from './typesInternal'
 import { SomeDatum } from '~/datum/controller'
-import { SomeDatumBuilder } from '~/datum/types'
+import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '~/datum/typesInternal'
 import { datum } from '~/index_'
+import { SomeZodObject } from 'zod'
+
+export type SomeData = {
+  name: string
+  schema: null | SomeZodObject | z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
+  encode: SomeEncoder
+  decode: SomeDecoder
+  decodeOrThrow: SomeDecodeOrThrower
+}
 
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
@@ -18,16 +27,16 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
   let currentDatumBuilder: null | SomeDatumBuilder = null
   const datums: SomeDatum[] = []
   const builder = {
-    variant: (nameOrVariant: string | SomeDatum) => {
+    variant: (nameOrDatum: string | SomeDatum) => {
       if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatum)
       currentDatumBuilder =
-        typeof nameOrVariant === `string`
-          ? (datum(nameOrVariant, {
+        typeof nameOrDatum === `string`
+          ? (datum(nameOrDatum, {
               extensions: builder,
             }) as SomeDatumBuilder)
-          : (datum(nameOrVariant.name, {
+          : (datum(nameOrDatum.name, {
               extensions: builder,
-              extend: nameOrVariant,
+              extend: nameOrDatum,
             }) as SomeDatumBuilder)
       return currentDatumBuilder
     },
@@ -35,9 +44,9 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
       if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatum)
       if (isEmpty(datums)) throw createEmptyVariantsError({ name })
 
-      const datumsLookup = r.pipe(datums, r.indexBy(r.prop(`name`)))
+      const datumsApi = r.pipe(datums, r.indexBy(r.prop(`name`)))
 
-      const controller = {
+      const ADTApi: SomeData = {
         name,
         schema:
           datums.length >= 2
@@ -52,23 +61,23 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             ? // eslint-disable-next-line
               datums[0]!.schema
             : null,
-        encode: (someDatum: SomeDatum) => {
-          const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
-          if (variantsMissingCodecDef.length)
+        encode: (someDatum) => {
+          const missingCodecDef = datums.filter((d) => d._.codec === undefined)
+          if (missingCodecDef.length)
             throw new Error(
-              `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
+              `ADT level codec not available because some variants did not define a codec: ${missingCodecDef
                 .map(r.prop(`name`))
                 .join(`, `)}`
             )
           // TODO
           // eslint-disable-next-line
-          const datum = datumsLookup[(someDatum as any)._tag]
+          const datum = datumsApi[(someDatum as any)._tag]
           // TODO
           // eslint-disable-next-line
           if (!datum) throw new Error(`Failed to find Variant tagged ${(someDatum as any)._tag}`)
           return datum.encode(someDatum, { schema: datum.schema })
         },
-        decode: (value: string) => {
+        decode: (value) => {
           const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
           if (variantsMissingCodecDef.length)
             throw new Error(
@@ -76,19 +85,23 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
                 .map(r.prop(`name`))
                 .join(`, `)}`
             )
-          for (const variantApi of Object.values(datumsLookup)) {
-            const result = variantApi.decode(value)
+          for (const datumApi of Object.values(datumsApi)) {
+            const result = datumApi.decode(value)
             if (result) return result
           }
           return null
         },
-        decodeOrThrow: (value: string) => {
-          const data = controller.decode(value)
+        decodeOrThrow: (value) => {
+          const data = ADTApi.decode(value)
           if (data === null)
             throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
           return data
         },
-        ...datumsLookup,
+      }
+
+      const controller = {
+        ...ADTApi,
+        ...datumsApi,
       }
 
       return controller
