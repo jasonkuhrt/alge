@@ -1,4 +1,4 @@
-import { data } from './bulider'
+import { data } from '../../src/data/bulider'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 

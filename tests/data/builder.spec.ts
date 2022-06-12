@@ -1,4 +1,4 @@
-import { data, Infer } from './bulider'
+import { data, Infer } from '../../src/data/bulider'
 import { SomeDecoder, SomeEncoder } from '~/datum/typesInternal'
 import { datum } from '~/index_'
 import { expectType } from 'tsd'
