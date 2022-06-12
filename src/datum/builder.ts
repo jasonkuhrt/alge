@@ -66,6 +66,7 @@ export const datum = <Name extends string>(
       const controller: SomeDatumController = {
         ...current,
         _: {
+          symbol,
           codec: current.codec,
           defaultsProvider: current.defaultsProvider,
         },
@@ -78,8 +79,6 @@ export const datum = <Name extends string>(
           // TODO pass through zod validation
           ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
         }),
-        // TODO move into _
-        symbol,
         //eslint-disable-next-line
         is$: (value: unknown) => is(value, symbol),
         is: (value: unknown) => is(value, symbol),

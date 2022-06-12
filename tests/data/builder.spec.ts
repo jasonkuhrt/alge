@@ -53,8 +53,8 @@ describe(`.data(<datumn>)`, () => {
   it(`can construct variants`, () => {
     expectType<{ _tag: $M; m: `m` }>(m)
     expectType<{ _tag: $N; n: 1 }>(n)
-    expect(m).toEqual({ _tag: $M, m: `m`, _: { tag: $M, symbol: A.M.symbol } })
-    expect(n).toEqual({ _tag: $N, n: 1, _: { tag: $N, symbol: A.N.symbol } })
+    expect(m).toEqual({ _tag: $M, m: `m`, _: { tag: $M, symbol: A.M._.symbol } })
+    expect(n).toEqual({ _tag: $N, n: 1, _: { tag: $N, symbol: A.N._.symbol } })
     expectType<typeof A.M.encode>(null as never)
     expectType<typeof A.N.encode>(null as never)
     // @ts-expect-error test

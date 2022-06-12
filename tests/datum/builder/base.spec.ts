@@ -11,9 +11,9 @@ it(`The name is statically available.`, () => {
   expect(A.name).toBe($A)
 })
 
-it(`.symbol contains the unique symbol for this datum`, () => {
-  expectType<symbol>(A.symbol)
-  expect(typeof A.symbol).toBe(`symbol`)
+it(`._.symbol contains the unique symbol for this datum`, () => {
+  expectType<symbol>(A._.symbol)
+  expect(typeof A._.symbol).toBe(`symbol`)
 })
 
 it(`.name contains the name of the datum`, () => {

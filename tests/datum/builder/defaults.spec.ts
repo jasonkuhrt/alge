@@ -49,7 +49,7 @@ it(`a given default removes the need for the constructor to pass it`, () => {
     n: 1,
     _tag: $A,
     _: {
-      symbol: A.symbol,
+      symbol: A._.symbol,
       tag: $A,
     },
   })
@@ -61,7 +61,7 @@ it(`the constructor can override a given default`, () => {
     _tag: $A,
     _: {
       tag: $A,
-      symbol: A.symbol,
+      symbol: A._.symbol,
     },
   })
 })
@@ -71,7 +71,7 @@ it(`the constructor can pass an explicit undefined which is still overriden by t
     n: 1,
     _tag: $A,
     _: {
-      symbol: A.symbol,
+      symbol: A._.symbol,
       tag: $A,
     },
   })

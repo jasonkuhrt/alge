@@ -11,14 +11,14 @@ export type DefaultsBase = object
 /**
  * The initial API for building an ADT.
  */
-export type Initial<Name extends string> = PostName<StoredVariant.Create<Name>>
+export type Initial<Tag extends string> = PostTag<StoredVariant.Create<Tag>>
 
 /**
  * The builder API when it is in a state where a variant is required.
  *
  * @remarks This happens to be the initial state of the builder API.
  */
-export interface PostName<V extends StoredVariant> extends Done<V> {
+export interface PostTag<V extends StoredVariant> extends Done<V> {
   /**
    * TODO
    */

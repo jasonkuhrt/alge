@@ -21,9 +21,9 @@ export type SomeDatumController = {
   _: {
     defaultsProvider: null | SomeDefaultsProvider
     codec?: SomeCodecDefinition
+    symbol: symbol
   }
   name: string
-  symbol: symbol
   schema: z.SomeZodObject
   // eslint-disable-next-line
   is: (value: any) => boolean
@@ -40,9 +40,9 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
   _: {
     defaultsProvider: null extends V['defaults'] ? null : SomeDefaultsProvider<object,Exclude<V['defaults'],null>>
     tag: string
+    symbol: symbol
   }
   name: V[`name`]
-  symbol: symbol
   schema: StoredVariant.GetZodSchema<V>
   /**
    * Strict predicate/type guard for this variant.

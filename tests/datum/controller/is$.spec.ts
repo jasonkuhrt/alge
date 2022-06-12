@@ -19,6 +19,6 @@ it(`.is$() is a type guard / predicate function accepting any value`, () => {
   expect(A.is$(1)).toBe(false)
   expect(A.is$(m)).toBe(true)
   expect(A.is$({ _: null })).toBe(false)
-  expect(A.is$({ _tag: $A, _: { symbol: A.symbol }, a: `` })).toBe(true)
-  expect(A.is$({ _: { symbol: A.symbol } })).toBe(true)
+  expect(A.is$({ _tag: $A, _: { symbol: A._.symbol }, a: `` })).toBe(true)
+  expect(A.is$({ _: { symbol: A._.symbol } })).toBe(true)
 })
