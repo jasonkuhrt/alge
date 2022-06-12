@@ -2,7 +2,7 @@
  * This module is concerned with the static types for the API of building up an ADT.
  */
 
-import { Datum } from './controller'
+import { Datum } from './types/controller'
 import { SomeDefaultsProvider } from './typesInternal'
 import { CodecDefiniton, ExtensionsBase, SchemaBase, StoredVariant } from '~/core/types'
 

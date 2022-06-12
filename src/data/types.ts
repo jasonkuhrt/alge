@@ -12,7 +12,7 @@ import {
   StoredVariants,
 } from '../core/types'
 import { Controller } from './Controller'
-import { SomeDatum } from '~/datum/controller'
+import { SomeDatumController } from '~/datum/types/controller'
 
 /**
  * The initial API for building an ADT.
@@ -34,7 +34,7 @@ export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariant
    * TODO
    */
   // prettier-ignore
-  variant<TDatumn extends SomeDatum>(datum: TDatumn): PostVariant<ADT, CreateStoredDatumFromDatum<TDatumn>, Vs>
+  variant<TDatumn extends SomeDatumController>(datum: TDatumn): PostVariant<ADT, CreateStoredDatumFromDatum<TDatumn>, Vs>
 }
 
 /**

@@ -1,6 +1,12 @@
-import { SomeDatum } from './controller'
 import { Initial } from './types'
-import { SomeCodecDefinition, SomeDatumDefinition, SomeDefaultsProvider, SomeSchema } from './typesInternal'
+import { SomeDatumController } from './types/controller'
+import {
+  SomeCodecDefinition,
+  SomeDatumConstructorInput,
+  SomeDatumDefinition,
+  SomeDefaultsProvider,
+  SomeSchema,
+} from './typesInternal'
 import { is } from '~/core/helpers'
 import { ExtensionsBase } from '~/core/types'
 import { applyDefaults, extendChain } from '~/lib/utils'
@@ -10,7 +16,7 @@ export const datum = <Name extends string>(
   name: Name,
   _: {
     extensions?: object
-    extend?: SomeDatum
+    extend?: SomeDatumController
   } = {}
 ): Initial<Name> => {
   const chainTerminus = `done`
@@ -57,16 +63,17 @@ export const datum = <Name extends string>(
     },
     done: () => {
       const symbol = Symbol(current.name)
-      const controller = {
+      const controller: SomeDatumController = {
         ...current,
         _: {
           codec: current.codec,
           defaultsProvider: current.defaultsProvider,
         },
-        create: (input?: object) => ({
+        create: (input: SomeDatumConstructorInput) => ({
           _tag: current.name,
           _: {
             symbol,
+            tag: current.name,
           },
           // TODO pass through zod validation
           ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
@@ -88,12 +95,12 @@ export const datum = <Name extends string>(
           // eslint-disable-next-line
           return controller.create(data)
         },
-        decodeOrThrow: (value: string) => {
+        decodeOrThrow: (value) => {
           const data = controller.decode(value)
           if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
           return data
         },
-        encode: (variant: SomeDatum) => {
+        encode: (variant: SomeDatumController) => {
           if (!current.codec) throw new Error(`Codec not implemented.`)
           return current.codec.encode(variant)
         },

@@ -1,6 +1,6 @@
 import { GetConstructorInput } from '~/data/Controller'
-import { SomeDatum } from '~/datum/controller'
 import { DefaultsBase } from '~/datum/types'
+import { SomeDatumController } from '~/datum/types/controller'
 import { z } from 'zod'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>
@@ -76,6 +76,14 @@ export namespace StoredVariant {
 
 export type StoredVariants = [StoredVariant, ...StoredVariant[]]
 
+export type SomeDatumInternals = {
+  _: {
+    tag: string
+  }
+}
+
+export type WithSomeDatumInternals<T> = T & SomeDatumInternals
+
 // eslint-disable-next-line
 export namespace StoredVariants {
   export type ZodUnion<Vs extends StoredVariants> = z.ZodUnion<ToZodObjects<Vs>>
@@ -110,7 +118,7 @@ export type CreateStoredDatum<Name extends NameBase> = {
   defaults: null
 }
 
-export type CreateStoredDatumFromDatum<Datum extends SomeDatum> = {
+export type CreateStoredDatumFromDatum<Datum extends SomeDatumController> = {
   name: Datum['name']
   schema: Datum['schema']['shape']
   codec: Datum['encode'] extends never ? false : true

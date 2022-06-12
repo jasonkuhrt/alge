@@ -43,6 +43,7 @@ describe(`.data(<datumn>)`, () => {
     .schema({ n: z.literal(1) })
     .done()
   const A = data($A).variant(M).variant(N).done()
+  A.M._
   const m = A.M.create({ m: `m` })
   const n = A.N.create({ n: 1 })
   it(`The name is statically available.`, () => {
@@ -52,8 +53,8 @@ describe(`.data(<datumn>)`, () => {
   it(`can construct variants`, () => {
     expectType<{ _tag: $M; m: `m` }>(m)
     expectType<{ _tag: $N; n: 1 }>(n)
-    expect(m).toEqual({ _tag: $M, m: `m`, _: { symbol: A.M.symbol } })
-    expect(n).toEqual({ _tag: $N, n: 1, _: { symbol: A.N.symbol } })
+    expect(m).toEqual({ _tag: $M, m: `m`, _: { tag: $M, symbol: A.M.symbol } })
+    expect(n).toEqual({ _tag: $N, n: 1, _: { tag: $N, symbol: A.N.symbol } })
     expectType<typeof A.M.encode>(null as never)
     expectType<typeof A.N.encode>(null as never)
     // @ts-expect-error test

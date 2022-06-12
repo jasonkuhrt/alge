@@ -57,8 +57,8 @@ describe(`Variant API`, () => {
       const A = data($A).variant($N).variant($M).done()
       // @ts-expect-error: empty object still not like empty variant
       A.N.create({})
-      expect(A.N.create()).toEqual({ _tag: $N, _: { symbol: A.N.symbol } })
-      expect(A.M.create()).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
+      expect(A.N.create()).toEqual({ _tag: $N, _: { tag: $N, symbol: A.N.symbol } })
+      expect(A.M.create()).toEqual({ _tag: $M, _: { tag: $M, symbol: A.M.symbol } })
       // eslint-disable-next-line
       expect((A.M as any).is({})).toEqual(false)
       expect(A.M.is$({})).toEqual(false)
@@ -67,9 +67,9 @@ describe(`Variant API`, () => {
       const A = data($A).variant($M).schema({ m: z.number().optional() }).done()
       A.M.create()
       A.M.create({})
-      expect(A.M.create()).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
-      expect(A.M.create({})).toEqual({ _tag: $M, _: { symbol: A.M.symbol } })
-      expect(A.M.create({ m: 1 })).toEqual({ m: 1, _tag: $M, _: { symbol: A.M.symbol } })
+      expect(A.M.create()).toEqual({ _tag: $M, _: { tag: $M, symbol: A.M.symbol } })
+      expect(A.M.create({})).toEqual({ _tag: $M, _: { tag: $M, symbol: A.M.symbol } })
+      expect(A.M.create({ m: 1 })).toEqual({ m: 1, _tag: $M, _: { tag: $M, symbol: A.M.symbol } })
     })
     it(`creates the variant`, () => {
       // @ts-expect-error: Invalid input
@@ -83,11 +83,11 @@ describe(`Variant API`, () => {
 
       const m = A.M.create({ m: `m` })
       expectType<{ _tag: $M; m: string }>(m)
-      expect(m).toEqual({ _tag: $M, _: { symbol: A.M.symbol }, m: `m` })
+      expect(m).toEqual({ _tag: $M, _: { tag: $M, symbol: A.M.symbol }, m: `m` })
 
       const n = A.N.create({ n: 1 })
       expectType<{ _tag: $N; n: number }>(n)
-      expect(n).toEqual({ _tag: $N, _: { symbol: A.N.symbol }, n: 1 })
+      expect(n).toEqual({ _tag: $N, _: { tag: $N, symbol: A.N.symbol }, n: 1 })
     })
   })
 

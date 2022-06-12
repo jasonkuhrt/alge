@@ -4,7 +4,7 @@ import { code, isEmpty, TupleToObject } from '../lib/utils'
 import { z } from '../lib/z'
 import { Initial } from './types'
 import { SomeADT } from './typesInternal'
-import { SomeDatum } from '~/datum/controller'
+import { SomeDatum, SomeDatumController } from '~/datum/types/controller'
 import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '~/datum/typesInternal'
 import { datum } from '~/index_'
 import { SomeZodObject } from 'zod'
@@ -25,10 +25,10 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
   // let currentVariant: null | SomeVariantDefinition = null
   // const variants: SomeVariantDefinition[] = []
   let currentDatumBuilder: null | SomeDatumBuilder = null
-  const datums: SomeDatum[] = []
+  const datums: SomeDatumController[] = []
   const builder = {
-    variant: (nameOrDatum: string | SomeDatum) => {
-      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatum)
+    variant: (nameOrDatum: string | SomeDatumController) => {
+      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatumController)
       currentDatumBuilder =
         typeof nameOrDatum === `string`
           ? (datum(nameOrDatum, {
@@ -41,7 +41,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
       return currentDatumBuilder
     },
     done: () => {
-      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatum)
+      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatumController)
       if (isEmpty(datums)) throw createEmptyVariantsError({ name })
 
       const datumsApi = r.pipe(datums, r.indexBy(r.prop(`name`)))
@@ -61,7 +61,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             ? // eslint-disable-next-line
               datums[0]!.schema
             : null,
-        encode: (someDatum) => {
+        encode: (someDatum: SomeDatum) => {
           const missingCodecDef = datums.filter((d) => d._.codec === undefined)
           if (missingCodecDef.length)
             throw new Error(
@@ -69,12 +69,8 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
                 .map(r.prop(`name`))
                 .join(`, `)}`
             )
-          // TODO
-          // eslint-disable-next-line
-          const datum = datumsApi[(someDatum as any)._tag]
-          // TODO
-          // eslint-disable-next-line
-          if (!datum) throw new Error(`Failed to find Variant tagged ${(someDatum as any)._tag}`)
+          const datum = datumsApi[someDatum._tag]
+          if (!datum) throw new Error(`Failed to find Variant tagged ${someDatum._tag}`)
           return datum.encode(someDatum, { schema: datum.schema })
         },
         decode: (value) => {

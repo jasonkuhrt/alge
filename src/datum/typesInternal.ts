@@ -1,5 +1,5 @@
-import { SomeDatum } from './controller'
 import { DefaultsBase } from './types'
+import { SomeDatumController } from './types/controller'
 import { InputBase, StoredVariant } from '~/core/types'
 import { z } from 'zod'
 
@@ -25,7 +25,7 @@ export type SomeCodecDefinition = {
   decode: SomeDecoderDefinition
 }
 
-export type SomeEncoderDefinition = (datum: SomeDatum) => string
+export type SomeEncoderDefinition = (datum: SomeDatumController) => string
 
 export type SomeDefaultsProvider<
   PotentialInput extends InputBase = InputBase,

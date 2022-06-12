@@ -8,7 +8,7 @@ it(`If schema not given (aka. no properties), then constructor does not accept i
   const A = Alge.datum($A).done()
   // @ts-expect-error: empty object still not like empty datum
   A.create({})
-  expect(A.create()).toEqual({ _tag: $A, _: { symbol: A.symbol } })
+  expect(A.create()).toEqual({ _tag: $A, _: { tag: $A, symbol: A.symbol } })
   // eslint-disable-next-line
   expect((A as any).is({})).toEqual(false)
   expect(A.is$({})).toEqual(false)
@@ -17,9 +17,9 @@ it(`If schema only has optional properties then constructor input is optional`, 
   const A = datum($A).schema({ m: z.number().optional() }).done()
   A.create()
   A.create({})
-  expect(A.create()).toEqual({ _tag: $A, _: { symbol: A.symbol } })
-  expect(A.create({})).toEqual({ _tag: $A, _: { symbol: A.symbol } })
-  expect(A.create({ m: 1 })).toEqual({ m: 1, _tag: $A, _: { symbol: A.symbol } })
+  expect(A.create()).toEqual({ _tag: $A, _: { tag: $A, symbol: A.symbol } })
+  expect(A.create({})).toEqual({ _tag: $A, _: { tag: $A, symbol: A.symbol } })
+  expect(A.create({ m: 1 })).toEqual({ m: 1, _tag: $A, _: { tag: $A, symbol: A.symbol } })
 })
 it(`creates the datum`, () => {
   // @ts-expect-error: Invalid input
@@ -33,5 +33,5 @@ it(`creates the datum`, () => {
 
   const m = A.create({ m: `m` })
   expectType<{ _tag: $A; m: string }>(m)
-  expect(m).toEqual({ _tag: $A, _: { symbol: A.symbol }, m: `m` })
+  expect(m).toEqual({ _tag: $A, _: { tag: $A, symbol: A.symbol }, m: `m` })
 })

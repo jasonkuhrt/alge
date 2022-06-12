@@ -22,6 +22,7 @@ export const UrlDataBase = z.object({
   hash: z.string().min(1).nullable(),
 })
 
+// TODO rename to Alge.record
 const AuthenticatedUrl = Alge.datum(`AuthenticatedUrl`)
   // TODO rename to shape
   // TOOD add .shapeSchema that accepts zod directly (or just overload)
@@ -48,6 +49,7 @@ AuthenticatedUrl.create({
   password: `sheep`,
 })
 
+// TODO renae to Alge.union
 const Url = Alge.data(`Url`).variant(`PublicUrl`).schema(UrlDataBase.shape).variant(AuthenticatedUrl).done()
 
 Url.AuthenticatedUrl.create({

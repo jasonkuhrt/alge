@@ -1,10 +1,23 @@
-import { SomeCodecDefinition, SomeDecoder, SomeDefaultsProvider, SomeEncoder } from './typesInternal'
+import {
+  SomeCodecDefinition,
+  SomeDecodeOrThrower,
+  SomeDecoder,
+  SomeDefaultsProvider,
+  SomeEncoder,
+} from '../typesInternal'
 import { Decoder, DecoderThatThrows, Encoder, StoredVariant, StoredVariants } from '~/core/types'
 import { GetConstructorInput } from '~/data/Controller'
 import { OmitRequired } from '~/lib/utils'
 import { z } from 'zod'
 
 export type SomeDatum = {
+  _tag: string
+  _: {
+    tag: string
+  }
+}
+
+export type SomeDatumController = {
   _: {
     defaultsProvider: null | SomeDefaultsProvider
     codec?: SomeCodecDefinition
@@ -16,15 +29,17 @@ export type SomeDatum = {
   is: (value: any) => boolean
   is$: (value: unknown) => boolean
   // eslint-disable-next-line
-  create: (params: any) => any
+  create: (params?: any) => any
   encode: SomeEncoder
   decode: SomeDecoder
+  decodeOrThrow: SomeDecodeOrThrower
 }
 
 // prettier-ignore
 export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
   _: {
     defaultsProvider: null extends V['defaults'] ? null : SomeDefaultsProvider<object,Exclude<V['defaults'],null>>
+    tag: string
   }
   name: V[`name`]
   symbol: symbol
@@ -40,6 +55,7 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
    *
    * Use `is$` when you have to deal with situations where you know the value could not be an ADT variant, but might be.
    */
+  // TODO
   // @ts-expect-error TODO
   is(value: StoredVariants.Union<Vs>): value is StoredVariant.GetType<V>
   /**

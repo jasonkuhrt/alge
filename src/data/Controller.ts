@@ -1,5 +1,5 @@
 import { ADTDecoder, ADTEncoder, StoredVariant, StoredVariants } from '../core/types'
-import { Datum } from '../datum/controller'
+import { Datum } from '../datum/types/controller'
 import { z } from '../lib/z'
 import { StoredADT } from './types'
 
