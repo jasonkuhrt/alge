@@ -1339,12 +1339,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/helpers@npm:0.4.1":
-  version: 0.4.1
-  resolution: "@swc/helpers@npm:0.4.1"
+"@swc/helpers@npm:0.4.2":
+  version: 0.4.2
+  resolution: "@swc/helpers@npm:0.4.2"
   dependencies:
     tslib: ^2.4.0
-  checksum: d59af030bdfb66d3d0931da96e94b371dab978d2e8b5c6c0d5bd87e9514d06a535f89f0a7cbdad769588e0114e8f81e0484a0408c146275fbe4d775dbbffecc1
+  checksum: 0b8c86ad03b17b8fe57dc4498e25dc294ea6bc42558a6b92d8fcd789351dac80199409bef38a2e3ac06aae0fedddfc0ab9c34409acbf74e55d1bbbd74f68b6b7
   languageName: node
   linkType: hard
 
@@ -1921,7 +1921,7 @@ __metadata:
     "@jest/types": 28.1.1
     "@prisma-labs/prettier-config": 0.1.0
     "@swc/core": 1.2.203
-    "@swc/helpers": 0.4.1
+    "@swc/helpers": 0.4.2
     "@swc/jest": 0.2.21
     "@tsconfig/recommended": 1.0.1
     "@types/jest": 28.1.1
@@ -1946,7 +1946,7 @@ __metadata:
     jest-watch-typeahead: 1.1.0
     konn: 0.7.0
     markdown-toc: 1.2.0
-    prettier: 2.7.0
+    prettier: 2.7.1
     remeda: ^0.0.35
     semver: 7.3.7
     semver-utils: 1.1.4
@@ -6270,12 +6270,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.7.0":
-  version: 2.7.0
-  resolution: "prettier@npm:2.7.0"
+"prettier@npm:2.7.1":
+  version: 2.7.1
+  resolution: "prettier@npm:2.7.1"
   bin:
     prettier: bin-prettier.js
-  checksum: 5b55bb1dced9d16635b83229df8e670d150890fdb343f19e8a66e610094a108e960c0f57352b3e5cdbc4eff4ef00a834406047ffcd9f20bd22a6497ba143c81f
+  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
   languageName: node
   linkType: hard
 
