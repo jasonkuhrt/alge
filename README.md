@@ -18,9 +18,7 @@ Alge is a Type Script library for creating [Algebraic Data Types](https://en.wik
 
 ### What are Algebraic Data Types?
 
-Algebraic Data Types (ADTs for short) are about modelling data. One of their fundamental benefits is how they can inheritly encode different states of data. Many programming langauges have support for ADTs, often including effect use of static typing and runtime pattern matching.
-
-ADTs are the combination of two other concepts, product types and union types.
+Algebraic Data Types (ADTs for short) are a methodology of modelling data. They could appear in any context that is about defining and/or navigating the shape of data. One of their fundamental benefits is that they can express different states/invariants/facts about/of data. They are the combination of two other concepts, _product types_ and _union types_.
 
 A product type is like:
 
@@ -38,6 +36,8 @@ type Foo = 1 | 2 | 3
 ```
 
 Basically, when the power of these two data modelling techniques are combined, we get something far greater than the sum of its parts: ADTs.
+
+ADTs can particularly shine at build time. While dynamically typed programing languages ("scripting language", e.g. Ruby, JavaScript, Python, ...) can support ADTs at runtime, adding static type support into the mix increases the ADT value proposition. Then there are yet other more minor programing language features like pattern matching that if supporting ADTs make them feel that much more beneficial too.
 
 References:
 
@@ -231,6 +231,14 @@ The answer is no! But without the ADT that _fact_ would have to managed by human
 At scale, having well modelled data can be a life saver. The up front verbosity pays dividens downstream for all the impossible branches removed from programs' possibility space. ADTs help you (or your consumers) focus on what _can actually happen_.
 
 ### Why Alge?
+
+Now that we have some understanding about the _what_ and _why_ of ADTs let's look at their use in JavaScript/TypeScript and how Alge helps. We will continue with our Semver data type example. First we will achieve the exact API we want without `Alge`, then we will _refactor_ it to use `Alge`, and in showing this before/after hopefully make the value proposition crystal clear!
+
+#### The Semver ADT Without Alge
+
+TODO
+
+#### The Semver ADT With Alge
 
 TODO
 
