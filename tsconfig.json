@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/node16/tsconfig.json",
   "ts-node": {
+    "experimentalResolver": true,
     "swc": true
   },
   "compilerOptions": {
