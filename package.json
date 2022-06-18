@@ -50,7 +50,7 @@
   "devDependencies": {
     "@jest/types": "28.1.1",
     "@prisma-labs/prettier-config": "0.1.0",
-    "@swc/core": "1.2.203",
+    "@swc/core": "1.2.204",
     "@swc/helpers": "0.4.2",
     "@swc/jest": "0.2.21",
     "@tsconfig/node16": "^1.0.3",
@@ -62,7 +62,7 @@
     "@typescript-eslint/eslint-plugin": "5.28.0",
     "@typescript-eslint/parser": "5.28.0",
     "dripip": "0.10.0",
-    "eslint": "8.17.0",
+    "eslint": "8.18.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-codegen": "0.16.1",
     "eslint-plugin-deprecation": "1.3.2",
@@ -82,7 +82,6 @@
     "ts-jest": "28.0.5",
     "ts-node": "10.8.1",
     "tsd": "0.21.0",
-    "typescript": "4.7.3",
-    "typescript-snapshots-plugin": "1.7.0"
+    "typescript": "4.7.4"
   }
 }
