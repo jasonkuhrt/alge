@@ -53,7 +53,7 @@
     "@swc/core": "1.2.204",
     "@swc/helpers": "0.4.2",
     "@swc/jest": "0.2.21",
-    "@tsconfig/node16": "^1.0.3",
+    "@tsconfig/node16": "1.0.3",
     "@tsconfig/recommended": "1.0.1",
     "@types/jest": "28.1.2",
     "@types/node": "17.0.39",
