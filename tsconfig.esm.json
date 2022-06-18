@@ -1,9 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist-esm",
-    "module": "ES2015",
-    "moduleResolution": "node",
+    "outDir": "dist/esm",
     "rootDir": "src",
     "sourceMap": true,
     "declaration": true,

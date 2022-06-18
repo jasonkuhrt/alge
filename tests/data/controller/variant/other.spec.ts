@@ -1,4 +1,4 @@
-import { $M, $N, A } from '../../__helpers__'
+import { $M, $N, A } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 

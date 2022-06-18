@@ -1,4 +1,4 @@
-import { Alge } from '~/'
+import { Alge } from '../src/index.js'
 import { z } from 'zod'
 
 type MonikerInferred = Alge.Infer<typeof Moniker>

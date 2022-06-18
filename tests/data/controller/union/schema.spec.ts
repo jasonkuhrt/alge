@@ -1,5 +1,5 @@
-import { $M, $N, A } from '../../__helpers__'
-import { data } from '~/index_'
+import { data } from '../../../../src/index_.js'
+import { $M, $N, A } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 

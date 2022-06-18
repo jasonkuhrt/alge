@@ -1,4 +1,4 @@
-import { $A, A, m } from '../../__helpers__'
+import { $A, A, m } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 
 it(`.is$() is a type guard / predicate function accepting any value`, () => {

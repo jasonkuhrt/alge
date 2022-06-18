@@ -1,8 +1,7 @@
 {
   "search.exclude": {
-    "**/dist-cjs": true,
-    "**/dist-esm": true,
-    "**/__snapshots__": true,
+    "**/dist": true,
+    "**/__snpshots__": true,
     "**/.yarn": true,
     "yarn.lock": true
   },
