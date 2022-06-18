@@ -1,1 +1,1 @@
-export * as z from './z'
+export * as z from './z.js'

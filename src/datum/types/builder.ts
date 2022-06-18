@@ -2,9 +2,9 @@
  * This module is concerned with the static types for the API of building up an ADT.
  */
 
-import { Datum } from './controller'
-import { SomeDefaultsProvider } from './internal'
-import { CodecDefiniton, ExtensionsBase, SchemaBase, StoredVariant } from '~/core/types'
+import { CodecDefiniton, ExtensionsBase, SchemaBase, StoredVariant } from '../../core/types.js'
+import { Datum } from './controller.js'
+import { SomeDefaultsProvider } from './internal.js'
 
 export type DefaultsBase = object
 

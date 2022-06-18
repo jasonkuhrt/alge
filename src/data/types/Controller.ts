@@ -1,6 +1,6 @@
-import { ADTDecoder, ADTEncoder, StoredVariants } from '../../core/types'
-import { Datum } from '../../datum/types/controller'
-import { StoredADT } from './Builder'
+import { ADTDecoder, ADTEncoder, StoredVariants } from '../../core/types.js'
+import { Datum } from '../../datum/types/controller.js'
+import { StoredADT } from './Builder.js'
 
 export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
   ADTMethods<Vs> &

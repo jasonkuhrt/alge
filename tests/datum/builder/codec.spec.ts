@@ -1,4 +1,4 @@
-import { Alge } from '~/'
+import { Alge } from '../../../src/index.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 

@@ -1,1 +1,1 @@
-export * as Alge from './index_'
+export * as Alge from './index_.js'

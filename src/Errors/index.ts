@@ -1,1 +1,1 @@
-export * as Errors from './index_'
+export * as Errors from './index_.js'
