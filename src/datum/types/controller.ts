@@ -1,14 +1,14 @@
+import { Decoder, DecoderThatThrows, Encoder, StoredVariant, StoredVariants } from '../../core/types.js'
+import { ApplyDefaults } from '../../data/types/Controller.js'
+import { OmitRequired } from '../../lib/utils.js'
+import { z } from '../../lib/z/index.js'
 import {
   SomeCodecDefinition,
   SomeDecodeOrThrower,
   SomeDecoder,
   SomeDefaultsProvider,
   SomeEncoder,
-} from './internal'
-import { Decoder, DecoderThatThrows, Encoder, StoredVariant, StoredVariants } from '~/core/types'
-import { ApplyDefaults } from '~/data/types/Controller'
-import { OmitRequired } from '~/lib/utils'
-import { z } from '~/lib/z'
+} from './internal.js'
 
 export type GetConstructorInput<V extends StoredVariant> = ApplyDefaults<
   V['defaults'],

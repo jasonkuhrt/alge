@@ -1,6 +1,6 @@
-import { DefaultsBase } from './builder'
-import { SomeDatumController } from './controller'
-import { InputBase, StoredVariant } from '~/core/types'
+import { InputBase, StoredVariant } from '../../core/types.js'
+import { DefaultsBase } from './builder.js'
+import { SomeDatumController } from './controller.js'
 import { z } from 'zod'
 
 export type SomeDatumDefinition = Omit<StoredVariant, 'codec' | 'schema' | 'defaults'> & {

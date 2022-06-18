@@ -1,5 +1,5 @@
-import { A } from './__helpers__'
-import { Alge } from '~/'
+import { Alge } from '../../src/index.js'
+import { A } from './__helpers__.js'
 import { expectType } from 'tsd'
 
 it(`Can infer the ADT types from the runtime`, () => {

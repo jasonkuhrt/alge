@@ -10,9 +10,9 @@ import {
   SchemaBase,
   StoredVariant,
   StoredVariants,
-} from '../../core/types'
-import { Controller } from './Controller'
-import { SomeDatumController } from '~/datum/types/controller'
+} from '../../core/types.js'
+import { SomeDatumController } from '../../datum/types/controller.js'
+import { Controller } from './Controller.js'
 
 /**
  * The initial API for building an ADT.

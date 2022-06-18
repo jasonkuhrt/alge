@@ -1,7 +1,7 @@
 /**
  * @see https://semver.org/
  */
-import { Alge } from '~/'
+import { Alge } from '../src/index.js'
 import semver from 'semver'
 import semverUtils from 'semver-utils'
 import { z } from 'zod'

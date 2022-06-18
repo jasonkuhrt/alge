@@ -1,14 +1,13 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
+  "extends": "@tsconfig/node16/tsconfig.json",
   "ts-node": {
-    "swc": true,
-    "require": ["tsconfig-paths/register"],
-    "compilerOptions": {
-      // Sometimes projects (e.g. Nextjs) will want code to emit ESM but ts-node will not work with that.
-      "module": "CommonJS"
-    }
+    "experimentalResolver": true,
+    "swc": true
   },
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+
     // Make the compiler stricter, catch more errors
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -18,29 +17,14 @@
     // "noUnusedLocals": false,
     // "noUnusedParameters": false,
 
-    // Output
-    "importHelpers": true,
-
     // DX
     "incremental": true,
     "tsBuildInfoFile": "node_modules/.cache/.tsbuildinfo",
-    "noErrorTruncation": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"],
-      "~/": ["./src/index"]
-    },
-
-    // Transformer Plugins made possible by https://github.com/nonara/ts-patch
-    "plugins": [
-      // https://github.com/LeDDGroup/typescript-transform-paths
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
-    ]
+    "noErrorTruncation": true
   },
   "include": ["src", "tests", "scripts", "jest.*", "examples/*"],
   // Prevent unwanted things like auto-import from built modules
-  "exclude": ["dist-*"],
+  "exclude": ["dist"],
   "plugins": [
     {
       "name": "typescript-snapshots-plugin"

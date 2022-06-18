@@ -107,8 +107,7 @@ dist
 .DS_Store
 
 # This library
-dist-esm
-dist-cjs
+dist
 
 # Yarn 2
 .pnp.*

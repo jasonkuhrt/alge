@@ -1,6 +1,6 @@
-import { $A, A } from '../../__helpers__'
-import { Alge } from '~/'
-import { datum } from '~/index_'
+import { Alge } from '../../../src/index.js'
+import { datum } from '../../../src/index_.js'
+import { $A, A } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 

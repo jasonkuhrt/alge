@@ -3,9 +3,9 @@
  * - How other ADTs can be used to create a new ADT.
  * - How a singular variant can be created instead of a whole ADT.
  */
-import { Moniker } from './Moniker'
-import { SemVer } from './SemVer'
-import { Alge } from '~/'
+import { Alge } from '../src/index.js'
+import { Moniker } from './Moniker.js'
+import { SemVer } from './SemVer.js'
 import { z } from 'zod'
 
 type Version = Alge.Infer<typeof Version>

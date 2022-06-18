@@ -1,6 +1,6 @@
-import { $A, $M, $N } from '../__helpers__'
-import { SomeDecoder, SomeEncoder } from '~/datum/types/internal'
-import { data, datum, Infer } from '~/index_'
+import { SomeDecoder, SomeEncoder } from '../../../src/datum/types/internal.js'
+import { data, datum, Infer } from '../../../src/index_.js'
+import { $A, $M, $N } from '../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 

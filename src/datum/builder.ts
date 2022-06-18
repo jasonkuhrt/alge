@@ -1,16 +1,16 @@
-import { Initial } from './types/builder'
-import { SomeDatumController } from './types/controller'
+import { is } from '../core/helpers.js'
+import { ExtensionsBase } from '../core/types.js'
+import { applyDefaults, extendChain } from '../lib/utils.js'
+import { z } from '../lib/z/index.js'
+import { Initial } from './types/builder.js'
+import { SomeDatumController } from './types/controller.js'
 import {
   SomeCodecDefinition,
   SomeDatumConstructorInput,
   SomeDatumDefinition,
   SomeDefaultsProvider,
   SomeSchema,
-} from './types/internal'
-import { is } from '~/core/helpers'
-import { ExtensionsBase } from '~/core/types'
-import { applyDefaults, extendChain } from '~/lib/utils'
-import { z } from 'zod'
+} from './types/internal.js'
 
 export const datum = <Name extends string>(
   name: Name,
