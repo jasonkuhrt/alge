@@ -50,7 +50,7 @@
   "devDependencies": {
     "@jest/types": "28.1.1",
     "@prisma-labs/prettier-config": "0.1.0",
-    "@swc/core": "1.2.204",
+    "@swc/core": "1.2.205",
     "@swc/helpers": "0.4.2",
     "@swc/jest": "0.2.21",
     "@tsconfig/node16": "1.0.3",
