@@ -232,15 +232,177 @@ At scale, having well modelled data can be a life saver. The up front verbosity 
 
 ### Why Alge?
 
-Now that we have some understanding about the _what_ and _why_ of ADTs let's look at their use in JavaScript/TypeScript and how Alge helps. We will continue with our Semver data type example. First we will achieve the exact API we want without `Alge`, then we will _refactor_ it to use `Alge`, and in showing this before/after hopefully make the value proposition crystal clear!
+Now that we have some understanding about the _what_ and _why_ of ADTs let's look at their use in JavaScript/TypeScript and how Alge helps.
 
-#### The Semver ADT Without Alge
+We start by defining the name of our ADT and its variants:
 
-TODO
+```ts
+import { Alge } from 'alge'
 
-#### The Semver ADT With Alge
+const Moniker = Alge.data('Moniker').variant(`Scoped`).variant(`Global`).done()
+```
 
-TODO
+This ADT isn't very useful yet because there are not any variant properties defined but already Alge gives us constructors to build our data types:
+
+```ts
+const scoped = Moniker.Scoped.create() // { _tag: 'Scoped' }
+const global = Moniker.Global.create() // { _tag: 'Global' }
+```
+
+Let's define some properties. To do so we'll use `zod` which is a powerful library for creating schemas. Alge only accepts zod schemas.
+
+```ts
+const Moniker = Alge.data('Moniker')
+  .variant(`Scoped`)
+  .schema({
+    scope: z.string(),
+    name: z.string(),
+  })
+  .variant(`Global`)
+  .schema({
+    name: z.string(),
+  })
+  .done()
+```
+
+With these schema definitions the type safe constructors now require corresponding input:
+
+```ts
+const scoped = Moniker.Scoped.create({
+  name: 'foo',
+}) // { _tag: 'Scoped', name: 'foo' }
+
+const global = Moniker.Global.create({
+  scope: 'foo',
+  name: 'bar',
+}) // { _tag: 'Global', scope: 'foo', name: 'bar' }
+```
+
+Constructors are convenient but there's a lot more to Alge. Often you will write your own functions that need to be typed with the ADT. With Alge this is easy using `Alge.Infer` which leverages TypeScript inference:
+
+```ts
+type Moniker = Alge.Infer<typeof Moniker>
+
+const doSomething = (moniker: Moniker['*']): null | Moniker['Scoped'] => {
+  // TODO
+}
+```
+
+Alge inference returns an object with a property per variant of the ADT as well as a special property `*` which is a union of all variants.
+
+If you prefer to work with namespaces rather than objects to reference types you can use the following approach. It trades internal verbosity for consumer ergonomics:
+
+```ts
+type MonikerInferred = Alge.Infer<typeof Moniker>
+
+type Moniker = MonikerInferred['*']
+
+namespace Moniker {
+  export type Local = MonikerInferred['Scoped']
+  export type Global = MonikerInferred['Global']
+}
+
+const doSomething = (moniker: Moniker): null | Moniker.Scoped => {
+  // TODO
+}
+```
+
+Alge gives you helper functions useful for daily work with ADTs. `.is` is a variant method that checks if the given ADT value is that variant or not:
+
+```ts
+const onlyScoped = (moniker: Moniker): null | Moniker.Scoped => {
+  return Moniker.Scoped.is(moniker) ? moniker : null
+}
+```
+
+When you're working with unknown values there is `.$is` which accepts anything (which makes it less type safe than `.is` so prefer `.is` when you can use it):
+
+```ts
+const onlyScoped = (whoKnows: unknown): null | Moniker.Scoped => {
+  return Moniker.Scoped.$is(whoKnows) ? moniker : null
+}
+```
+
+Sometimes there are other representations you want for your data. JSON is a very common one for transfering data between processes, over the network, etc. You can define your own codecs with Alge but JSON comes built in:
+
+```ts
+const globalMonikerJson = Moniker.Global.to.json(global) // '{"_tag": "Global", "name": "foo" }'
+const globalMoniker = Moniker.Global.From.json(globalMonikerJson)
+```
+
+Imagine you want a way to transform your Moniker between this string representation:
+
+```
+foo       <- Global Moniker
+@foo/bar  <- Scoped Moniker
+```
+
+Let's define a string codec for this:
+
+```ts
+const globalPackagePattern = /^([a-z0-9-~][a-z0-9-._~]*)$/
+
+const scopedPackagePattern = /^(?:@([a-z0-9-~][a-z0-9-._~]*)\/)([a-z0-9-~][a-z0-9-._~]*)$/
+
+const Moniker = Alge.data('Moniker')
+  .variant(`Scoped`)
+  .schema({
+    scope: z.string(),
+    name: z.string(),
+  })
+  .codec('string', {
+    to: (moniker) => `@${moniker.scope}/${moniker.name}`,
+    from: (string) => {
+      const match = scopedPackagePattern.exec(string)
+      return match
+        ? null
+        : {
+            scope: match[2]!,
+            name: match[1]!,
+          }
+    },
+  })
+  .variant(`Global`)
+  .schema({
+    name: z.string(),
+  })
+  .codec('string', {
+    to: (moniker) => moniker.name,
+    from: (string) => {
+      const match = globalPackagePattern.exec(string)
+      return match === null ? null : { name: match[1]! }
+    },
+  })
+  .done()
+```
+
+This updated ADT definition would allow us to do the following:
+
+```ts
+const globalMonikerString = Moniker.Global.to.string(local) // 'foo'
+const globalMoniker = Moniker.Global.From.string(globalMonikerString) // { '_tag': 'Global', name: 'foo' }
+```
+
+Decoding could fail of course since not all strings can be Monikers:
+
+```ts
+const globalMoniker = Moniker.Global.From.string('!') // null
+```
+
+When `null` is not convenient you can use `*orThrow` method variants:
+
+```ts
+const globalMoniker = Moniker.Global.From.stringOrThrow('!') // throws
+```
+
+When all variants share a codec definition then they become available at the ADT level as a unified codec that returns a union of the variants:
+
+```ts
+Moniker.from.string('foo') // { _tag: 'Global', name: 'foo' }
+Moniker.from.string('@foo/bar') // { _tag: 'Scoped', scope: 'foo', name: 'bar' }
+```
+
+Alge runs each variant decoder function until one matches or none do. The order decoders are run is based on the order you defined the variants.
 
 ## Reference
 
