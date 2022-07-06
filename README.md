@@ -70,7 +70,7 @@ interface Pin {
 }
 ```
 
-This data modelling is flawed. There is out-of-band information about import data relationships. When `isExact` is `true` then `range` is undefined but other fields are guarnateed, well, except `release` and `build` which are always optional actually. In other words these configurations of the data are impossible:
+This data modelling is flawed. There is out-of-band information about import data relationships. When `isExact` is `true` then `range` is undefined but other fields are guaranteed, well, except `release` and `build` which are always optional actually. In other words these configurations of the data are impossible:
 
 ```ts
 const pin = {
@@ -142,7 +142,7 @@ if (pin.isExact) {
 }
 ```
 
-Notice the `!`. Its us telling Type Script that `major` is definitely not undefined and so the type error can be ignored. In JS its even worse, as we wouldn't even be prompted to think about such cases, unless we remember to. Seems trivial in this case, but at scale day after day often with unfamilar code a mistake will inevitably be made. Another approach could have been this:
+Notice the `!`. Its us telling Type Script that `major` is definitely not undefined and so the type error can be ignored. In JS its even worse, as we wouldn't even be prompted to think about such cases, unless we remember to. Seems trivial in this case, but at scale day after day often with unfamiliar code a mistake will inevitably be made. Another approach could have been this:
 
 ```ts
 if (pin.isExact) {
@@ -189,7 +189,7 @@ if (pin.tag === 'ExactPin') {
 }
 ```
 
-When a developer deals with values of `Pin` type they will have an immedaitely much better understanding of the possible states.
+When a developer deals with values of `Pin` type they will have an immediately much better understanding of the possible states.
 
 In fact every optional property in some data represents possibly different state representations and thus potentially a use case for an ADT. So for example we could go further with our above data modelling and define things like `ExactPreReleasePin` and `ExactPreReleaseBuildPin`:
 
@@ -228,7 +228,7 @@ const pin = {
 
 The answer is no! But without the ADT that _fact_ would have to managed by humans, rather than the machine.
 
-At scale, having well modelled data can be a life saver. The up front verbosity pays dividens downstream for all the impossible branches removed from programs' possibility space. ADTs help you (or your consumers) focus on what _can actually happen_.
+At scale, having well modelled data can be a life saver. The up front verbosity pays dividends downstream for all the impossible branches removed from programs' possibility space. ADTs help you (or your consumers) focus on what _can actually happen_.
 
 ### Why Alge?
 
@@ -265,6 +265,8 @@ const Moniker = Alge.data('Moniker')
   .done()
 ```
 
+#### Constructors
+
 With these schema definitions the type safe constructors now require corresponding input:
 
 ```ts
@@ -277,6 +279,37 @@ const global = Moniker.Global.create({
   name: 'bar',
 }) // { _tag: 'Global', scope: 'foo', name: 'bar' }
 ```
+
+You can specify defaults for parts of your schema. Imagine we were making a URL ADT and expected most users to be using HTTPS. Then we could return that in our defaults and Alge will infer our types correctly for us automatically. Example:
+
+```ts
+const Url = Alge.data('Url')
+.variant('Private')
+.schema({
+  protocol: z.enum([`https`, `http`]),
+  host: z.string(),
+  username: z.string(),
+  password: z.string(),
+})
+.defaults(input => {
+  return {
+    protocol: 'https',
+    ...input,
+  }
+})
+.done()
+
+Url.Private.create({
+  username: 'foo',
+  password: 'bar',
+  host: 'hello.io'
+  // The default:
+  // protocol: 'https',
+})
+```
+
+
+#### Static Types
 
 Constructors are convenient but there's a lot more to Alge. Often you will write your own functions that need to be typed with the ADT. With Alge this is easy using `Alge.Infer` which leverages TypeScript inference:
 
@@ -307,6 +340,8 @@ const doSomething = (moniker: Moniker): null | Moniker.Scoped => {
 }
 ```
 
+#### Identity
+
 Alge gives you helper functions useful for daily work with ADTs. `.is` is a variant method that checks if the given ADT value is that variant or not:
 
 ```ts
@@ -323,7 +358,9 @@ const onlyScoped = (whoKnows: unknown): null | Moniker.Scoped => {
 }
 ```
 
-Sometimes there are other representations you want for your data. JSON is a very common one for transfering data between processes, over the network, etc. You can define your own codecs with Alge but JSON comes built in:
+#### Codecs
+
+Sometimes there are other representations you want for your data. JSON is a very common one for transferring data between processes, over the network, etc. You can define your own codecs with Alge but JSON comes built in:
 
 ```ts
 const globalMonikerJson = Moniker.Global.to.json(global) // '{"_tag": "Global", "name": "foo" }'
@@ -333,11 +370,14 @@ const globalMoniker = Moniker.Global.From.json(globalMonikerJson)
 Imagine you want a way to transform your Moniker between this string representation:
 
 ```
-foo       <- Global Moniker
-@foo/bar  <- Scoped Moniker
+ADT Variant               String Representation          
+-----------               ---------------------          
+
+Moniker Global            foo                             
+Moniker Scoped            @foo/bar                       
 ```
 
-Let's define a string codec for this:
+Let's define a string codec to achieve just this.
 
 ```ts
 const globalPackagePattern = /^([a-z0-9-~][a-z0-9-._~]*)$/
@@ -376,37 +416,51 @@ const Moniker = Alge.data('Moniker')
   .done()
 ```
 
-This updated ADT definition would allow us to do the following:
+The `string` codec that we have defined can now be used by the ADT Variant API under the `to` and `from` namespaces respectively. Example:
 
 ```ts
 const globalMonikerString = Moniker.Global.to.string(local) // 'foo'
 const globalMoniker = Moniker.Global.From.string(globalMonikerString) // { '_tag': 'Global', name: 'foo' }
 ```
 
-Decoding could fail of course since not all strings can be Monikers:
+Decoding could fail of course since not all strings can be Monikers. When that happens `null` is returned.
 
 ```ts
 const globalMoniker = Moniker.Global.From.string('!') // null
 ```
 
-When `null` is not convenient you can use `*orThrow` method variants:
+But sometimes `null` is not convenient, in which case you can use `*orThrow` method variations:
 
 ```ts
 const globalMoniker = Moniker.Global.From.stringOrThrow('!') // throws
 ```
 
-When all variants share a codec definition then they become available at the ADT level as a unified codec that returns a union of the variants:
+When all variants share a codec definition (e.g. `string` in this case) then a generalized ADT level codec is automatically made available as well. Decoders return a union of the variants while encoders always return a string. Each variant decoder is run until one matches or none do. The decoder run order respects the order in which you defined your variants.
+
+Example:
 
 ```ts
 Moniker.from.string('foo') // { _tag: 'Global', name: 'foo' }
 Moniker.from.string('@foo/bar') // { _tag: 'Scoped', scope: 'foo', name: 'bar' }
+Moniker.from.string('!') // null
 ```
 
-Alge runs each variant decoder function until one matches or none do. The order decoders are run is based on the order you defined the variants.
+As with the ADT Variant API there are `*orThrow` method variations. Example:
 
-## Reference
+```ts
+Moniker.from.stringOrThrow('!') // throws
+```
 
-TODO
+#### Lone Variant
+
+It is possible to define a lone variant instead of a whole ADT:
+
+```ts
+const Foo = Alge.datum('Foo').schema({
+  a: z.number(),
+  b: z.string(),
+})
+```
 
 </br>
 </br>
