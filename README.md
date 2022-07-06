@@ -284,30 +284,29 @@ You can specify defaults for parts of your schema. Imagine we were making a URL 
 
 ```ts
 const Url = Alge.data('Url')
-.variant('Private')
-.schema({
-  protocol: z.enum([`https`, `http`]),
-  host: z.string(),
-  username: z.string(),
-  password: z.string(),
-})
-.defaults(input => {
-  return {
-    protocol: 'https',
-    ...input,
-  }
-})
-.done()
+  .variant('Private')
+  .schema({
+    protocol: z.enum([`https`, `http`]),
+    host: z.string(),
+    username: z.string(),
+    password: z.string(),
+  })
+  .defaults((input) => {
+    return {
+      protocol: 'https',
+      ...input,
+    }
+  })
+  .done()
 
 Url.Private.create({
   username: 'foo',
   password: 'bar',
-  host: 'hello.io'
+  host: 'hello.io',
   // The default:
   // protocol: 'https',
 })
 ```
-
 
 #### Static Types
 
@@ -370,11 +369,11 @@ const globalMoniker = Moniker.Global.From.json(globalMonikerJson)
 Imagine you want a way to transform your Moniker between this string representation:
 
 ```
-ADT Variant               String Representation          
------------               ---------------------          
+ADT Variant               String Representation
+-----------               ---------------------
 
-Moniker Global            foo                             
-Moniker Scoped            @foo/bar                       
+Moniker Global            foo
+Moniker Scoped            @foo/bar
 ```
 
 Let's define a string codec to achieve just this.
@@ -453,13 +452,28 @@ Moniker.from.stringOrThrow('!') // throws
 
 #### Lone Variant
 
-It is possible to define a lone variant instead of a whole ADT:
+It is possible to define a lone variant instead of a whole ADT. Example:
 
 ```ts
-const Foo = Alge.datum('Foo').schema({
-  a: z.number(),
-  b: z.string(),
-})
+const Foo = Alge.datum('Foo')
+  .schema({
+    a: z.number(),
+    b: z.string(),
+  })
+  .done()
+```
+
+You can compose multiple lone variants into an ADT. Doing so can be useful for code reuse and modularity or also just as an alternative style to a long ADT method chain.
+
+```ts
+const Bar = Alge.datum('Bar')
+  .schema({
+    c: z.number(),
+    d: z.string(),
+  })
+  .done()
+
+const Foobar = Alge.data('Foobar').variant(Foo).variant(Bar).done()
 ```
 
 </br>
