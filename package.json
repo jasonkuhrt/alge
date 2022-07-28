@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "endent": "^2.1.0",
-    "remeda": "^0.2.0",
+    "remeda": "^1.0.0",
     "zod": "^3.17.3"
   },
   "devDependencies": {
