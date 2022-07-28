@@ -3,7 +3,7 @@
   "version": "0.0.0-dripip",
   "repository": "git@github.com:jasonkuhrt/alge.git",
   "author": "Jason Kuhrt",
-  "packageManager": "yarn@3.2.1",
+  "packageManager": "yarn@3.2.2",
   "license": "MIT",
   "files": [
     "src",
