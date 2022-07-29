@@ -5,9 +5,12 @@ import { z } from '../../lib/z/index.js'
 import {
   SomeCodecDefinition,
   SomeDecodeOrThrower,
+  SomeDecodeOrThrowJson,
   SomeDecoder,
+  SomeDecoderJson,
   SomeDefaultsProvider,
   SomeEncoder,
+  SomeEncoderJson,
 } from './internal.js'
 
 export type GetConstructorInput<V extends StoredVariant> = ApplyDefaults<
@@ -38,17 +41,54 @@ export type SomeDatumController = {
   encode: SomeEncoder
   decode: SomeDecoder
   decodeOrThrow: SomeDecodeOrThrower
+  from: {
+    json: SomeDecoderJson
+    jsonOrThrow: SomeDecodeOrThrowJson
+  }
+  to: {
+    json: SomeEncoderJson
+  }
 }
 
 // prettier-ignore
 export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
   _: {
-    defaultsProvider: null extends V['defaults'] ? null : SomeDefaultsProvider<object,Exclude<V['defaults'],null>>
+    defaultsProvider: null extends V['defaults']
+      ? null
+      : SomeDefaultsProvider<object, Exclude<V['defaults'], null>>
     tag: string
     symbol: symbol
   }
   name: V[`name`]
   schema: StoredVariant.GetZodSchema<V>
+  /**
+   * Decoders for this datum. Decoders are used to transform other representations of your datum back into an datum instance.
+   */
+  from: {
+    /**
+     * Decode JSON into this datum. If it fails for any reason, returns `null`.
+     *
+     * @remarks This is a built in decoder.
+     */
+    json: (value: string) => null | StoredVariant.GetType<V>
+    /**
+     * Decode JSON into this datum. Throws if it fails for any reason.
+     *
+     * @remarks This is a built in decoder.
+     */
+    jsonOrThrow: (value: string) => StoredVariant.GetType<V>
+  }
+  /**
+   * Encoders for this datum. Encoders are used to transform your datum into another representation.
+   */
+  to: {
+    /**
+     * Encode an instance of this datum into JSON.
+     *
+     * @remarks This is a built in encoder.
+     */
+    json: (datum: StoredVariant.GetType<V>) => string
+  }
   /**
    * Strict predicate/type guard for this variant.
    *
@@ -77,22 +117,22 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
   is$(value: unknown): value is StoredVariant.GetType<V>
 } & (keyof GetConstructorInput<V> extends never
   ? {
-    /**
-     * TODO
-     */
+      /**
+       * TODO
+       */
       create(): StoredVariant.GetType<V>
     }
   : keyof OmitRequired<GetConstructorInput<V>> extends never
   ? {
-    /**
-     * TODO
-     */
+      /**
+       * TODO
+       */
       create(input?: GetConstructorInput<V>): StoredVariant.GetType<V>
     }
   : {
-    /**
-     * TODO
-     */
+      /**
+       * TODO
+       */
       create(input: GetConstructorInput<V>): StoredVariant.GetType<V>
     }) &
   (V[`codec`] extends true
@@ -110,7 +150,6 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
          * @throws Error if decode fails.
          */
         decodeOrThrow: DecoderThatThrows<V>
-
       }
     : {
         /**
@@ -168,4 +207,4 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
          */
         decodeOrThrow: never
       }) &
-      (V[`extensions`])
+  V[`extensions`]

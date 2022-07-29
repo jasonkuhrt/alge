@@ -32,17 +32,27 @@ export type SomeDefaultsProvider<
   Defaults extends DefaultsBase = DefaultsBase
 > = (potentialInput: PotentialInput) => Defaults
 
+// any is needed to avoid screwing up inference
 // eslint-disable-next-line
 export type SomeEncoder = (value: any, context: { schema: z.ZodSchema }) => string
 
+// any is needed to avoid screwing up inference
+// eslint-disable-next-line
+export type SomeEncoderJson = (value: any) => string
+
 export type SomeDecoder = (encodedData: string) => null | object
 
+export type SomeDecoderJson = (encodedData: string) => null | object
+
 export type SomeDecodeOrThrower = (encodedData: string) => object
+
+export type SomeDecodeOrThrowJson = (encodedData: string) => object
 
 export interface SomeDatumBuilder {
   schema: object
   extend: object
   codec: object
+
   defaults: (defaults: SomeDefaultsProvider) => object
   done: () => object
   _?: {

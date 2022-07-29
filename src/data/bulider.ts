@@ -123,6 +123,8 @@ export type Infer<ADT extends SomeADT> = {
   '*': z.infer<ADT['schema']>
 } & TupleToObject<SchemaToTuple<ADT['schema']['_def']['options']>[number]>
 
+export type InferDatum<Datum extends SomeDatumController> = z.infer<Datum['schema']>
+
 export type SchemaToTuple<Schemas extends [z.SomeZodObject, ...z.SomeZodObject[]]> = {
   [Index in keyof Schemas]: [z.TypeOf<Schemas[Index]>['_tag'], z.TypeOf<Schemas[Index]>]
 }

@@ -1,6 +1,6 @@
 import { is } from '../core/helpers.js'
 import { ExtensionsBase } from '../core/types.js'
-import { applyDefaults, extendChain } from '../lib/utils.js'
+import { applyDefaults, extendChain, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/builder.js'
 import { SomeDatumController } from './types/controller.js'
@@ -71,17 +71,36 @@ export const datum = <Name extends string>(
           defaultsProvider: current.defaultsProvider,
         },
         create: (input: SomeDatumConstructorInput) => ({
+          // TODO pass through zod validation
+          ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
           _tag: current.name,
           _: {
             symbol,
             tag: current.name,
           },
-          // TODO pass through zod validation
-          ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
         }),
         //eslint-disable-next-line
         is$: (value: unknown) => is(value, symbol),
         is: (value: unknown) => is(value, symbol),
+        from: {
+          json: (json: string) => {
+            const data = tryOrNull(() => JSON.parse(json) as object)
+            if (data === null || typeof data !== `object`) return null
+            // TODO
+            // eslint-disable-next-line
+            return controller.create(data)
+          },
+          jsonOrThrow: (json) => {
+            const data = controller.from.json(json)
+            if (data === null) throw new Error(`Failed to decode value \`${json}\` into a ${name}.`)
+            return data
+          },
+        },
+        to: {
+          json: (data) => {
+            return JSON.stringify(data)
+          },
+        },
         decode: (value: string) => {
           if (!current.codec) throw new Error(`Codec not defined.`)
           const data = current.codec.decode(value, {
@@ -114,7 +133,7 @@ export const datum = <Name extends string>(
         chain: {
           terminus: chainTerminus,
           // TODO
-          // @ts-expect-error someting about chain not having an index signature.
+          // @ts-expect-error something about chain not having an index signature.
           methods: chain,
         },
         extensions: _.extensions,

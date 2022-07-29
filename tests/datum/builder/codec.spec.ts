@@ -6,7 +6,6 @@ const datum = Alge.datum
 const $A = `A`
 type $A = typeof $A
 const A = datum($A).schema({ m: z.string() }).done()
-
 const B = datum($A)
   .schema({ m: z.string() })
   .codec({
@@ -15,6 +14,7 @@ const B = datum($A)
   })
   .done()
 const m = B.create({ m: `m` })
+
 it(`cannot define codec multiple times in the chain`, () => {
   // eslint-disable-next-line
   const _A = datum($A)
