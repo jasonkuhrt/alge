@@ -401,45 +401,6 @@ const circle = Shape.Circle.create({
 })
 ```
 
-### Static Types
-
-Constructors are convenient but often you will write your own functions that need to be typed with your ADT. Alge has a "type function" `Alge.Infer` for this which leverages TypeScript inference.
-
-```ts
-/*
-{
-  Circle: { _tag: 'Circle', radius: number }
-  Square: { _tag: 'Square', size: number }
-  '*':    | { _tag: 'Circle', radius: number }
-          | { _tag: 'Square', size: number }
-}
-*/
-type Shape = Alge.Infer<typeof Shape>
-
-const doSomething = (shape: Shape['*']): null | Shape['Circle'] => {
-  // TODO
-}
-```
-
-Alge inference returns an object with a property per variant of the ADT as well as a special property `*` which is a union of all variants.
-
-If you prefer to work with namespaces rather than objects to reference types you can use the following pattern:
-
-```ts
-type ShapeInferred = Alge.Infer<typeof Shape>
-
-type Shape = ShapeInferred['*']
-
-namespace Shape {
-  export type Circle = ShapeInferred['Circle']
-  export type Square = ShapeInferred['Square']
-}
-
-const doSomething = (shape: Shape): null | Shape.Circle => {
-  // TODO
-}
-```
-
 ### Identity
 
 `.is` is a variant method that is a TypeScript type guard. It checks if the given ADT value is that variant or not:
@@ -570,6 +531,58 @@ const shape3 = Shape.from.string('!')
 // type: Circle | Square
 // value: throws
 const shape4 = Shape.from.stringOrThrow('!')
+```
+
+### Static Types
+
+Often you will write code (e.g. your own functions) that need to be typed with your ADT. Alge has "type functions" for this which leverages TypeScript inference.
+
+For ADTs there is `Alge.Infer`. It return an object with a property _per_ variant of the ADT _as well as_ a special property `*` which is _a union of all variants_.
+
+```ts
+/*
+{
+  Circle: { _tag: 'Circle', radius: number }
+  Square: { _tag: 'Square', size: number }
+  '*':    | { _tag: 'Circle', radius: number }
+          | { _tag: 'Square', size: number }
+}
+*/
+
+type Shape = Alge.Infer<typeof Shape>
+
+const doSomething = (shape: Shape['*']): null | Shape['Circle'] => {
+  // TODO
+}
+```
+
+For lone variants there is `Alge.InferDatum`.
+
+```ts
+type Circle = Alge.InferDatum<typeof Circle>
+
+const doSomething = (circle: Circle) => {
+  // TODO
+}
+```
+
+#### Namespaces
+
+When working with inferred ADT types, if you prefer to work with namespaces rather than objects to reference types you can use the following pattern:
+
+```ts
+type ShapeInferred = Alge.Infer<typeof Shape>
+
+type Shape = ShapeInferred['*']
+
+namespace Shape {
+  export type Circle = ShapeInferred['Circle']
+  export type Square = ShapeInferred['Square']
+}
+
+const doSomething = (shape: Shape): null | Shape.Circle => {
+  // TODO
+}
 ```
 
 </br>
