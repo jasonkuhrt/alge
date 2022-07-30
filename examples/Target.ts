@@ -32,13 +32,13 @@ export const Target = Alge.datum(`Target`)
     moniker: Moniker.schema,
     version: Version.schema,
   })
-  .codec({
-    encode: (target) => {
+  .codec('string', {
+    to: (target) => {
       // The tag "latest" gets elided
       if (isTagLatest(target.version)) return Moniker.encode(target.moniker)
       return `${Moniker.encode(target.moniker)}@${Version.encode(target.version)}`
     },
-    decode: (value) => {
+    from: (value) => {
       const result = value.match(/(.+)(?:@(.+))?/)
       if (!result) return null
       const [, monikerRaw, versionRaw = `latest`] = result as [string, string, undefined | string]

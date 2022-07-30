@@ -28,8 +28,8 @@ export const SemVer = Alge.data(`SemVer`)
     release: z.string().nullable(), // TODO regexp,
     build: z.string().nullable(), // TODO regexp,
   })
-  .codec({
-    decode: (rawVersion) => {
+  .codec(`string`, {
+    from: (rawVersion) => {
       const result = semverUtils.parse(rawVersion)
       // incorrect static type from lib, can be null!
       if (result === null) return null
@@ -47,7 +47,7 @@ export const SemVer = Alge.data(`SemVer`)
         build,
       }
     },
-    encode: (version) =>
+    to: (version) =>
       // prettier-ignore
       `${version.major}.${version.minor}.${version.patch}${version.release ? `-${version.release}` : ``}${version.build ? `+${version.build}` : ``}`,
   })
