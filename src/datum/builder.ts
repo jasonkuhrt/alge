@@ -1,6 +1,6 @@
 import { is } from '../core/helpers.js'
 import { ExtensionsBase } from '../core/types.js'
-import { applyDefaults, extendChain, tryOrNull } from '../lib/utils.js'
+import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/builder.js'
 import { SomeDatumController } from './types/controller.js'
@@ -51,7 +51,10 @@ export const datum = <Name extends string>(
       return chain
     },
     codec: (name: string, codecDef: SomeCodecDefinition) => {
-      // if (current.codec) throw new Error(`Codec already defined.`)
+      // TODO optimize this check to be O(1)
+      if (!isEmptySchema(current.schema)) throw new Error(`A codec cannot be defined without a schema.`)
+      if (current.codecs.find((codec) => codec[0] === name))
+        throw new Error(`A codec with the name "${name}" has already been defined.`)
       current.codecs.push([name, codecDef])
       return chain
     },

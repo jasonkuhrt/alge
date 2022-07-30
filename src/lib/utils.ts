@@ -1,3 +1,11 @@
+import type { z } from 'zod'
+/**
+ * Is the data type schema empty? Empty means it has no properties beyond the standard `_tag` property.
+ */
+export const isEmptySchema = (schema: z.SomeZodObject) => {
+  return Object.keys(schema._def.shape()).filter((key) => key !== `_tag`).length > 0
+}
+
 export const tryOrNull = <T>(fn: () => T): T | null => {
   try {
     return fn()
