@@ -1,5 +1,5 @@
 import { is } from '../core/helpers.js'
-import { ExtensionsBase } from '../core/types.js'
+import { ExtensionsBase, StoredVariant } from '../core/types.js'
 import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/builder.js'
@@ -7,10 +7,15 @@ import { SomeDatumController } from './types/controller.js'
 import {
   SomeCodecDefinition,
   SomeDatumConstructorInput,
-  SomeDatumDefinition,
   SomeDefaultsProvider,
   SomeSchema,
 } from './types/internal.js'
+
+export type DatumBuildState = Omit<StoredVariant, 'codec' | 'schema' | 'defaults'> & {
+  codecs: [string, SomeCodecDefinition][]
+  schema: z.SomeZodObject
+  defaultsProvider: null | SomeDefaultsProvider
+}
 
 export const datum = <Name extends string>(
   name: Name,
@@ -21,7 +26,7 @@ export const datum = <Name extends string>(
 ): Initial<Name> => {
   const chainTerminus = `done`
   const initialSchema = z.object({ _tag: z.literal(name) })
-  const current: SomeDatumDefinition = {
+  const current: DatumBuildState = {
     name,
     schema: initialSchema,
     extensions: {},
@@ -32,7 +37,6 @@ export const datum = <Name extends string>(
           name: _.extend.name,
           schema: _.extend.schema,
           defaultsProvider: _.extend._.defaultsProvider,
-          codecs: _.extend._.codecs,
           extensions: _.extend,
         }
       : {}),
@@ -70,7 +74,7 @@ export const datum = <Name extends string>(
         ...current,
         _: {
           symbol,
-          codecs: current.codecs,
+          codecs: current.codecs.map((_) => _[0]),
           defaultsProvider: current.defaultsProvider,
         },
         create: (input: SomeDatumConstructorInput) => ({

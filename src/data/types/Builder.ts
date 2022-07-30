@@ -3,16 +3,16 @@
  */
 
 import {
-  CodecDefinition,
+  CodecImplementation,
   CreateStoredDatum,
-  CreateStoredDatumFromDatum,
+  CreateStoredDatumFromDatumController,
   ExtensionsBase,
   SchemaBase,
   StoredVariant,
   StoredVariants,
 } from '../../core/types.js'
 import { SomeDatumController } from '../../datum/types/controller.js'
-import { Controller } from './Controller.js'
+import { DataController } from './Controller.js'
 
 /**
  * The initial API for building an ADT.
@@ -24,17 +24,10 @@ export type Initial<ADT extends StoredADT, Vs extends StoredVariants> = VariantR
  *
  * @remarks This happens to be the initial state of the builder API.
  */
+// prettier-ignore
 export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariants> {
-  /**
-   * TODO
-   */
-  // prettier-ignore
   variant<Name extends string>(name: Name): PostVariant<ADT, CreateStoredDatum<Name>, Vs>
-  /**
-   * TODO
-   */
-  // prettier-ignore
-  variant<TDatumn extends SomeDatumController>(datum: TDatumn): PostVariant<ADT, CreateStoredDatumFromDatum<TDatumn>, Vs>
+  variant<DC extends SomeDatumController>(datum: DC): PostVariant<ADT, CreateStoredDatumFromDatumController<DC>, Vs>
 }
 
 /**
@@ -42,11 +35,10 @@ export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariant
  *
  * @remarks This happens to be the initial state of the builder API.
  */
+// prettier-ignore
 export interface PostVariant<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
-  extends PostSchema<ADT, V, Vs> {
-  /**
-   * TODO
-   */
+       extends VariantRequired<ADT, [V, ...Vs]>,
+               Done<ADT, V, Vs> {
   schema<Schema extends SchemaBase>(schema: Schema): PostSchema<ADT, StoredVariant.AddSchema<Schema, V>, Vs>
 }
 
@@ -54,35 +46,16 @@ export interface PostVariant<ADT extends StoredADT, V extends StoredVariant, Vs 
  * The builder API when it is a state of having at least one variant defined.
  * At this point the ADT can be marked as done.
  */
+// prettier-ignore
 export interface PostSchema<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
-  extends VariantRequired<ADT, [V, ...Vs]>,
-    Done<ADT, V, Vs> {
-  codec(definition: CodecDefinition<V>): PostCodecBuilder<ADT, StoredVariant.AddCodec<V>, Vs>
-  /**
-   * Extend the ADT with new properties.
-   * TODO
-   */
-  //prettier-ignore
+       extends VariantRequired<ADT, [V, ...Vs]>,
+               Done<ADT, V, Vs> {
+  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostSchema<ADT, StoredVariant.AddCodec<Name, V>, Vs>
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostSchema<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
 }
 
-/**
- * The builder API when it is a state of having at least one variant defined.
- * At this point the ADT can be marked as done.
- */
-export interface PostCodecBuilder<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
-  extends VariantRequired<ADT, [V, ...Vs]>,
-    Done<ADT, V, Vs> {
-  /**
-   * Extend the ADT with new properties.
-   * TODO
-   */
-  //prettier-ignore
-  extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostCodecBuilder<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
-}
-
 export interface Done<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants> {
-  done(): Controller<ADT, [V, ...Vs]>
+  done(): DataController<ADT, [V, ...Vs]>
 }
 
 // Helpers

@@ -1,13 +1,7 @@
-import { InputBase, StoredVariant } from '../../core/types.js'
+import { InputBase } from '../../core/types.js'
 import { DefaultsBase } from './builder.js'
 import { SomeDatumController } from './controller.js'
 import { z } from 'zod'
-
-export type SomeDatumDefinition = Omit<StoredVariant, 'codec' | 'schema' | 'defaults'> & {
-  codecs: [string, SomeCodecDefinition][]
-  schema: z.SomeZodObject
-  defaultsProvider: null | SomeDefaultsProvider
-}
 
 export type SomeDatumConstructorInput = Record<string, unknown>
 

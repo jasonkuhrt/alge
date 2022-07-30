@@ -1,39 +1,39 @@
 import { data, datum } from '../../../src/index_.js'
-import { $A, $M, $N } from '../__helpers__.js'
+import { $A, $AB, $B } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 
 describe(`.data(<datumn>)`, () => {
   //prettier-ignore
-  const M = datum($M).schema({ m: z.literal(`m`) }).done()
+  const A = datum($A).schema({ m: z.literal(`m`) }).done()
   //prettier-ignore
-  const N = datum($N)
+  const B = datum($B)
     .schema({ n: z.literal(1) })
     .done()
-  const A = data($A).variant(M).variant(N).done()
-  A.M._
-  const m = A.M.create({ m: `m` })
-  const n = A.N.create({ n: 1 })
+  const AB = data($AB).variant(A).variant(B).done()
+  AB.A._
+  const m = AB.A.create({ m: `m` })
+  const n = AB.B.create({ n: 1 })
   it(`The name is statically available.`, () => {
-    expectType<typeof $A>(A.name)
-    expect(A.name).toBe($A)
+    expectType<typeof $AB>(AB.name)
+    expect(AB.name).toBe($AB)
   })
   it(`can construct variants`, () => {
-    expectType<{ _tag: $M; m: `m` }>(m)
-    expectType<{ _tag: $N; n: 1 }>(n)
-    expect(m).toEqual({ _tag: $M, m: `m`, _: { tag: $M, symbol: A.M._.symbol } })
-    expect(n).toEqual({ _tag: $N, n: 1, _: { tag: $N, symbol: A.N._.symbol } })
+    expectType<{ _tag: $A; m: `m` }>(m)
+    expectType<{ _tag: $B; n: 1 }>(n)
+    expect(m).toEqual({ _tag: $A, m: `m`, _: { tag: $A, symbol: AB.A._.symbol } })
+    expect(n).toEqual({ _tag: $B, n: 1, _: { tag: $B, symbol: AB.B._.symbol } })
     // @ts-expect-error test
     // eslint-disable-next-line
-    expect(() => A.M.encode(m)).toThrowError()
+    expect(() => AB.M.encode(m)).toThrowError()
     // @ts-expect-error test
     // eslint-disable-next-line
-    expect(() => A.M.decode(`m`)).toThrowError()
+    expect(() => AB.M.decode(`m`)).toThrowError()
     // @ts-expect-error test
     // eslint-disable-next-line
-    expect(() => A.N.encode(n)).toThrowError()
+    expect(() => AB.N.encode(n)).toThrowError()
     // @ts-expect-error test
     // eslint-disable-next-line
-    expect(() => A.N.decode(1)).toThrowError()
+    expect(() => AB.N.decode(1)).toThrowError()
   })
 })

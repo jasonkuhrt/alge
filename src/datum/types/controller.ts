@@ -1,17 +1,7 @@
 import { Encoder, StoredVariant, StoredVariants } from '../../core/types.js'
-import { ApplyDefaults } from '../../data/types/Controller.js'
 import { OmitRequired, Rest } from '../../lib/utils.js'
 import { z } from '../../lib/z/index.js'
-import {
-  SomeCodecDefinition,
-  SomeDecodeOrThrower,
-  SomeDecodeOrThrowJson,
-  SomeDecoder,
-  SomeDecoderJson,
-  SomeDefaultsProvider,
-  SomeEncoder,
-  SomeEncoderJson,
-} from './internal.js'
+import { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
 
 export type GetConstructorInput<V extends StoredVariant> = ApplyDefaults<
   V['defaults'],
@@ -25,14 +15,16 @@ export type SomeDatum = {
   }
 }
 
+export type SomeSchema = z.SomeZodObject
+
 export type SomeDatumController = {
   _: {
     defaultsProvider: null | SomeDefaultsProvider
-    codecs?: [string, SomeCodecDefinition][]
+    codecs: [...string[]]
     symbol: symbol
   }
   name: string
-  schema: z.SomeZodObject
+  schema: SomeSchema
   // eslint-disable-next-line
   is: (value: any) => boolean
   is$: (value: unknown) => boolean
@@ -61,22 +53,23 @@ type Decoders<Names extends string[], V extends StoredVariant> = Decoders_<{}, N
 
 type Decoders_<Obj, Names extends string[], V extends StoredVariant> = Names extends []
   ? Obj
-  : Decoders_<Obj & Decoder_<Names[0], V>, Rest<Names>, V>
+  : Decoders_<Obj & DecoderMethods<Names[0], V>, Rest<Names>, V>
 
-type Decoder_<Name extends string, V extends StoredVariant> = {
+type DecoderMethods<Name extends string, V extends StoredVariant> = {
   [N in Name]: (value: string) => null | StoredVariant.GetType<V>
 } & {
   [N in Name as `${N}OrThrow`]: (value: string) => StoredVariant.GetType<V>
 }
 
 // prettier-ignore
-export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
+export type DatumController<Vs extends StoredVariants, V extends StoredVariant> = {
   _: {
     defaultsProvider: null extends V['defaults']
       ? null
       : SomeDefaultsProvider<object, Exclude<V['defaults'], null>>
     tag: string
     symbol: symbol
+    codecs: [...string[]]
   }
   name: V[`name`]
   schema: StoredVariant.GetZodSchema<V>
@@ -230,3 +223,9 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
   //       decodeOrThrow: never
   //     }) &
   V[`extensions`]
+
+export type ApplyDefaults<Defaults, Input> = {
+  [K in keyof Input as K extends keyof Defaults ? never : K]: Input[K]
+} & {
+  [K in keyof Input as K extends keyof Defaults ? K : never]?: Input[K]
+}

@@ -116,14 +116,14 @@ export namespace StoredVariants {
 export type CreateStoredDatum<Name extends NameBase> = {
   name: Name
   schema: { _tag: z.ZodLiteral<Name> }
-  codec: false
+  codec: []
   // TODO
   // eslint-disable-next-line
   extensions: {}
   defaults: null
 }
 
-export type CreateStoredDatumFromDatum<Datum extends SomeDatumController> = {
+export type CreateStoredDatumFromDatumController<Datum extends SomeDatumController> = {
   name: Datum['name']
   schema: Datum['schema']['shape']
   codec: Datum['_']['codecs']

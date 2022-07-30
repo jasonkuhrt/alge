@@ -3,7 +3,7 @@
  */
 
 import { CodecImplementation, ExtensionsBase, SchemaBase, StoredVariant } from '../../core/types.js'
-import { Datum } from './controller.js'
+import { DatumController } from './controller.js'
 import { SomeDefaultsProvider } from './internal.js'
 
 export type DefaultsBase = object
@@ -19,9 +19,6 @@ export type Initial<Tag extends string> = PostTag<StoredVariant.Create<Tag>>
  * @remarks This happens to be the initial state of the builder API.
  */
 export interface PostTag<V extends StoredVariant> extends Done<V> {
-  /**
-   * TODO
-   */
   // prettier-ignore
   schema<Schema extends SchemaBase>(schema: Schema): PostSchema<StoredVariant.AddSchema<Schema, V>>
   // prettier-ignore
@@ -69,7 +66,7 @@ export interface Extend<V extends StoredVariant> {
 }
 
 export interface Done<V extends StoredVariant> {
-  done(): Datum<[V], V>
+  done(): DatumController<[V], V>
 }
 
 // Helpers

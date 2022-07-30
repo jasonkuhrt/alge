@@ -1,6 +1,6 @@
 import { datum } from '../datum/builder.js'
 import { SomeDatumController } from '../datum/types/controller.js'
-import { SomeDatumBuilder } from '../datum/types/internal.js'
+import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '../datum/types/internal.js'
 import { Errors } from '../Errors/index.js'
 import { r } from '../lib/r.js'
 import { code, isEmpty, TupleToObject } from '../lib/utils.js'
@@ -9,9 +9,16 @@ import { Initial } from './types/Builder.js'
 import { SomeADT } from './types/internal.js'
 import { SomeZodObject } from 'zod'
 
-export type SomeData = {
+export type SomeAdtMethods = {
   name: string
   schema: null | SomeZodObject | z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
+  from: {
+    json: SomeDecoder
+    jsonOrThrow: SomeDecodeOrThrower
+  }
+  to: {
+    json: SomeEncoder
+  }
 }
 
 /**
@@ -41,9 +48,9 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
       if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatumController)
       if (isEmpty(datums)) throw createEmptyVariantsError({ name })
 
-      const datumsApi = r.pipe(datums, r.indexBy(r.prop(`name`)))
+      const datumsMethods = r.pipe(datums, r.indexBy(r.prop(`name`)))
 
-      const ADTApi: SomeData = {
+      const ADTMethods: SomeAdtMethods = {
         name,
         schema:
           datums.length >= 2
@@ -58,43 +65,62 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             ? // eslint-disable-next-line
               datums[0]!.schema
             : null,
-        // encode: (someDatum: SomeDatum) => {
-        //   const missingCodecDef = datums.filter((d) => d._.codec === undefined)
-        //   if (missingCodecDef.length)
-        //     throw new Error(
-        //       `ADT level codec not available because some variants did not define a codec: ${missingCodecDef
-        //         .map(r.prop(`name`))
-        //         .join(`, `)}`
-        //     )
-        //   const datum = datumsApi[someDatum._tag]
-        //   if (!datum) throw new Error(`Failed to find Variant tagged ${someDatum._tag}`)
-        //   return datum.encode(someDatum, { schema: datum.schema })
-        // },
-        // decode: (value) => {
-        //   const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
-        //   if (variantsMissingCodecDef.length)
-        //     throw new Error(
-        //       `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
-        //         .map(r.prop(`name`))
-        //         .join(`, `)}`
-        //     )
-        //   for (const datumApi of Object.values(datumsApi)) {
-        //     const result = datumApi.decode(value)
-        //     if (result) return result
-        //   }
-        //   return null
-        // },
-        // decodeOrThrow: (value) => {
-        //   const data = ADTApi.decode(value)
-        //   if (data === null)
-        //     throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
-        //   return data
-        // },
+        from: {
+          json: (json: string) => {
+            for (const datumMethods of Object.values(datumsMethods)) {
+              const result = datumMethods.from.json(json)
+              if (result) return result
+            }
+            return null
+          },
+          jsonOrThrow: (json) => {
+            const data = ADTMethods.from.json(json)
+            if (data === null)
+              throw new Error(`Failed to decode value \`${json}\` into any of the variants for this ADT.`)
+            return data
+          },
+        },
+        to: {
+          json: (data) => JSON.stringify(data),
+        },
       }
 
+      // encode: (someDatum: SomeDatum) => {
+      //   const missingCodecDef = datums.filter((d) => d._.codec === undefined)
+      //   if (missingCodecDef.length)
+      //     throw new Error(
+      //       `ADT level codec not available because some variants did not define a codec: ${missingCodecDef
+      //         .map(r.prop(`name`))
+      //         .join(`, `)}`
+      //     )
+      //   const datum = datumsApi[someDatum._tag]
+      //   if (!datum) throw new Error(`Failed to find Variant tagged ${someDatum._tag}`)
+      //   return datum.encode(someDatum, { schema: datum.schema })
+      // },
+      // decode: (value) => {
+      //   const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
+      //   if (variantsMissingCodecDef.length)
+      //     throw new Error(
+      //       `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
+      //         .map(r.prop(`name`))
+      //         .join(`, `)}`
+      //     )
+      //   for (const datumApi of Object.values(datumsApi)) {
+      //     const result = datumApi.decode(value)
+      //     if (result) return result
+      //   }
+      //   return null
+      // },
+      // decodeOrThrow: (value) => {
+      //   const data = ADTApi.decode(value)
+      //   if (data === null)
+      //     throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
+      //   return data
+      // },
+
       const controller = {
-        ...ADTApi,
-        ...datumsApi,
+        ...ADTMethods,
+        ...datumsMethods,
       }
 
       return controller
