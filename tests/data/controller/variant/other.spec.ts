@@ -1,24 +1,24 @@
-import { $M, $N, A } from '../../__helpers__.js'
+import { $A, $B, AB } from '../../../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 
 it(`._.symbol contains the unique symbol for this variant`, () => {
-  expectType<symbol>(A.M._.symbol)
-  expect(typeof A.M._.symbol).toBe(`symbol`)
+  expectType<symbol>(AB.A._.symbol)
+  expect(typeof AB.A._.symbol).toBe(`symbol`)
 })
 
 it(`.name contains the name of the variant`, () => {
-  expectType<$M>(A.M.name)
-  expect(A.M.name).toBe($M)
-  expectType<$N>(A.N.name)
-  expect(A.N.name).toBe($N)
+  expectType<$A>(AB.A.name)
+  expect(AB.A.name).toBe($A)
+  expectType<$B>(AB.B.name)
+  expect(AB.B.name).toBe($B)
 })
 
 it(`.schema contains the zod schema for the variant`, () => {
-  expectType<z.ZodSchema>(A.M.schema)
-  expect(A.M.schema).toBeDefined()
-  expect(A.M.schema.safeParse(``).success).toBe(false)
-  expectType<z.ZodSchema>(A.N.schema)
-  expect(A.N.schema).toBeDefined()
-  expect(A.N.schema.safeParse(``).success).toBe(false)
+  expectType<z.ZodSchema>(AB.A.schema)
+  expect(AB.A.schema).toBeDefined()
+  expect(AB.A.schema.safeParse(``).success).toBe(false)
+  expectType<z.ZodSchema>(AB.B.schema)
+  expect(AB.B.schema).toBeDefined()
+  expect(AB.B.schema.safeParse(``).success).toBe(false)
 })

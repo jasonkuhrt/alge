@@ -1,10 +1,12 @@
-import { ADTDecoder, ADTEncoder, StoredVariants } from '../../core/types.js'
-import { Datum } from '../../datum/types/controller.js'
+import { StoredVariants } from '../../core/types.js'
+import { DatumController } from '../../datum/types/controller.js'
 import { StoredADT } from './Builder.js'
 
-export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
+// prettier-ignore
+export type DataController<ADT extends StoredADT, Vs extends StoredVariants> =
+  ADT &
   ADTMethods<Vs> &
-  VariantsNamespacedMethods<Vs>
+  VariantsMethods<Vs>
 
 /**
  * Build up the API on the ADT itself:
@@ -17,26 +19,9 @@ export type Controller<ADT extends StoredADT, Vs extends StoredVariants> = ADT &
 // prettier-ignore
 type ADTMethods<Vs extends StoredVariants> = {
   schema: StoredVariants.ZodUnion<Vs>
-} & (StoredVariants.IsAllHaveCodec<Vs> extends true
-  ? {
-      encode: ADTEncoder<Vs>
-      decode: ADTDecoder<Vs>
-      decodeOrThrow: ADTDecoder<Vs>
-    }
-  : {
-      /**
-       * TODO Useful JSDoc about why this is never
-       */
-      encode: never
-      /**
-       * TODO Useful JSDoc about why this is never
-       */
-      decode: never
-      /**
-       * TODO Useful JSDoc about why this is never
-       */
-      decodeOrThrow: never
-    })
+  from: DecoderMethods<'json', Vs> & StoredVariants.GetAdtLevelDecoderMethods<Vs>
+  to: EncoderMethods<'json', Vs> & StoredVariants.GetAdtLevelEncoderMethods<Vs>
+}
 
 /**
  * build up the API for each variant defined in the ADT:
@@ -46,12 +31,22 @@ type ADTMethods<Vs extends StoredVariants> = {
  * // A.B.<...>  <-- Methods here
  * ```
  */
-export type VariantsNamespacedMethods<Vs extends StoredVariants> = {
-  [V in Vs[number] as V[`name`]]: Datum<Vs, V>
+export type VariantsMethods<Vs extends StoredVariants> = {
+  [V in Vs[number] as V[`name`]]: DatumController<Vs, V>
+  // [V in Vs[number] as V[`name`]]: V['schema']
 }
 
-export type ApplyDefaults<Defaults, Input> = {
-  [K in keyof Input as K extends keyof Defaults ? never : K]: Input[K]
+// Helpers
+// -------
+
+export type DecoderMethods<Name extends string, Vs extends StoredVariants> = {
+  [N in Name]: (value: string) => null | StoredVariants.Union<Vs>
 } & {
-  [K in keyof Input as K extends keyof Defaults ? K : never]?: Input[K]
+  [N in Name as `${N}OrThrow`]: (value: string) => StoredVariants.Union<Vs>
 }
+
+export type EncoderMethods<Name extends string, Vs extends StoredVariants> = {
+  [N in Name]: Encoder<Vs>
+}
+
+export type Encoder<Vs extends StoredVariants> = (adt: StoredVariants.Union<Vs>) => string

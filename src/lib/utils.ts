@@ -1,3 +1,45 @@
+import type { z } from 'zod'
+
+export const inspect = (value: unknown) => {
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
+/**
+ * @see https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type?noredirect=1&lq=1
+ */
+// eslint-disable-next-line
+export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never
+
+export type AssertString<T> = T extends string ? T : never
+
+export type ObjectValues<T> = T[keyof T]
+/**
+ * Is the data type schema empty? Empty means it has no properties beyond the standard `_tag` property.
+ */
+export const isEmptySchema = (schema: z.SomeZodObject) => {
+  return Object.keys(schema._def.shape()).filter((key) => key !== `_tag`).length > 0
+}
+
+export const tryOrNull = <T>(fn: () => T): T | null => {
+  try {
+    return fn()
+  } catch {
+    return null
+  }
+}
+
+export type Rest<x extends unknown[]> = x extends [infer _first, ...infer rest] ? rest : []
+
+export type IndexKeys<A extends readonly unknown[]> = Exclude<keyof A, keyof []>
+
+export type AsString<x> = x extends string ? x : never
+
 export type OmitRequired<T> = {
   [K in keyof T as undefined extends T[K] ? never : K]: T[K]
 }

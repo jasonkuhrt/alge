@@ -1,4 +1,4 @@
-import { datum } from '../datum/builder.js'
+import { datum } from '../datum/runtime.js'
 import { SomeDatum, SomeDatumController } from '../datum/types/controller.js'
 import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '../datum/types/internal.js'
 import { Errors } from '../Errors/index.js'
@@ -7,14 +7,14 @@ import { code, isEmpty, TupleToObject } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/Builder.js'
 import { SomeADT } from './types/internal.js'
+import { inspect } from 'util'
 import { SomeZodObject } from 'zod'
 
-export type SomeData = {
+export type SomeAdtMethods = {
   name: string
   schema: null | SomeZodObject | z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
-  encode: SomeEncoder
-  decode: SomeDecoder
-  decodeOrThrow: SomeDecodeOrThrower
+  from: Record<string, SomeDecoder | SomeDecodeOrThrower>
+  to: Record<string, SomeEncoder>
 }
 
 /**
@@ -44,9 +44,57 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
       if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatumController)
       if (isEmpty(datums)) throw createEmptyVariantsError({ name })
 
-      const datumsApi = r.pipe(datums, r.indexBy(r.prop(`name`)))
+      const datumsMethods = r.pipe(datums, r.indexBy(r.prop(`name`)))
 
-      const ADTApi: SomeData = {
+      // Get the common codecs. We only need to iterate from the point of view of one
+      // datum's codecs, so we'll pick the first. We're guaranteed to have at least
+      // one variant based on the empty check above.
+      // eslint-disable-next-line
+      const firstDatum = datums[0]!
+      const commonCodecs = firstDatum._.codecs.filter(
+        (codec) => datums.length === datums.filter((datum) => datum._.codecs.includes(codec)).length
+      )
+
+      const createAdtDecoderMethods = (codec: string): Record<string, SomeDecoder | SomeDecodeOrThrower> => {
+        const methods: Record<string, SomeDecoder | SomeDecodeOrThrower> = {
+          [codec]: (string: string) => {
+            for (const datumMethods of Object.values(datumsMethods)) {
+              // @ts-expect-error todo
+              // eslint-disable-next-line
+              const result = datumMethods.from[codec](string) as object
+              if (result) return result
+            }
+            return null
+          },
+          [`${codec}OrThrow`]: (string: string) => {
+            // @ts-expect-error We know the codec will be there because we defined it above.
+            //eslint-disable-next-line
+            const data = methods[codec](string) as object | null
+            if (data === null)
+              throw new Error(
+                `Failed to decode value \`${inspect(string)}\` into any of the variants for this ADT.`
+              )
+            return data
+          },
+        }
+        return methods
+      }
+
+      const createAdtEncoderMethods = (codec: string): Record<string, SomeEncoder> => {
+        const methods = {
+          [codec]: (data: SomeDatum) => {
+            for (const datumMethods of Object.values(datumsMethods)) {
+              // @ts-expect-error todo
+              // eslint-disable-next-line
+              if (data._tag === datumMethods.name) return datumMethods.to[codec](data)
+            }
+            throw new Error(`Failed to find an encoder for data: "${inspect(data)}"`)
+          },
+        }
+        return methods
+      }
+
+      const ADTMethods: SomeAdtMethods = {
         name,
         schema:
           datums.length >= 2
@@ -61,43 +109,25 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             ? // eslint-disable-next-line
               datums[0]!.schema
             : null,
-        encode: (someDatum: SomeDatum) => {
-          const missingCodecDef = datums.filter((d) => d._.codec === undefined)
-          if (missingCodecDef.length)
-            throw new Error(
-              `ADT level codec not available because some variants did not define a codec: ${missingCodecDef
-                .map(r.prop(`name`))
-                .join(`, `)}`
-            )
-          const datum = datumsApi[someDatum._tag]
-          if (!datum) throw new Error(`Failed to find Variant tagged ${someDatum._tag}`)
-          return datum.encode(someDatum, { schema: datum.schema })
+        from: {
+          ...createAdtDecoderMethods(`json`),
+          ...commonCodecs.reduce(
+            (decoderMethods, codec) => ({ ...decoderMethods, ...createAdtDecoderMethods(codec) }),
+            {} as Record<string, SomeDecoder>
+          ),
         },
-        decode: (value) => {
-          const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
-          if (variantsMissingCodecDef.length)
-            throw new Error(
-              `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
-                .map(r.prop(`name`))
-                .join(`, `)}`
-            )
-          for (const datumApi of Object.values(datumsApi)) {
-            const result = datumApi.decode(value)
-            if (result) return result
-          }
-          return null
-        },
-        decodeOrThrow: (value) => {
-          const data = ADTApi.decode(value)
-          if (data === null)
-            throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
-          return data
+        to: {
+          ...createAdtEncoderMethods(`json`),
+          ...commonCodecs.reduce(
+            (encoderMethods, codec) => ({ ...encoderMethods, ...createAdtEncoderMethods(codec) }),
+            {} as Record<string, SomeEncoder>
+          ),
         },
       }
 
       const controller = {
-        ...ADTApi,
-        ...datumsApi,
+        ...ADTMethods,
+        ...datumsMethods,
       }
 
       return controller
@@ -122,6 +152,8 @@ export type Infer<ADT extends SomeADT> = {
   // eslint-ignore-next-line
   '*': z.infer<ADT['schema']>
 } & TupleToObject<SchemaToTuple<ADT['schema']['_def']['options']>[number]>
+
+export type InferDatum<Datum extends SomeDatumController> = z.infer<Datum['schema']>
 
 export type SchemaToTuple<Schemas extends [z.SomeZodObject, ...z.SomeZodObject[]]> = {
   [Index in keyof Schemas]: [z.TypeOf<Schemas[Index]>['_tag'], z.TypeOf<Schemas[Index]>]

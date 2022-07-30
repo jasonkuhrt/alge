@@ -16,13 +16,13 @@ const Version = Alge.data(`Version`)
   .schema({
     name: z.string().min(1), // TODO regexp
   })
-  .codec({
-    encode: (tag) => tag.name,
-    decode: (value) => {
+  .codec(`string`, {
+    to: (tag) => tag.name,
+    from: (string) => {
       // According to npm docs a tag value is anything that is not interpretable as a semantic version
       // https://docs.npmjs.com/cli/v8/commands/npm-dist-tag#caveats
-      if (SemVer.Exact.decode(value)) return null
-      return { name: value }
+      if (SemVer.Exact.from.string(string)) return null
+      return { name: string }
     },
   })
   .done()
@@ -32,18 +32,18 @@ export const Target = Alge.datum(`Target`)
     moniker: Moniker.schema,
     version: Version.schema,
   })
-  .codec({
-    encode: (target) => {
+  .codec(`string`, {
+    to: (target) => {
       // The tag "latest" gets elided
-      if (isTagLatest(target.version)) return Moniker.encode(target.moniker)
-      return `${Moniker.encode(target.moniker)}@${Version.encode(target.version)}`
+      if (isTagLatest(target.version)) return Moniker.to.string(target.moniker)
+      return `${Moniker.to.string(target.moniker)}@${Version.to.string(target.version)}`
     },
-    decode: (value) => {
+    from: (value) => {
       const result = value.match(/(.+)(?:@(.+))?/)
       if (!result) return null
       const [, monikerRaw, versionRaw = `latest`] = result as [string, string, undefined | string]
-      const moniker = Moniker.decode(monikerRaw)
-      const version = SemVer.Exact.decode(versionRaw)
+      const moniker = Moniker.from.string(monikerRaw)
+      const version = SemVer.Exact.from.string(versionRaw)
       if (!moniker || !version) return null
       return {
         moniker,
