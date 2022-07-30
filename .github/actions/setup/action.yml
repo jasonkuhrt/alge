@@ -16,6 +16,7 @@ runs:
       with:
         node-version: ${{inputs.node-version}}
         cache: pnpm
-    - uses: pnpm/action-setup
+    - name: Use PNPM
+      uses: pnpm/action-setup@master
       with:
         run_install: true
