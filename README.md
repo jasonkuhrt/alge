@@ -2,7 +2,7 @@
 
 [![trunk](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml/badge.svg)](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml)
 
-Type safe fluent API for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae).
+Type safe fluent API for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)).
 
 <!-- toc -->
 
@@ -272,10 +272,10 @@ const Shape = Alge.data('Shape')
 In return we get back an _ADT Controller_. We can use it to create data:
 
 ```ts
-// { _tag: 'Circle' }
 const circle = Shape.Circle.create()
-// { _tag: 'Square' }
+// { _tag: 'Circle' }
 const square = Shape.Square.create()
+// { _tag: 'Square' }
 ```
 
 ### Lone Variant
@@ -320,15 +320,11 @@ const Shape = Alge.data('Shape')
 The defined schema is used by the _ADT Controller_ constructors to type check your code and give you autocomplete:
 
 ```ts
+const circle = Shape.Circle.create({ radius: 10 })
 // { _tag: 'Circle', radius: 10 }
-const circle = Shape.Circle.create({
-  radius: 10,
-})
 
+const square = Shape.Square.create({ size: 20 })
 // { _tag: 'Square', size: 20 }
-const square = Shape.Square.create({
-  size: 20,
-})
 ```
 
 #### Optional Properties
@@ -348,19 +344,19 @@ const Shape = Alge.data('Shape')
   })
   .done()
 
-// { _tag: 'Circle', size: 50 }
 const circle = Shape.Circle.create({
   radius: 50,
   // opacity: ...
   //
   // ^-- type:     opacity?: number
 })
+// { _tag: 'Circle', size: 50 }
 
-// { _tag: 'Circle', size: 50, opacity: 0.4 }
 const circle = Shape.Circle.create({
   radius: 50,
   opacity: 0.4,
 })
+// { _tag: 'Circle', size: 50, opacity: 0.4 }
 ```
 
 #### Property Defaults
@@ -391,7 +387,6 @@ const Shape = Alge.data('Shape')
 Now we can create circles with opacity implicitly specified via the default
 
 ```ts
-// { _tag: 'Circle', radius: 50, opacity: 1 }
 const circle = Shape.Circle.create({
   radius: 50,
   // opacity: ...
@@ -399,6 +394,7 @@ const circle = Shape.Circle.create({
   // ^-- type:     opacity?: number
   // ^-- default:  1
 })
+// { _tag: 'Circle', radius: 50, opacity: 1 }
 ```
 
 ### Identity
@@ -426,10 +422,10 @@ const onlyScoped = (someValue: unknown): null | Shape.Circle => {
 Sometimes there are other representations you want for your data. JSON is a very common one for transferring data between processes, over the network, etc. You can define your own codecs with Alge but JSON comes built in:
 
 ```ts
-// '{ "_tag": "Circle", "radius": 50 }'
 const circleJson = Shape.Circle.to.json(circle)
-// { "_tag": "Circle", "radius": 50 }
+// '{ "_tag": "Circle", "radius": 50 }'
 const circle2 = Shape.Circle.From.json(circleJson)
+// { "_tag": "Circle", "radius": 50 }
 ```
 
 #### Custom
@@ -455,26 +451,26 @@ const Shape = Alge.data('Shape')
   .schema({
     radius: z.number(),
   })
-  //     [1]
   .codec('string', {
+    //   ^[1]
     to: (circle) => `(${' '.repeat(circle.radius)})`,
     from: (circleString) => {
       const match = circlePattern.exec(circleString)
-      //             [2]
       return match ? { radius: match[1]!.length } : null
+      //             ^[2]
     },
   })
   .variant(`Square`)
   .schema({
     size: z.number(),
   })
-  //     [1]
   .codec('string', {
+    //   ^[1]
     to: (square) => `[${' '.repeat(square.size)}]`,
     from: (squareString) => {
       const match = squarePattern.exec(squareString)
-      //             [2]
       return match ? { size: match[1]!.length } : null
+      //             ^[2]
     },
   })
   .done()
@@ -488,19 +484,19 @@ Notes:
 The `string` codec that we have defined can now be used in the _ADT Controller_ under the `to` and `from` namespaces.
 
 ```ts
-// { _tag: 'Circle', radius: 3 }
 const circle = Shape.Circle.create({ radius: 3 })
-// '(   )'
-const circleString = Shape.Circle.to.string(circle)
 // { _tag: 'Circle', radius: 3 }
+const circleString = Shape.Circle.to.string(circle)
+// '(   )'
 const circle2 = Shape.Circle.From.string(circleString)
+// { _tag: 'Circle', radius: 3 }
 ```
 
 Decoding could fail if the input is malformed. When that happens `null` is returned.
 
 ```ts
-// null
 const circle = Shape.Circle.From.string('(]')
+// null
 ```
 
 #### Throw Decoding
@@ -519,18 +515,18 @@ When all variants share a codec definition then a generalized ADT level codec is
 Example (based on the `string` codec defined above):
 
 ```ts
-// type: Circle | Square | null
-// value: { _tag: 'Circle', radius: 0 }
 const shape1 = Shape.from.string('()')
 // type: Circle | Square | null
-// value: { _tag: 'Square', size: 0 }
+// value: { _tag: 'Circle', radius: 0 }
 const shape2 = Shape.from.string('[]')
 // type: Circle | Square | null
-// value: null
+// value: { _tag: 'Square', size: 0 }
 const shape3 = Shape.from.string('!')
+// type: Circle | Square | null
+// value: null
+const shape4 = Shape.from.stringOrThrow('!')
 // type: Circle | Square
 // value: throws
-const shape4 = Shape.from.stringOrThrow('!')
 ```
 
 ### Static Types
@@ -540,6 +536,7 @@ Often you will write code (e.g. your own functions) that need to be typed with y
 For ADTs there is `Alge.Infer`. It return an object with a property _per_ variant of the ADT _as well as_ a special property `*` which is _a union of all variants_.
 
 ```ts
+type Shape = Alge.Infer<typeof Shape>
 /*
 {
   Circle: { _tag: 'Circle', radius: number }
@@ -548,8 +545,6 @@ For ADTs there is `Alge.Infer`. It return an object with a property _per_ varian
           | { _tag: 'Square', size: number }
 }
 */
-
-type Shape = Alge.Infer<typeof Shape>
 
 const doSomething = (shape: Shape['*']): null | Shape['Circle'] => {
   // TODO
