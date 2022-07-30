@@ -13,6 +13,6 @@ export const B = Alge.datum($A).schema({ n: z.number() }).done()
 export type A = Alge.InferDatum<typeof A>
 export type B = Alge.InferDatum<typeof A>
 
-// export const AB = Alge.data(`AB`).variant(A).variant(B).done()
+export const AB = Alge.data(`AB`).variant(A).variant(B).done()
 
 export const m = A.create({ m: `m` })

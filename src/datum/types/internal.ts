@@ -4,7 +4,7 @@ import { SomeDatumController } from './controller.js'
 import { z } from 'zod'
 
 export type SomeDatumDefinition = Omit<StoredVariant, 'codec' | 'schema' | 'defaults'> & {
-  codec?: SomeCodecDefinition
+  codecs: [string, SomeCodecDefinition][]
   schema: z.SomeZodObject
   defaultsProvider: null | SomeDefaultsProvider
 }
@@ -21,8 +21,8 @@ export type SomeDecoderDefinition = (
 export type SomeSchema = Record<string, z.ZodType<unknown>>
 
 export type SomeCodecDefinition = {
-  encode: SomeEncoderDefinition
-  decode: SomeDecoderDefinition
+  to: SomeEncoderDefinition
+  from: SomeDecoderDefinition
 }
 
 export type SomeEncoderDefinition = (datum: SomeDatumController) => string

@@ -6,6 +6,12 @@ export const tryOrNull = <T>(fn: () => T): T | null => {
   }
 }
 
+export type Rest<x extends unknown[]> = x extends [infer _first, ...infer rest] ? rest : []
+
+export type IndexKeys<A extends readonly unknown[]> = Exclude<keyof A, keyof []>
+
+export type AsString<x> = x extends string ? x : never
+
 export type OmitRequired<T> = {
   [K in keyof T as undefined extends T[K] ? never : K]: T[K]
 }

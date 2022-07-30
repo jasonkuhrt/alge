@@ -1,6 +1,6 @@
-import { Decoder, DecoderThatThrows, Encoder, StoredVariant, StoredVariants } from '../../core/types.js'
+import { Encoder, StoredVariant, StoredVariants } from '../../core/types.js'
 import { ApplyDefaults } from '../../data/types/Controller.js'
-import { OmitRequired } from '../../lib/utils.js'
+import { OmitRequired, Rest } from '../../lib/utils.js'
 import { z } from '../../lib/z/index.js'
 import {
   SomeCodecDefinition,
@@ -28,7 +28,7 @@ export type SomeDatum = {
 export type SomeDatumController = {
   _: {
     defaultsProvider: null | SomeDefaultsProvider
-    codec?: SomeCodecDefinition
+    codecs?: [string, SomeCodecDefinition][]
     symbol: symbol
   }
   name: string
@@ -38,9 +38,6 @@ export type SomeDatumController = {
   is$: (value: unknown) => boolean
   // eslint-disable-next-line
   create: (params?: any) => any
-  encode: SomeEncoder
-  decode: SomeDecoder
-  decodeOrThrow: SomeDecodeOrThrower
   from: {
     json: SomeDecoderJson
     jsonOrThrow: SomeDecodeOrThrowJson
@@ -48,6 +45,28 @@ export type SomeDatumController = {
   to: {
     json: SomeEncoderJson
   }
+}
+
+type Encoders<Names extends string[], V extends StoredVariant> = Encoders_<{}, Names, V>
+
+type Encoders_<Obj, Names extends string[], V extends StoredVariant> = Names extends []
+  ? Obj
+  : Decoders_<Obj & Encoder_<Names[0], V>, Rest<Names>, V>
+
+type Encoder_<Name extends string, V extends StoredVariant> = {
+  [N in Name]: Encoder<V>
+}
+
+type Decoders<Names extends string[], V extends StoredVariant> = Decoders_<{}, Names, V>
+
+type Decoders_<Obj, Names extends string[], V extends StoredVariant> = Names extends []
+  ? Obj
+  : Decoders_<Obj & Decoder_<Names[0], V>, Rest<Names>, V>
+
+type Decoder_<Name extends string, V extends StoredVariant> = {
+  [N in Name]: (value: string) => null | StoredVariant.GetType<V>
+} & {
+  [N in Name as `${N}OrThrow`]: (value: string) => StoredVariant.GetType<V>
 }
 
 // prettier-ignore
@@ -77,7 +96,10 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
      * @remarks This is a built in decoder.
      */
     jsonOrThrow: (value: string) => StoredVariant.GetType<V>
-  }
+  } & Decoders<V['codec'], V>
+  // & {
+  //   [I in IndexKeys<V['codec']> as AsString<V['codec'][I]>]: Decoder<V['codec']>,V>
+  // }
   /**
    * Encoders for this datum. Encoders are used to transform your datum into another representation.
    */
@@ -88,7 +110,7 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
      * @remarks This is a built in encoder.
      */
     json: (datum: StoredVariant.GetType<V>) => string
-  }
+  } & Encoders<V['codec'], V>
   /**
    * Strict predicate/type guard for this variant.
    *
@@ -135,76 +157,76 @@ export type Datum<Vs extends StoredVariants, V extends StoredVariant> = {
        */
       create(input: GetConstructorInput<V>): StoredVariant.GetType<V>
     }) &
-  (V[`codec`] extends true
-    ? {
-        /**
-         * Serialize this variant into a string representation.
-         */
-        encode: Encoder<V>
-        /**
-         * Deserialize a string representation of this variant.
-         */
-        decode: Decoder<V>
-        /**
-         * Deserialize a string representation of this variant.
-         * @throws Error if decode fails.
-         */
-        decodeOrThrow: DecoderThatThrows<V>
-      }
-    : {
-        /**
-         * This method is not available. You have not defined a codec on this variant.
-         *
-         * Define a codec on your variant like this:
-         *
-         * ```ts
-         * Alge
-         *  .create('Foo')
-         *  .variant('Bar', {
-         *    qux: z.string(),
-         *  })
-         *  .codec({
-         *    encode: (data) => data.qux,
-         *    decode: (data) => ({ qux: data }),
-         *  })
-         * ```
-         */
-        encode: never
-        /**
-         * This method is not available. You have not defined a codec on this variant.
-         *
-         * Define a codec on your variant like this:
-         *
-         * ```ts
-         * Alge
-         *  .create('Foo')
-         *  .variant('Bar', {
-         *    qux: z.string(),
-         *  })
-         *  .codec({
-         *    encode: (data) => data.qux,
-         *    decode: (data) => ({ qux: data }),
-         *  })
-         * ```
-         */
-        decode: never
-        /**
-         * This method is not available. You have not defined a codec on this variant.
-         *
-         * Define a codec on your variant like this:
-         *
-         * ```ts
-         * Alge
-         *  .create('Foo')
-         *  .variant('Bar', {
-         *    qux: z.string(),
-         *  })
-         *  .codec({
-         *    encode: (data) => data.qux,
-         *    decode: (data) => ({ qux: data }),
-         *  })
-         * ```
-         */
-        decodeOrThrow: never
-      }) &
+  // (V[`codec`] extends true
+  //   ? {
+  //       /**
+  //        * Serialize this variant into a string representation.
+  //        */
+  //       encode: Encoder<V>
+  //       /**
+  //        * Deserialize a string representation of this variant.
+  //        */
+  //       decode: Decoder<V>
+  //       /**
+  //        * Deserialize a string representation of this variant.
+  //        * @throws Error if decode fails.
+  //        */
+  //       decodeOrThrow: DecoderThatThrows<V>
+  //     }
+  //   : {
+  //       /**
+  //        * This method is not available. You have not defined a codec on this variant.
+  //        *
+  //        * Define a codec on your variant like this:
+  //        *
+  //        * ```ts
+  //        * Alge
+  //        *  .create('Foo')
+  //        *  .variant('Bar', {
+  //        *    qux: z.string(),
+  //        *  })
+  //        *  .codec({
+  //        *    encode: (data) => data.qux,
+  //        *    decode: (data) => ({ qux: data }),
+  //        *  })
+  //        * ```
+  //        */
+  //       encode: never
+  //       /**
+  //        * This method is not available. You have not defined a codec on this variant.
+  //        *
+  //        * Define a codec on your variant like this:
+  //        *
+  //        * ```ts
+  //        * Alge
+  //        *  .create('Foo')
+  //        *  .variant('Bar', {
+  //        *    qux: z.string(),
+  //        *  })
+  //        *  .codec({
+  //        *    encode: (data) => data.qux,
+  //        *    decode: (data) => ({ qux: data }),
+  //        *  })
+  //        * ```
+  //        */
+  //       decode: never
+  //       /**
+  //        * This method is not available. You have not defined a codec on this variant.
+  //        *
+  //        * Define a codec on your variant like this:
+  //        *
+  //        * ```ts
+  //        * Alge
+  //        *  .create('Foo')
+  //        *  .variant('Bar', {
+  //        *    qux: z.string(),
+  //        *  })
+  //        *  .codec({
+  //        *    encode: (data) => data.qux,
+  //        *    decode: (data) => ({ qux: data }),
+  //        *  })
+  //        * ```
+  //        */
+  //       decodeOrThrow: never
+  //     }) &
   V[`extensions`]

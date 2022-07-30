@@ -3,7 +3,7 @@
  */
 
 import {
-  CodecDefiniton,
+  CodecDefinition,
   CreateStoredDatum,
   CreateStoredDatumFromDatum,
   ExtensionsBase,
@@ -57,7 +57,7 @@ export interface PostVariant<ADT extends StoredADT, V extends StoredVariant, Vs 
 export interface PostSchema<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
   extends VariantRequired<ADT, [V, ...Vs]>,
     Done<ADT, V, Vs> {
-  codec(definition: CodecDefiniton<V>): PostCodecBuilder<ADT, StoredVariant.AddCodec<V>, Vs>
+  codec(definition: CodecDefinition<V>): PostCodecBuilder<ADT, StoredVariant.AddCodec<V>, Vs>
   /**
    * Extend the ADT with new properties.
    * TODO

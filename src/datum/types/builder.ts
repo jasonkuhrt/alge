@@ -2,7 +2,7 @@
  * This module is concerned with the static types for the API of building up an ADT.
  */
 
-import { CodecDefiniton, ExtensionsBase, SchemaBase, StoredVariant } from '../../core/types.js'
+import { CodecImplementation, ExtensionsBase, SchemaBase, StoredVariant } from '../../core/types.js'
 import { Datum } from './controller.js'
 import { SomeDefaultsProvider } from './internal.js'
 
@@ -26,7 +26,8 @@ export interface PostTag<V extends StoredVariant> extends Done<V> {
   schema<Schema extends SchemaBase>(schema: Schema): PostSchema<StoredVariant.AddSchema<Schema, V>>
   // prettier-ignore
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostExtend<StoredVariant.AddExtensions<Extensions, V>>
-  codec(definition: CodecDefiniton<V>): PostCodec<StoredVariant.AddCodec<V>>
+  // prettier-ignore
+  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostCodec<StoredVariant.AddCodec<Name, V>>
 }
 
 /**
@@ -34,7 +35,8 @@ export interface PostTag<V extends StoredVariant> extends Done<V> {
  * At this point the ADT can be marked as done.
  */
 export interface PostSchema<V extends StoredVariant> extends Done<V> {
-  codec(definition: CodecDefiniton<V>): PostCodec<StoredVariant.AddCodec<V>>
+  // prettier-ignore
+  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostCodec<StoredVariant.AddCodec<Name, V>>
   // prettier-ignore
   defaults<Defaults extends Partial<StoredVariant.GetType<V>>>(defaults: SomeDefaultsProvider<Partial<StoredVariant.GetType<V>>, Defaults>): PostDefaults<StoredVariant.AddDefaults<V, Defaults>>
   // prettier-ignore
@@ -44,15 +46,18 @@ export interface PostSchema<V extends StoredVariant> extends Done<V> {
 export interface PostExtend<V extends StoredVariant> extends Done<V> {
   // prettier-ignore
   defaults<Defaults extends Partial<StoredVariant.GetType<V>>>(defaults: SomeDefaultsProvider<Partial<StoredVariant.GetType<V>>, Defaults>): PostDefaults<StoredVariant.AddDefaults<V, Defaults>>
-  codec(definition: CodecDefiniton<V>): PostCodec<StoredVariant.AddCodec<V>>
+  // prettier-ignore
+  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostCodec<StoredVariant.AddCodec<Name, V>>
 }
 
 export interface PostDefaults<V extends StoredVariant> extends Done<V> {
-  codec(definition: CodecDefiniton<V>): PostCodec<StoredVariant.AddCodec<V>>
+  // prettier-ignore
+  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostCodec<StoredVariant.AddCodec<Name, V>>
   // prettier-ignore
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostExtend<StoredVariant.AddExtensions<Extensions, V>>
 }
 
+// TODO allow multiple codecs
 export type PostCodec<V extends StoredVariant> = Done<V>
 
 /**

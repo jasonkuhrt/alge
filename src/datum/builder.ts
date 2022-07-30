@@ -26,13 +26,13 @@ export const datum = <Name extends string>(
     schema: initialSchema,
     extensions: {},
     defaultsProvider: null,
-    codec: undefined,
+    codecs: [],
     ...(_.extend
       ? {
           name: _.extend.name,
           schema: _.extend.schema,
           defaultsProvider: _.extend._.defaultsProvider,
-          codec: _.extend._.codec,
+          codecs: _.extend._.codecs,
           extensions: _.extend,
         }
       : {}),
@@ -50,9 +50,9 @@ export const datum = <Name extends string>(
       }
       return chain
     },
-    codec: (codecDef: SomeCodecDefinition) => {
-      if (current.codec) throw new Error(`Codec already defined.`)
-      current.codec = codecDef
+    codec: (name: string, codecDef: SomeCodecDefinition) => {
+      // if (current.codec) throw new Error(`Codec already defined.`)
+      current.codecs.push([name, codecDef])
       return chain
     },
     defaults: (defaultsProvider: SomeDefaultsProvider) => {
@@ -67,7 +67,7 @@ export const datum = <Name extends string>(
         ...current,
         _: {
           symbol,
-          codec: current.codec,
+          codecs: current.codecs,
           defaultsProvider: current.defaultsProvider,
         },
         create: (input: SomeDatumConstructorInput) => ({
@@ -95,32 +95,43 @@ export const datum = <Name extends string>(
             if (data === null) throw new Error(`Failed to decode value \`${json}\` into a ${name}.`)
             return data
           },
+          ...current.codecs.reduce(
+            (acc, [key, impl]) =>
+              Object.assign(acc, {
+                [key]: (value: string) => {
+                  const data = impl.from(value, {
+                    ...current.extensions,
+                    schema: current.schema,
+                    name: current.name,
+                  })
+                  if (data === null) return null
+                  // TODO
+                  // eslint-disable-next-line
+                  return controller.create(data)
+                },
+                [`${key}OrThrow`]: (value: string) => {
+                  // @ts-expect-error not indexable
+                  const data = controller.from[key](value)
+                  if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
+                  return data
+                },
+              }),
+            {}
+          ),
         },
         to: {
           json: (data) => {
             return JSON.stringify(data)
           },
-        },
-        decode: (value: string) => {
-          if (!current.codec) throw new Error(`Codec not defined.`)
-          const data = current.codec.decode(value, {
-            ...current.extensions,
-            schema: current.schema,
-            name: current.name,
-          })
-          if (data === null) return null
-          // TODO
-          // eslint-disable-next-line
-          return controller.create(data)
-        },
-        decodeOrThrow: (value) => {
-          const data = controller.decode(value)
-          if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
-          return data
-        },
-        encode: (variant: SomeDatumController) => {
-          if (!current.codec) throw new Error(`Codec not implemented.`)
-          return current.codec.encode(variant)
+          ...current.codecs.reduce(
+            (acc, [key, impl]) =>
+              Object.assign(acc, {
+                [key]: (variant: SomeDatumController) => {
+                  return impl.to(variant)
+                },
+              }),
+            {}
+          ),
         },
         ...current.extensions,
       }

@@ -8,9 +8,14 @@ export type ExtensionsBase = Record<string, unknown>
 
 export type NameBase = string
 
-export interface CodecDefiniton<V extends StoredVariant = StoredVariant> {
+export interface CodecDefinition<V extends StoredVariant = StoredVariant> {
   encode: EncoderDefinition<V>
   decode: DecoderDefinition<V>
+}
+
+export interface CodecImplementation<V extends StoredVariant = StoredVariant> {
+  to: EncoderDefinition<V>
+  from: DecoderDefinition<V>
 }
 
 export type EncoderDefinition<V extends StoredVariant> = (variant: StoredVariant.GetType<V>) => string
@@ -37,7 +42,7 @@ export type InputBase = object
 export type StoredVariant = {
   name: string
   schema: z.ZodRawShape
-  codec: boolean
+  codec: [...string[]]
   extensions: ExtensionsBase
   defaults: null | DefaultsBase
 }
@@ -48,7 +53,7 @@ export namespace StoredVariant {
   export type Create<Name extends NameBase> = {
     name: Name
     schema: { _tag: z.ZodLiteral<Name> }
-    codec: false
+    codec: []
     // TODO
     // eslint-disable-next-line
     extensions: {}
@@ -57,8 +62,8 @@ export namespace StoredVariant {
   export type AddSchema<Schema extends SchemaBase, V extends StoredVariant> =
     Omit<V, `schema`> & { schema: Schema & { _tag: z.ZodLiteral<V['name']> } }
     
-  export type AddCodec<V extends StoredVariant> =
-    Omit<V, `codec`> & { codec: true }
+  export type AddCodec<Name extends string, V extends StoredVariant> =
+    Omit<V, `codec`> & { codec: [Name, ...V['codec']] }
 
   export type AddDefaults<V extends StoredVariant, Defaults> = 
     Omit<V, `defaults`> & { defaults: Defaults }
@@ -89,6 +94,7 @@ export namespace StoredVariants {
 
   export type Union<Vs extends StoredVariants> = z.TypeOf<ZodUnion<Vs>>
 
+  // TODO
   export type IsAllHaveCodec<Vs extends StoredVariants> = {
     [I in keyof Vs]: Vs[I][`codec`] extends true ? true : false
   } extends [true, ...true[]]
@@ -120,7 +126,7 @@ export type CreateStoredDatum<Name extends NameBase> = {
 export type CreateStoredDatumFromDatum<Datum extends SomeDatumController> = {
   name: Datum['name']
   schema: Datum['schema']['shape']
-  codec: Datum['encode'] extends never ? false : true
+  codec: Datum['_']['codecs']
   extensions: Omit<Datum, 'symbol' | 'create' | 'name' | 'schema' | 'encode' | 'decode' | 'is' | '$is'>
   defaults: null extends Datum['_']['defaultsProvider']
     ? null
