@@ -3,7 +3,7 @@
   "version": "0.0.0-dripip",
   "repository": "git@github.com:jasonkuhrt/alge.git",
   "author": "Jason Kuhrt",
-  "packageManager": "yarn@3.2.2",
+  "packageManager": "pnpm@7.7.1",
   "license": "MIT",
   "files": [
     "src",
@@ -25,15 +25,15 @@
   "scripts": {
     "ts-node": "ts-node-esm",
     "reflect:toc": "markdown-toc README.md -i --maxdepth 4 && prettier --write README.md",
-    "format": "yarn format:prettier",
+    "format": "pnpm format:prettier",
     "format:prettier": "prettier --write .",
-    "format:check": "yarn format:check:prettier",
+    "format:check": "pnpm format:check:prettier",
     "format:check:prettier": "prettier --check .",
     "lint": "eslint . --ext .ts,.tsx --fix",
     "lint:check": "eslint . --ext .ts,.tsx --max-warnings 0",
-    "type-check": "yarn tsc --noEmit",
-    "dev": "yarn clean && tsc --build --watch tsconfig.cjs.json tsconfig.esm.json",
-    "build": "yarn clean && yarn build:cjs && yarn build:esm",
+    "type-check": "pnpm tsc --noEmit",
+    "dev": "pnpm clean && tsc --build --watch tsconfig.cjs.json tsconfig.esm.json",
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm",
     "build:cjs": "tsc --project tsconfig.cjs.json",
     "build:esm": "tsc --project tsconfig.esm.json",
     "test": "jest",
@@ -41,7 +41,7 @@
     "release:pr": "dripip pr",
     "release:canary": "dripip preview",
     "release:stable": "dripip stable",
-    "prepack": "yarn build"
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "endent": "^2.1.0",

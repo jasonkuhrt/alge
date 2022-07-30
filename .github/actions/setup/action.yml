@@ -15,6 +15,6 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{inputs.node-version}}
-        cache: 'yarn'
-    - run: yarn install
+        cache: pnpm
+    - run: pnpm install
       shell: bash

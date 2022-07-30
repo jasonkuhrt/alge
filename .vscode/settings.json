@@ -1,9 +1,7 @@
 {
   "search.exclude": {
     "**/dist": true,
-    "**/__snpshots__": true,
-    "**/.yarn": true,
-    "yarn.lock": true
+    "**/__snpshots__": true
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
