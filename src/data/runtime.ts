@@ -1,5 +1,5 @@
-import { datum } from '../datum/builder.js'
-import { SomeDatumController } from '../datum/types/controller.js'
+import { datum } from '../datum/runtime.js'
+import { SomeDatum, SomeDatumController } from '../datum/types/controller.js'
 import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '../datum/types/internal.js'
 import { Errors } from '../Errors/index.js'
 import { r } from '../lib/r.js'
@@ -7,18 +7,14 @@ import { code, isEmpty, TupleToObject } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/Builder.js'
 import { SomeADT } from './types/internal.js'
+import { inspect } from 'util'
 import { SomeZodObject } from 'zod'
 
 export type SomeAdtMethods = {
   name: string
   schema: null | SomeZodObject | z.ZodUnion<[z.SomeZodObject, ...z.SomeZodObject[]]>
-  from: {
-    json: SomeDecoder
-    jsonOrThrow: SomeDecodeOrThrower
-  }
-  to: {
-    json: SomeEncoder
-  }
+  from: Record<string, SomeDecoder | SomeDecodeOrThrower>
+  to: Record<string, SomeEncoder>
 }
 
 /**
@@ -50,6 +46,47 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
 
       const datumsMethods = r.pipe(datums, r.indexBy(r.prop(`name`)))
 
+      const commonCodecs = datums[0]!._.codecs.filter(
+        (codec) => datums.length === datums.filter((datum) => datum._.codecs.includes(codec)).length
+      )
+
+      const createAdtDecoderMethods = (codec: string): Record<string, SomeDecoder | SomeDecodeOrThrower> => {
+        const methods: any = {
+          [codec]: (string: string) => {
+            for (const datumMethods of Object.values(datumsMethods)) {
+              // @ts-expect-error todo
+              // eslint-disable-next-line
+              const result = datumMethods.from[codec](string) as object
+              if (result) return result
+            }
+            return null
+          },
+          [`${codec}OrThrow`]: (string: string) => {
+            const data = methods[codec](string)
+            if (data === null)
+              throw new Error(
+                `Failed to decode value \`${inspect(string)}\` into any of the variants for this ADT.`
+              )
+            return data
+          },
+        }
+        return methods
+      }
+
+      const createAdtEncoderMethods = (codec: string): Record<string, SomeEncoder> => {
+        const methods = {
+          [codec]: (data: SomeDatum) => {
+            for (const datumMethods of Object.values(datumsMethods)) {
+              // @ts-expect-error todo
+              // eslint-disable-next-line
+              if (data._tag === datumMethods.name) return datumMethods.to[codec](data)
+            }
+            throw new Error(`Failed to find an encoder for data: "${inspect(data)}"`)
+          },
+        }
+        return methods
+      }
+
       const ADTMethods: SomeAdtMethods = {
         name,
         schema:
@@ -66,57 +103,20 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
               datums[0]!.schema
             : null,
         from: {
-          json: (json: string) => {
-            for (const datumMethods of Object.values(datumsMethods)) {
-              const result = datumMethods.from.json(json)
-              if (result) return result
-            }
-            return null
-          },
-          jsonOrThrow: (json) => {
-            const data = ADTMethods.from.json(json)
-            if (data === null)
-              throw new Error(`Failed to decode value \`${json}\` into any of the variants for this ADT.`)
-            return data
-          },
+          ...createAdtDecoderMethods(`json`),
+          ...commonCodecs.reduce(
+            (decoderMethods, codec) => ({ ...decoderMethods, ...createAdtDecoderMethods(codec) }),
+            {} as Record<string, SomeDecoder>
+          ),
         },
         to: {
-          json: (data) => JSON.stringify(data),
+          ...createAdtEncoderMethods(`json`),
+          ...commonCodecs.reduce(
+            (encoderMethods, codec) => ({ ...encoderMethods, ...createAdtEncoderMethods(codec) }),
+            {} as Record<string, SomeEncoder>
+          ),
         },
       }
-
-      // encode: (someDatum: SomeDatum) => {
-      //   const missingCodecDef = datums.filter((d) => d._.codec === undefined)
-      //   if (missingCodecDef.length)
-      //     throw new Error(
-      //       `ADT level codec not available because some variants did not define a codec: ${missingCodecDef
-      //         .map(r.prop(`name`))
-      //         .join(`, `)}`
-      //     )
-      //   const datum = datumsApi[someDatum._tag]
-      //   if (!datum) throw new Error(`Failed to find Variant tagged ${someDatum._tag}`)
-      //   return datum.encode(someDatum, { schema: datum.schema })
-      // },
-      // decode: (value) => {
-      //   const variantsMissingCodecDef = datums.filter((d) => d._.codec === undefined)
-      //   if (variantsMissingCodecDef.length)
-      //     throw new Error(
-      //       `ADT level codec not available because some variants did not define a codec: ${variantsMissingCodecDef
-      //         .map(r.prop(`name`))
-      //         .join(`, `)}`
-      //     )
-      //   for (const datumApi of Object.values(datumsApi)) {
-      //     const result = datumApi.decode(value)
-      //     if (result) return result
-      //   }
-      //   return null
-      // },
-      // decodeOrThrow: (value) => {
-      //   const data = ADTApi.decode(value)
-      //   if (data === null)
-      //     throw new Error(`Failed to decode value \`${value}\` into any of the variants for this ADT.`)
-      //   return data
-      // },
 
       const controller = {
         ...ADTMethods,

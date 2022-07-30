@@ -1,4 +1,23 @@
 import type { z } from 'zod'
+
+export const inspect = (value: unknown) => {
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
+/**
+ * @see https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type?noredirect=1&lq=1
+ */
+export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never
+
+export type AssertString<T> = T extends string ? T : never
+
+export type ObjectValues<T> = T[keyof T]
 /**
  * Is the data type schema empty? Empty means it has no properties beyond the standard `_tag` property.
  */

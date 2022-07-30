@@ -19,9 +19,8 @@ export type DataController<ADT extends StoredADT, Vs extends StoredVariants> =
 // prettier-ignore
 type ADTMethods<Vs extends StoredVariants> = {
   schema: StoredVariants.ZodUnion<Vs>
-} & { 
-  from: DecoderMethods<'json', Vs>
-  to: EncoderMethods<'json', Vs>
+  from: DecoderMethods<'json', Vs> & StoredVariants.GetAdtLevelDecoderMethods<Vs>
+  to: EncoderMethods<'json', Vs> & StoredVariants.GetAdtLevelEncoderMethods<Vs>
 }
 
 /**
@@ -46,7 +45,7 @@ export type DecoderMethods<Name extends string, Vs extends StoredVariants> = {
   [N in Name as `${N}OrThrow`]: (value: string) => StoredVariants.Union<Vs>
 }
 
-type EncoderMethods<Name extends string, Vs extends StoredVariants> = {
+export type EncoderMethods<Name extends string, Vs extends StoredVariants> = {
   [N in Name]: Encoder<Vs>
 }
 

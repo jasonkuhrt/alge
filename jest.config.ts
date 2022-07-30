@@ -14,6 +14,12 @@ const config: Config.InitialOptions = {
     `jest-watch-select-projects`,
     `jest-watch-suspend`,
   ],
+  // TODO
+  globals: {
+    'ts-jest': {
+      diagnostics: false,
+    },
+  },
 }
 
 export default config

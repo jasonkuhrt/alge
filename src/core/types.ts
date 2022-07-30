@@ -1,5 +1,7 @@
+import { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
 import { DefaultsBase } from '../datum/types/builder.js'
 import { GetConstructorInput, SomeDatumController } from '../datum/types/controller.js'
+import { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
 import { z } from 'zod'
 
 export type SchemaBase = Record<string, z.ZodType<unknown>>
@@ -90,13 +92,41 @@ export type WithSomeDatumInternals<T> = T & SomeDatumInternals
 
 // eslint-disable-next-line
 export namespace StoredVariants {
+  /**
+   * Get the methods for decoders that are defined across all variants.
+   */
+  export type GetAdtLevelDecoderMethods<Vs extends StoredVariants> = UnionToIntersection<
+    ObjectValues<{
+      [Codec in GetCommonCodecs<Vs>]: DecoderMethods<AssertString<Codec>, Vs>
+    }>
+  >
+
+  type GetCommonCodecs<Vs extends StoredVariants> = ObjectValues<{
+    [Codec in Vs[0]['codec'][number] as IsAllHaveCodec<Codec, Vs> extends true ? Codec : never]: Codec
+  }>
+
+  // type Vs = [
+  //   StoredVariant.AddCodec<'foo2', StoredVariant.AddCodec<'foo1', CreateStoredDatum<'A'>>>,
+  //   StoredVariant.AddCodec<'foo2', StoredVariant.AddCodec<'foo1', CreateStoredDatum<'B'>>>
+  // ]
+  // type a = GetCommonCodecs<Vs>
+  // type b = GetAdtLevelDecoderMethods<Vs>
+
+  /**
+   * Get the methods for encoders that are defined across all variants.
+   */
+  export type GetAdtLevelEncoderMethods<Vs extends StoredVariants> = UnionToIntersection<
+    ObjectValues<{
+      [Codec in GetCommonCodecs<Vs>]: EncoderMethods<AssertString<Codec>, Vs>
+    }>
+  >
+
   export type ZodUnion<Vs extends StoredVariants> = z.ZodUnion<ToZodObjects<Vs>>
 
   export type Union<Vs extends StoredVariants> = z.TypeOf<ZodUnion<Vs>>
 
-  // TODO
-  export type IsAllHaveCodec<Vs extends StoredVariants> = {
-    [I in keyof Vs]: Vs[I][`codec`] extends true ? true : false
+  export type IsAllHaveCodec<Name extends string, Vs extends StoredVariants> = {
+    [I in keyof Vs]: Name extends Vs[I][`codec`][number] ? true : false
   } extends [true, ...true[]]
     ? true
     : false

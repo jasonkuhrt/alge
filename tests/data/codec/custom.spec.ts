@@ -1,5 +1,5 @@
 import { Alge } from '../../../src/index.js'
-import { $A, $AB } from '../../__helpers__.js'
+import { $A, $AB, $B } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 
@@ -63,6 +63,27 @@ describe(`encoder`, () => {
         .codec(`foo`, { to: () => ``, from: () => ({ a: 1 }) })
         .done()
       expectType<(data: AB['A']) => string>(AB.A.to.foo)
+    })
+    describe(`ADT level`, () => {
+      it(`common encoders are available`, () => {
+        type AB = Alge.Infer<typeof AB>
+        const AB = Alge.data($AB)
+          .variant($A)
+          .schema({ a: z.number() })
+          .codec(`foo`, { to: (a) => a.a.toString(), from: () => ({ a: 1 }) })
+          .variant($B)
+          .schema({ b: z.number() })
+          .codec(`foo`, { to: (b) => b.b.toString(), from: () => ({ b: 1 }) })
+          .done()
+
+        expectType<(data: AB['*']) => string>(AB.to.foo)
+
+        const aOrB = Math.random() > 0.5 ? AB.A.create({ a: 1 }) : AB.B.create({ b: 2 })
+        expect(AB.to.foo(aOrB)).toMatch(/1|2/)
+
+        // @ts-expect-error Test runtime error
+        expect(() => AB.to.foo({})).toThrowError(`Failed to find an encoder for data: "{}"`)
+      })
     })
   })
 })
@@ -144,6 +165,38 @@ describe(`decoder`, () => {
     })
     it(`has orThrow variant which throws when null is returned`, () => {
       expect(() => AB.A.from.stringOrThrow(``)).toThrowError()
+    })
+    describe(`ADT level`, () => {
+      it(`common decoders are available`, () => {
+        type AB = Alge.Infer<typeof AB>
+        const AB = Alge.data($AB)
+          .variant($A)
+          .schema({ a: z.number() })
+          .codec(`foo`, {
+            to: (a) => a.a.toString(),
+            from: (string) => (string.startsWith(`A:`) ? { a: 1 } : null),
+          })
+          .variant($B)
+          .schema({ b: z.number() })
+          .codec(`foo`, {
+            to: (b) => b.b.toString(),
+            from: (string) => (string.startsWith(`B:`) ? { b: 2 } : null),
+          })
+          .done()
+
+        expectType<(string: string) => null | AB['*']>(AB.from.foo)
+
+        const a = AB.A.create({ a: 1 })
+        const b = AB.B.create({ b: 2 })
+        expect(AB.from.foo(`A:`)).toEqual(a)
+        expect(AB.from.foo(`B:`)).toEqual(b)
+        expect(AB.from.foo(``)).toEqual(null)
+
+        expectType<(string: string) => AB['*']>(AB.from.fooOrThrow)
+        expect(() => AB.from.fooOrThrow(``)).toThrowError(
+          `Failed to decode value \`''\` into any of the variants for this ADT.`
+        )
+      })
     })
   })
 })
