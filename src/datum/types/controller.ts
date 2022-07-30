@@ -39,6 +39,7 @@ export type SomeDatumController = {
   }
 }
 
+// eslint-disable-next-line
 type Encoders<Names extends string[], V extends StoredVariant> = Encoders_<{}, Names, V>
 
 type Encoders_<Obj, Names extends string[], V extends StoredVariant> = Names extends []
@@ -49,6 +50,7 @@ type Encoder_<Name extends string, V extends StoredVariant> = {
   [N in Name]: Encoder<V>
 }
 
+// eslint-disable-next-line
 type Decoders<Names extends string[], V extends StoredVariant> = Decoders_<{}, Names, V>
 
 type Decoders_<Obj, Names extends string[], V extends StoredVariant> = Names extends []

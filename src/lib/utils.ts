@@ -11,6 +11,7 @@ export const inspect = (value: unknown) => {
 /**
  * @see https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type?noredirect=1&lq=1
  */
+// eslint-disable-next-line
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
   ? I
   : never

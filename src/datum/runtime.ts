@@ -118,7 +118,8 @@ export const datum = <Name extends string>(
                 },
                 [`${key}OrThrow`]: (value: string) => {
                   // @ts-expect-error not indexable
-                  const data = controller.from[key](value)
+                  // eslint-disable-next-line
+                  const data = controller.from[key](value) as object | null
                   if (data === null) throw new Error(`Failed to decode value \`${value}\` into a ${name}.`)
                   return data
                 },

@@ -114,8 +114,8 @@ export const SemVer = Alge.data(`SemVer`)
   //     return SemVer.Exact.decodeOrThrow(result)
   //   },
   // })
-  .codec({
-    decode: (value, { schema }) => {
+  .codec(`string`, {
+    from: (value, { schema }) => {
       const versions = semverUtils.parseRange(value)
 
       if (versions.length === 0) return null
@@ -150,14 +150,14 @@ export const SemVer = Alge.data(`SemVer`)
         parts: result.data,
       }
     },
-    encode: (range) => range.parts.join(` `),
+    to: (range) => range.parts.join(` `),
   })
   .done()
 
 // Helpers
 
 export const maxSatisfying = (versions: SemVer.Exact[], range: SemVer.Range): null | SemVer.Exact => {
-  const result = semver.maxSatisfying(versions.map(SemVer.Exact.encode), SemVer.Range.encode(range))
+  const result = semver.maxSatisfying(versions.map(SemVer.Exact.to.string), SemVer.Range.to.string(range))
   if (!result) return null
-  return SemVer.Exact.decodeOrThrow(result)
+  return SemVer.Exact.from.stringOrThrow(result)
 }

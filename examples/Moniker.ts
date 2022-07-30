@@ -60,9 +60,9 @@ export const Moniker = Alge.data(`Moniker`)
       legacy: /^([A-Za-z0-9-~][a-z0-9-._~]*)$/,
     },
   })
-  .codec({
-    encode: (moniker) => moniker.name,
-    decode: (value, extensions) => {
+  .codec(`string`, {
+    to: (moniker) => moniker.name,
+    from: (value, extensions) => {
       const match = extensions.pattern.modern.exec(value)
       if (match === null) return null
       // eslint-disable-next-line

@@ -46,12 +46,17 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
 
       const datumsMethods = r.pipe(datums, r.indexBy(r.prop(`name`)))
 
-      const commonCodecs = datums[0]!._.codecs.filter(
+      // Get the common codecs. We only need to iterate from the point of view of one
+      // datum's codecs, so we'll pick the first. We're guaranteed to have at least
+      // one variant based on the empty check above.
+      // eslint-disable-next-line
+      const firstDatum = datums[0]!
+      const commonCodecs = firstDatum._.codecs.filter(
         (codec) => datums.length === datums.filter((datum) => datum._.codecs.includes(codec)).length
       )
 
       const createAdtDecoderMethods = (codec: string): Record<string, SomeDecoder | SomeDecodeOrThrower> => {
-        const methods: any = {
+        const methods: Record<string, SomeDecoder | SomeDecodeOrThrower> = {
           [codec]: (string: string) => {
             for (const datumMethods of Object.values(datumsMethods)) {
               // @ts-expect-error todo
@@ -62,7 +67,9 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             return null
           },
           [`${codec}OrThrow`]: (string: string) => {
-            const data = methods[codec](string)
+            // @ts-expect-error We know the codec will be there because we defined it above.
+            //eslint-disable-next-line
+            const data = methods[codec](string) as object | null
             if (data === null)
               throw new Error(
                 `Failed to decode value \`${inspect(string)}\` into any of the variants for this ADT.`
