@@ -341,6 +341,8 @@ The answer is no! But without the ADT that _fact_ would have to managed by human
 
 At scale, having well modelled data can be a life saver. The up front verbosity pays dividends downstream for all the impossible branches removed from programs' possibility space. ADTs help you (or your consumers) focus on what _can actually happen_.
 
+</br></br></br></br></br>
+
 ## Features
 
 ### Variants
@@ -669,10 +671,6 @@ const doSomething = (shape: Shape): null | Shape.Circle => {
 }
 ```
 
-</br>
-</br>
-</br>
-</br>
-</br>
+</br></br></br></br></br>
 
 ![Alt](https://repobeats.axiom.co/api/embed/3c932f1cb76da4ad21328bfdd0ad1c6fbbe76a0b.svg 'Repobeats analytics image')
