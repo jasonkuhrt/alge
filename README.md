@@ -90,6 +90,7 @@ This is just a taster. Places you can go next:
 <!-- toc -->
 
 - [Installation](#installation)
+- [Roadmap](#roadmap)
 - [About Algebraic Data Types](#about-algebraic-data-types)
   - [What?](#what)
   - [Why?](#why)
@@ -101,13 +102,14 @@ This is just a taster. Places you can go next:
     - [Properties](#properties)
     - [Optional Properties](#optional-properties)
     - [Property Defaults](#property-defaults)
-  - [Static Types](#static-types)
   - [Identity](#identity)
   - [Codecs](#codecs)
     - [JSON](#json)
     - [Custom](#custom)
     - [Throw Decoding](#throw-decoding)
     - [ADT Level](#adt-level)
+  - [Static Types](#static-types)
+    - [Namespaces](#namespaces)
 
 <!-- tocstop -->
 
@@ -116,6 +118,10 @@ This is just a taster. Places you can go next:
 ```
 npm add alge
 ```
+
+## Roadmap
+
+There is no timeline but there are priorities. Refer to the currently three [pinned issues](https://github.com/jasonkuhrt/alge/issues).
 
 ## About Algebraic Data Types
 
