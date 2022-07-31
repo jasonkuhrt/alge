@@ -1,13 +1,13 @@
 name: Setup
 inputs:
   node-version:
-    type: string
-    require: false
+    description: Version of Node to use.
+    required: false
     default: 16.x
   install-deps:
-    type: boolean
-    require: false
-    default: true
+    description: Should deps be installed?
+    required: false
+    default: 'true'
 runs:
   using: composite
   steps:
@@ -18,4 +18,4 @@ runs:
         cache: pnpm
     - uses: pnpm/action-setup@master
       with:
-        run_install: true
+        run_install: ${{inputs.install-deps}}
