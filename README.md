@@ -81,9 +81,12 @@ const Shape = Alge.data(`Shape`).variant(Circle).variant(Square).done()
 This is just a taster. Places you can go next:
 
 1. [Install](#installation) and learn interactively (JSDoc is coming soon!)
-1. A formal [features breakdown](#features).
+1. A formal [features breakdown](#features)
 1. [Code examples](/examples)
-1. An [introduction to Algebraic Data Types](#about-algebraic-data-types) (for those unfamiliar)
+1. A simple [introduction to Algebraic Data Types](#about-algebraic-data-types) (for those unfamiliar)
+1. A admittedly rambling 😃 [video introduction](https://youtu.be/fLlVQSJx4AU) if you like that format
+
+   [![Video Cover](docs/assets/cover.png)](https://youtu.be/fLlVQSJx4AU)
 
 ## Contents
 
