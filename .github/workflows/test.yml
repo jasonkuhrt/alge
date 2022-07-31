@@ -10,7 +10,10 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup
+      - uses: pnpm/action-setup@master
+        with:
+          run_install: true
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{matrix.node-version}}
       - run: pnpm build
