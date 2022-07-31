@@ -1,8 +1,91 @@
-# alge 🌱
+# Alge 🌱
 
 [![trunk](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml/badge.svg)](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml)
 
-Type safe fluent API for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)).
+## TL;DR
+
+Type safe fluent API library for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)).
+
+There are three distinct conceptual levels in Alge. Firstly there is a builder for defining your ADT in the first place. Secondly there is a controller for working with your defined ADT such as construction, type guards, and codecs. Finally there are the actual pure-data instances of your ADT.
+
+![Alge Anatomy](docs/assets/Alge%20Anatomy.png)
+
+Here's how it looks like in code. First the Builder which outputs a Controller.
+
+```ts
+import { Alge } from '../src/index.js'
+import { z } from 'zod'
+
+const Length = z.number().positive()
+
+//           v---------- 2. Controller
+//           |            v--------- 1. Builder
+export const Shape = Alge.data(`Shape`)
+  .variant(`Rectangle`)
+  .schema({
+    width: Length,
+    height: Length,
+  })
+  .variant(`Circle`)
+  .schema({
+    radius: Length,
+  })
+  .variant(`Square`)
+  .schema({
+    size: Length,
+  })
+  .done()
+```
+
+Now the Controller:
+
+```ts
+//    v--------- 3. Instance
+//    |        v--------- 2. Controller
+const circle = Shape.Circle.create({ radius: 50 })
+// { _tag: 'Circle', radius: 50 }
+
+if (Shape.Circle.is(circle)) {
+  console.log(`I Am Circle`)
+}
+
+const circleForTheOutsideWorld = Shape.Circle.to.json(circle)
+// '{ "_tag": "Circle", "radius": 50 }'
+
+const squareFromTheOutsideWorld = Shape.Square.from.json({ _tag: 'Square', size: 10 })
+// { _tag: 'Square', size: 10 }
+```
+
+Finally are the instances which you can see above are created by the controller. Instances are just data. They are _not_ like class instances that couple logic and data. All logic related to an ADT, like type guards, resides in the controller.
+
+If you don't need a full blown ADT but just one record, Alge can do that:
+
+```ts
+//    v---------- 2. Datum Controller (not ADT)
+//    |             v--------- 1. Datum Builder (not ADT)
+const Circle = Alge.datum(`Circle`).schema({ radius: Length }).done()
+```
+
+If you want to compose your ADT incrementally Alge can do that:
+
+```ts
+//    v---------- 2. Datum Controller (not ADT)
+//    |             v--------- 1. Datum Builder (not ADT)
+const Circle = Alge.datum(`Circle`).schema({ radius: Length }).done()
+const Square = Alge.datum(`Square`).schema({ size: Length }).done()
+//    v---------- 2. Controller (is ADT)
+//    |            v--------- 1. Builder (is ADT)
+const Shape = Alge.data(`Shape`).variant(Circle).variant(Square).done()
+```
+
+This is just a taster. Places you can go next:
+
+1. [Install](#installation) and learn interactively (JSDoc is coming soon!)
+1. A formal [features breakdown](#features).
+1. [Code examples](/examples)
+1. An [introduction to Algebraic Data Types](#about-algebraic-data-types) (for those unfamiliar)
+
+## Contents
 
 <!-- toc -->
 
