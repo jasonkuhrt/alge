@@ -1,4 +1,5 @@
 name: Setup
+description: Boilerplate steps need to for most jobs.
 inputs:
   node-version:
     description: Version of Node to use.
