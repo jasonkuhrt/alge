@@ -17,8 +17,8 @@ runs:
       with:
         node-version: ${{inputs.node-version}}
         cache: pnpm
-    - uses: pnpm/action-setup@master
-      with:
-        run_install: ${{inputs.install-deps}}
+    # - uses: pnpm/action-setup@master
+    #   with:
+    #     run_install: ${{inputs.install-deps}}
     # - run: corepack enable
       # shell: bash
