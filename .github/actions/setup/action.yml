@@ -20,5 +20,5 @@ runs:
     - uses: pnpm/action-setup@master
       with:
         run_install: ${{inputs.install-deps}}
-    - run: corepack enable
-      shell: bash
+    # - run: corepack enable
+      # shell: bash
