@@ -2,7 +2,7 @@ name: test
 on:
   - workflow_call
 jobs:
-  test:
+  run:
     strategy:
       matrix:
         os: ['ubuntu-latest']
