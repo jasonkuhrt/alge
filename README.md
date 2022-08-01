@@ -1,6 +1,7 @@
 # Alge 🌱
 
 [![trunk](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml/badge.svg)](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml)
+[![npm version](https://img.shields.io/npm/v/alge.svg)](https://www.npmjs.com/package/alge)
 
 ## TL;DR
 
