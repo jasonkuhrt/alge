@@ -175,7 +175,6 @@ interface Pin {
   build?: string
   range?: Array<{
     operator: `~` | `>=` | `...` // etc.
-    isExact: boolean
     patch: number
     minor: number
     major: number
@@ -185,7 +184,7 @@ interface Pin {
 }
 ```
 
-This data modelling is flawed. There is out-of-band information about import data relationships. When `isExact` is `true` then `range` is undefined but other fields are guaranteed, well, except `release` and `build` which are always optional actually. In other words these configurations of the data are impossible:
+This data modelling is flawed. There is out-of-band information about important data relationships. `release` and `build` are legitimately optional properties but `range` `patch` `minor` `major` all depend on the state of `isExact`. When `true` then `range` is undefined and the others are not, and vice-versa. In other words these configurations of the data are impossible:
 
 ```ts
 const pin = {
@@ -345,7 +344,7 @@ The answer is no! But without the ADT that _fact_ would have to managed by human
 
 At scale, having well modelled data can be a life saver. The up front verbosity pays dividends downstream for all the impossible branches removed from programs' possibility space. ADTs help you (or your consumers) focus on what _can actually happen_.
 
-</br></br></br></br></br>
+</br></br>
 
 ## Features
 
@@ -675,6 +674,6 @@ const doSomething = (shape: Shape): null | Shape.Circle => {
 }
 ```
 
-</br></br></br></br></br>
+</br></br>
 
 ![Alt](https://repobeats.axiom.co/api/embed/3c932f1cb76da4ad21328bfdd0ad1c6fbbe76a0b.svg 'Repobeats analytics image')
