@@ -4,7 +4,7 @@ import { z } from 'zod'
 const Length = z.number().positive()
 
 const Shape = Alge.data(`Shape`)
-  .variant(`Rectangle`)
+  .record(`Rectangle`)
   .schema({
     width: Length,
     height: Length,
@@ -21,7 +21,7 @@ const Shape = Alge.data(`Shape`)
       }
     },
   })
-  .variant(`Circle`)
+  .record(`Circle`)
   .schema({
     radius: Length,
   })
@@ -36,7 +36,7 @@ const Shape = Alge.data(`Shape`)
       }
     },
   })
-  .variant(`Square`)
+  .record(`Square`)
   .schema({
     size: Length,
   })

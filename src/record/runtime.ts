@@ -1,32 +1,28 @@
 import { is } from '../core/helpers.js'
-import { ExtensionsBase, StoredVariant } from '../core/types.js'
+import { SomeSchemaDefinition } from '../core/internal.js'
+import { ExtensionsBase, StoredRecord } from '../core/types.js'
 import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/builder.js'
-import { SomeDatumController } from './types/controller.js'
-import {
-  SomeCodecDefinition,
-  SomeDatumConstructorInput,
-  SomeDefaultsProvider,
-  SomeSchema,
-} from './types/internal.js'
+import { SomeRecordController } from './types/controller.js'
+import { SomeCodecDefinition, SomeDefaultsProvider, SomeRecordConstructorInput } from './types/internal.js'
 
-export type DatumBuildState = Omit<StoredVariant, 'codec' | 'schema' | 'defaults'> & {
+export type RecordBuildState = Omit<StoredRecord, 'codec' | 'schema' | 'defaults'> & {
   codecs: [string, SomeCodecDefinition][]
   schema: z.SomeZodObject
   defaultsProvider: null | SomeDefaultsProvider
 }
 
-export const datum = <Name extends string>(
+export const record = <Name extends string>(
   name: Name,
   _: {
     extensions?: object
-    extend?: SomeDatumController
+    extend?: SomeRecordController
   } = {}
 ): Initial<Name> => {
   const chainTerminus = `done`
   const initialSchema = z.object({ _tag: z.literal(name) })
-  const current: DatumBuildState = {
+  const current: RecordBuildState = {
     name,
     schema: initialSchema,
     extensions: {},
@@ -43,7 +39,7 @@ export const datum = <Name extends string>(
   }
 
   const chain = {
-    schema: (schema: SomeSchema) => {
+    schema: (schema: SomeSchemaDefinition) => {
       current.schema = z.object({ ...schema, _tag: z.literal(current.name) })
       return chain
     },
@@ -70,14 +66,14 @@ export const datum = <Name extends string>(
     },
     done: () => {
       const symbol = Symbol(current.name)
-      const controller: SomeDatumController = {
+      const controller: SomeRecordController = {
         ...current,
         _: {
           symbol,
           codecs: current.codecs.map((_) => _[0]),
           defaultsProvider: current.defaultsProvider,
         },
-        create: (input: SomeDatumConstructorInput) => ({
+        create: (input: SomeRecordConstructorInput) => ({
           // TODO pass through zod validation
           ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
           _tag: current.name,
@@ -134,8 +130,8 @@ export const datum = <Name extends string>(
           ...current.codecs.reduce(
             (acc, [key, impl]) =>
               Object.assign(acc, {
-                [key]: (variant: SomeDatumController) => {
-                  return impl.to(variant)
+                [key]: (record: SomeRecordController) => {
+                  return impl.to(record)
                 },
               }),
             {}

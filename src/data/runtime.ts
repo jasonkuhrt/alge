@@ -1,10 +1,10 @@
-import { datum } from '../datum/runtime.js'
-import { SomeDatum, SomeDatumController } from '../datum/types/controller.js'
-import { SomeDatumBuilder, SomeDecodeOrThrower, SomeDecoder, SomeEncoder } from '../datum/types/internal.js'
 import { Errors } from '../Errors/index.js'
 import { r } from '../lib/r.js'
 import { code, isEmpty, TupleToObject } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
+import { record } from '../record/runtime.js'
+import { SomeRecord, SomeRecordController } from '../record/types/controller.js'
+import { SomeDecodeOrThrower, SomeDecoder, SomeEncoder, SomeRecordBuilder } from '../record/types/internal.js'
 import { Initial } from './types/Builder.js'
 import { SomeADT } from './types/internal.js'
 import { inspect } from 'util'
@@ -22,46 +22,48 @@ export type SomeAdtMethods = {
  */
 // @ts-expect-error empty init tuple
 export const data = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
-  // let currentVariant: null | SomeVariantDefinition = null
-  // const variants: SomeVariantDefinition[] = []
-  let currentDatumBuilder: null | SomeDatumBuilder = null
-  const datums: SomeDatumController[] = []
+  // let currentRecord: null | SomeRecordDefinition = null
+  // const records: SomeRecordDefinition[] = []
+  let currentRecordBuilder: null | SomeRecordBuilder = null
+  const records: SomeRecordController[] = []
   const builder = {
-    variant: (nameOrDatum: string | SomeDatumController) => {
-      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatumController)
-      currentDatumBuilder =
-        typeof nameOrDatum === `string`
-          ? (datum(nameOrDatum, {
+    record: (nameOrRecord: string | SomeRecordController) => {
+      if (currentRecordBuilder?._)
+        records.push(currentRecordBuilder._.innerChain.done() as SomeRecordController)
+      currentRecordBuilder =
+        typeof nameOrRecord === `string`
+          ? (record(nameOrRecord, {
               extensions: builder,
-            }) as SomeDatumBuilder)
-          : (datum(nameOrDatum.name, {
+            }) as SomeRecordBuilder)
+          : (record(nameOrRecord.name, {
               extensions: builder,
-              extend: nameOrDatum,
-            }) as SomeDatumBuilder)
-      return currentDatumBuilder
+              extend: nameOrRecord,
+            }) as SomeRecordBuilder)
+      return currentRecordBuilder
     },
     done: () => {
-      if (currentDatumBuilder?._) datums.push(currentDatumBuilder._.innerChain.done() as SomeDatumController)
-      if (isEmpty(datums)) throw createEmptyVariantsError({ name })
+      if (currentRecordBuilder?._)
+        records.push(currentRecordBuilder._.innerChain.done() as SomeRecordController)
+      if (isEmpty(records)) throw createEmptyRecordsError({ name })
 
-      const datumsMethods = r.pipe(datums, r.indexBy(r.prop(`name`)))
+      const recordsMethods = r.pipe(records, r.indexBy(r.prop(`name`)))
 
       // Get the common codecs. We only need to iterate from the point of view of one
-      // datum's codecs, so we'll pick the first. We're guaranteed to have at least
-      // one variant based on the empty check above.
+      // record's codecs, so we'll pick the first. We're guaranteed to have at least
+      // one record based on the empty check above.
       // eslint-disable-next-line
-      const firstDatum = datums[0]!
-      const commonCodecs = firstDatum._.codecs.filter(
-        (codec) => datums.length === datums.filter((datum) => datum._.codecs.includes(codec)).length
+      const firstRecord = records[0]!
+      const commonCodecs = firstRecord._.codecs.filter(
+        (codec) => records.length === records.filter((record) => record._.codecs.includes(codec)).length
       )
 
       const createAdtDecoderMethods = (codec: string): Record<string, SomeDecoder | SomeDecodeOrThrower> => {
         const methods: Record<string, SomeDecoder | SomeDecodeOrThrower> = {
           [codec]: (string: string) => {
-            for (const datumMethods of Object.values(datumsMethods)) {
+            for (const recordMethods of Object.values(recordsMethods)) {
               // @ts-expect-error todo
               // eslint-disable-next-line
-              const result = datumMethods.from[codec](string) as object
+              const result = recordMethods.from[codec](string) as object
               if (result) return result
             }
             return null
@@ -72,7 +74,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
             const data = methods[codec](string) as object | null
             if (data === null)
               throw new Error(
-                `Failed to decode value \`${inspect(string)}\` into any of the variants for this ADT.`
+                `Failed to decode value \`${inspect(string)}\` into any of the records for this ADT.`
               )
             return data
           },
@@ -82,11 +84,11 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
 
       const createAdtEncoderMethods = (codec: string): Record<string, SomeEncoder> => {
         const methods = {
-          [codec]: (data: SomeDatum) => {
-            for (const datumMethods of Object.values(datumsMethods)) {
+          [codec]: (data: SomeRecord) => {
+            for (const recordMethods of Object.values(recordsMethods)) {
               // @ts-expect-error todo
               // eslint-disable-next-line
-              if (data._tag === datumMethods.name) return datumMethods.to[codec](data)
+              if (data._tag === recordMethods.name) return recordMethods.to[codec](data)
             }
             throw new Error(`Failed to find an encoder for data: "${inspect(data)}"`)
           },
@@ -97,17 +99,17 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
       const ADTMethods: SomeAdtMethods = {
         name,
         schema:
-          datums.length >= 2
+          records.length >= 2
             ? z.union([
                 // eslint-disable-next-line
-                datums[0]!.schema,
+                records[0]!.schema,
                 // eslint-disable-next-line
-                datums[1]!.schema,
-                ...datums.slice(2).map((_) => _.schema),
+                records[1]!.schema,
+                ...records.slice(2).map((_) => _.schema),
               ])
-            : datums.length === 1
+            : records.length === 1
             ? // eslint-disable-next-line
-              datums[0]!.schema
+              records[0]!.schema
             : null,
         from: {
           ...createAdtDecoderMethods(`json`),
@@ -127,7 +129,7 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
 
       const controller = {
         ...ADTMethods,
-        ...datumsMethods,
+        ...recordsMethods,
       }
 
       return controller
@@ -139,13 +141,13 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
   return builder as any
 }
 
-const createEmptyVariantsError = (params: { name: string }) =>
+const createEmptyRecordsError = (params: { name: string }) =>
   Errors.UserMistake.create(
-    `No variants defined for ADT ${code(params.name)} but ${code(
+    `No records defined for ADT ${code(params.name)} but ${code(
       `.done()`
     )} was called. You can only call ${code(
       `.done()`
-    )} after your ADT has at least one variant defined (via ${code(`.variant()`)}).`
+    )} after your ADT has at least one record defined (via ${code(`.record()`)}).`
   )
 
 export type Infer<ADT extends SomeADT> = {
@@ -153,7 +155,7 @@ export type Infer<ADT extends SomeADT> = {
   '*': z.infer<ADT['schema']>
 } & TupleToObject<SchemaToTuple<ADT['schema']['_def']['options']>[number]>
 
-export type InferDatum<Datum extends SomeDatumController> = z.infer<Datum['schema']>
+export type InferRecord<Record extends SomeRecordController> = z.infer<Record['schema']>
 
 export type SchemaToTuple<Schemas extends [z.SomeZodObject, ...z.SomeZodObject[]]> = {
   [Index in keyof Schemas]: [z.TypeOf<Schemas[Index]>['_tag'], z.TypeOf<Schemas[Index]>]

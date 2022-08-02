@@ -1,25 +1,22 @@
+import { SomeSchema } from '../../core/internal.js'
 import { InputBase } from '../../core/types.js'
 import { DefaultsBase } from './builder.js'
-import { SomeDatumController } from './controller.js'
+import { SomeRecordController } from './controller.js'
 import { z } from 'zod'
 
-export type SomeDatumConstructorInput = Record<string, unknown>
-
-export type SomeDatumSchema = z.SomeZodObject
+export type SomeRecordConstructorInput = Record<string, unknown>
 
 export type SomeDecoderDefinition = (
   encodedData: string,
-  extensions: { schema: SomeDatumSchema; name: string; [key: string]: unknown }
-) => null | SomeDatumConstructorInput
-
-export type SomeSchema = Record<string, z.ZodType<unknown>>
+  extensions: { schema: SomeSchema; name: string; [key: string]: unknown }
+) => null | SomeRecordConstructorInput
 
 export type SomeCodecDefinition = {
   to: SomeEncoderDefinition
   from: SomeDecoderDefinition
 }
 
-export type SomeEncoderDefinition = (datum: SomeDatumController) => string
+export type SomeEncoderDefinition = (record: SomeRecordController) => string
 
 export type SomeDefaultsProvider<
   PotentialInput extends InputBase = InputBase,
@@ -42,7 +39,7 @@ export type SomeDecodeOrThrower = (encodedData: string) => object
 
 export type SomeDecodeOrThrowJson = (encodedData: string) => object
 
-export interface SomeDatumBuilder {
+export interface SomeRecordBuilder {
   schema: object
   extend: object
   codec: object
@@ -50,6 +47,6 @@ export interface SomeDatumBuilder {
   defaults: (defaults: SomeDefaultsProvider) => object
   done: () => object
   _?: {
-    innerChain: SomeDatumBuilder
+    innerChain: SomeRecordBuilder
   }
 }

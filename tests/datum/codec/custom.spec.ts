@@ -4,7 +4,7 @@ import { expectType } from 'tsd'
 import { z } from 'zod'
 
 it(`adds custom encoders to the controller`, () => {
-  const A = Alge.datum($A)
+  const A = Alge.record($A)
     .schema({ a: z.number() })
     .codec(`string`, {
       to: () => ``,
@@ -12,7 +12,7 @@ it(`adds custom encoders to the controller`, () => {
     })
     .done()
 
-  type A = Alge.InferDatum<typeof A>
+  type A = Alge.InferRecord<typeof A>
   expectType<(value: string) => null | A>(A.from.string)
   expectType<(value: string) => A>(A.from.stringOrThrow)
 
@@ -25,8 +25,8 @@ describe(`encoder`, () => {
   describe(`builder`, () => {
     describe(`inputs`, () => {
       it(`1: data instance`, () => {
-        type A = Alge.InferDatum<typeof A>
-        const A = Alge.datum($A)
+        type A = Alge.InferRecord<typeof A>
+        const A = Alge.record($A)
           .schema({ a: z.number() })
           .codec(`foo`, {
             to: (data) => {
@@ -41,7 +41,7 @@ describe(`encoder`, () => {
     })
     describe(`return`, () => {
       it(`string`, () => {
-        Alge.datum($A)
+        Alge.record($A)
           .schema({ a: z.number() })
           .codec(`foo`, {
             // @ts-expect-error Must be a string
@@ -53,8 +53,8 @@ describe(`encoder`, () => {
   })
   describe(`controller`, () => {
     it(`input: requires data`, () => {
-      type A = Alge.InferDatum<typeof A>
-      const A = Alge.datum($A)
+      type A = Alge.InferRecord<typeof A>
+      const A = Alge.record($A)
         .schema({ a: z.number() })
         .codec(`foo`, { to: () => ``, from: () => ({ a: 1 }) })
         .done()
@@ -67,7 +67,7 @@ describe(`decoder`, () => {
   describe(`builder`, () => {
     describe(`inputs`, () => {
       it(`1: stringified value`, () => {
-        const A = Alge.datum($A)
+        const A = Alge.record($A)
           .schema({ a: z.number() })
           .codec(`string`, {
             to: () => ``,
@@ -77,7 +77,7 @@ describe(`decoder`, () => {
         expect(A.from.string(`100`)).toMatchObject({ a: 100 })
       })
       it(`2: context`, () => {
-        const A = Alge.datum($A)
+        const A = Alge.record($A)
           .schema({ a: z.array(z.any()) })
           .codec(`string`, {
             to: () => ``,
@@ -93,7 +93,7 @@ describe(`decoder`, () => {
     })
     describe(`return`, () => {
       it(`value must adhere to schema`, () => {
-        Alge.datum($A)
+        Alge.record($A)
           .schema({ a: z.number() })
           .codec(`foo`, {
             to: () => ``,
@@ -107,7 +107,7 @@ describe(`decoder`, () => {
           })
       })
       it(`null if decoding not possible`, () => {
-        const A = Alge.datum($A)
+        const A = Alge.record($A)
           .schema({ a: z.number() })
           .codec(`string`, {
             to: () => ``,
@@ -120,7 +120,7 @@ describe(`decoder`, () => {
     })
   })
   describe(`controller`, () => {
-    const A = Alge.datum($A)
+    const A = Alge.record($A)
       .schema({ a: z.number() })
       .codec(`string`, {
         to: () => ``,
@@ -133,7 +133,7 @@ describe(`decoder`, () => {
       // @ts-expect-error Requires string
       A.from.string(1)
     })
-    it(`has orThrow variant which throws when null is returned`, () => {
+    it(`has orThrow record which throws when null is returned`, () => {
       expect(() => A.from.stringOrThrow(``)).toThrowError()
     })
   })

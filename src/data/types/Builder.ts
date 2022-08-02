@@ -4,57 +4,57 @@
 
 import {
   CodecImplementation,
-  CreateStoredDatum,
-  CreateStoredDatumFromDatumController,
+  CreateStoredRecord,
+  CreateStoredRecordFromRecordController,
   ExtensionsBase,
   SchemaBase,
-  StoredVariant,
-  StoredVariants,
+  StoredRecord,
+  StoredRecords,
 } from '../../core/types.js'
-import { SomeDatumController } from '../../datum/types/controller.js'
+import { SomeRecordController } from '../../record/types/controller.js'
 import { DataController } from './Controller.js'
 
 /**
  * The initial API for building an ADT.
  */
-export type Initial<ADT extends StoredADT, Vs extends StoredVariants> = VariantRequired<ADT, Vs>
+export type Initial<ADT extends StoredADT, Vs extends StoredRecords> = RecordRequired<ADT, Vs>
 
 /**
- * The builder API when it is in a state where a variant is required.
+ * The builder API when it is in a state where a record is required.
  *
  * @remarks This happens to be the initial state of the builder API.
  */
 // prettier-ignore
-export interface VariantRequired<ADT extends StoredADT, Vs extends StoredVariants> {
-  variant<Name extends string>(name: Name): PostVariant<ADT, CreateStoredDatum<Name>, Vs>
-  variant<DC extends SomeDatumController>(datum: DC): PostVariant<ADT, CreateStoredDatumFromDatumController<DC>, Vs>
+export interface RecordRequired<ADT extends StoredADT, Vs extends StoredRecords> {
+  record<Name extends string>(name: Name): PostRecord<ADT, CreateStoredRecord<Name>, Vs>
+  record<DC extends SomeRecordController>(record: DC): PostRecord<ADT, CreateStoredRecordFromRecordController<DC>, Vs>
 }
 
 /**
- * The builder API when it is in a state where a variant is required.
+ * The builder API when it is in a state where a record is required.
  *
  * @remarks This happens to be the initial state of the builder API.
  */
 // prettier-ignore
-export interface PostVariant<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
-       extends VariantRequired<ADT, [V, ...Vs]>,
+export interface PostRecord<ADT extends StoredADT, V extends StoredRecord, Vs extends StoredRecords>
+       extends RecordRequired<ADT, [V, ...Vs]>,
                Done<ADT, V, Vs> {
-  schema<Schema extends SchemaBase>(schema: Schema): PostSchema<ADT, StoredVariant.AddSchema<Schema, V>, Vs>
+  schema<Schema extends SchemaBase>(schema: Schema): PostSchema<ADT, StoredRecord.AddSchema<Schema, V>, Vs>
 }
 
 /**
- * The builder API when it is a state of having at least one variant defined.
+ * The builder API when it is a state of having at least one record defined.
  * At this point the ADT can be marked as done.
  */
 // prettier-ignore
-export interface PostSchema<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants>
-       extends VariantRequired<ADT, [V, ...Vs]>,
+export interface PostSchema<ADT extends StoredADT, V extends StoredRecord, Vs extends StoredRecords>
+       extends RecordRequired<ADT, [V, ...Vs]>,
                Done<ADT, V, Vs> {
-  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostSchema<ADT, StoredVariant.AddCodec<Name, V>, Vs>
-  extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostSchema<ADT, StoredVariant.AddExtensions<Extensions, V>, Vs>
+  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostSchema<ADT, StoredRecord.AddCodec<Name, V>, Vs>
+  extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostSchema<ADT, StoredRecord.AddExtensions<Extensions, V>, Vs>
 }
 
-export interface Done<ADT extends StoredADT, V extends StoredVariant, Vs extends StoredVariants> {
+export interface Done<ADT extends StoredADT, V extends StoredRecord, Vs extends StoredRecords> {
   done(): DataController<ADT, [V, ...Vs]>
 }
 
