@@ -32,10 +32,12 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
         records.push(currentRecordBuilder._.innerChain.done() as SomeRecordController)
       currentRecordBuilder =
         typeof nameOrRecord === `string`
-          ? (record(nameOrRecord, {
+          ? // @ts-expect-error null not allowed by consumers
+            (record(nameOrRecord, null, {
               extensions: builder,
             }) as SomeRecordBuilder)
-          : (record(nameOrRecord.name, {
+          : // @ts-expect-error null not allowed by consumers
+            (record(nameOrRecord.name, null, {
               extensions: builder,
               extend: nameOrRecord,
             }) as SomeRecordBuilder)

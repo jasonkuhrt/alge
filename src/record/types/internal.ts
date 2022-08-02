@@ -1,6 +1,6 @@
 import { SomeSchema } from '../../core/internal.js'
 import { InputBase } from '../../core/types.js'
-import { DefaultsBase } from './builder.js'
+import { SomeDefaults } from './builder.js'
 import { SomeRecordController } from './controller.js'
 import { z } from 'zod'
 
@@ -20,7 +20,7 @@ export type SomeEncoderDefinition = (record: SomeRecordController) => string
 
 export type SomeDefaultsProvider<
   PotentialInput extends InputBase = InputBase,
-  Defaults extends DefaultsBase = DefaultsBase
+  Defaults extends SomeDefaults = SomeDefaults
 > = (potentialInput: PotentialInput) => Defaults
 
 // any is needed to avoid screwing up inference

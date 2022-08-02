@@ -1,8 +1,9 @@
-import { SomeSchema } from '../../core/internal.js'
-import { Encoder, StoredRecord, StoredRecords } from '../../core/types.js'
+import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
+import { Encoder, SomeName, StoredRecords } from '../../core/types.js'
 import { OmitRequired, Rest } from '../../lib/utils.js'
 import { z } from '../../lib/z/index.js'
 import { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
+import { StoredRecord } from './StoredRecord.js'
 
 export type GetConstructorInput<V extends StoredRecord> = ApplyDefaults<
   V['defaults'],
@@ -52,28 +53,36 @@ type Encoder_<Name extends string, V extends StoredRecord> = {
 // eslint-disable-next-line
 type Decoders<Names extends string[], V extends StoredRecord> = Decoders_<{}, Names, V>
 
-type Decoders_<Obj, Names extends string[], V extends StoredRecord> = Names extends []
+type Decoders_<Obj, Names extends string[], R extends StoredRecord> = Names extends []
   ? Obj
-  : Decoders_<Obj & DecoderMethods<Names[0], V>, Rest<Names>, V>
+  : Decoders_<Obj & DecoderMethods<Names[0], R>, Rest<Names>, R>
 
-type DecoderMethods<Name extends string, V extends StoredRecord> = {
-  [N in Name]: (value: string) => null | StoredRecord.GetType<V>
+type DecoderMethods<Name extends string, R extends StoredRecord> = {
+  [N in Name]: (value: string) => null | StoredRecord.GetType<R>
 } & {
-  [N in Name as `${N}OrThrow`]: (value: string) => StoredRecord.GetType<V>
+  [N in Name as `${N}OrThrow`]: (value: string) => StoredRecord.GetType<R>
+}
+
+export namespace RecordController {
+  export type CreateFromSchema<Name extends SomeName, Schema extends SomeSchemaDef> = CreateFromStoredRecord<
+    StoredRecord.AddSchemaDefinition<Schema, StoredRecord.Create<Name>>
+  >
+
+  export type CreateFromStoredRecord<R extends StoredRecord> = RecordController<[R], R>
 }
 
 // prettier-ignore
-export type RecordController<Rs extends StoredRecords, V extends StoredRecord> = {
+export type RecordController<Rs extends StoredRecords, R extends StoredRecord> = {
   _: {
-    defaultsProvider: null extends V['defaults']
+    defaultsProvider: null extends R['defaults']
       ? null
-      : SomeDefaultsProvider<object, Exclude<V['defaults'], null>>
+      : SomeDefaultsProvider<object, Exclude<R['defaults'], null>>
     tag: string
     symbol: symbol
     codecs: [...string[]]
   }
-  name: V[`name`]
-  schema: StoredRecord.GetZodSchema<V>
+  name: R[`name`]
+  schema: StoredRecord.GetZodSchema<R>
   /**
    * Decoders for this record. Decoders are used to transform other representations of your record back into a record instance.
    */
@@ -83,14 +92,14 @@ export type RecordController<Rs extends StoredRecords, V extends StoredRecord> =
      *
      * @remarks This is a built in decoder.
      */
-    json: (value: string) => null | StoredRecord.GetType<V>
+    json: (value: string) => null | StoredRecord.GetType<R>
     /**
      * Decode JSON into this record. Throws if it fails for any reason.
      *
      * @remarks This is a built in decoder.
      */
-    jsonOrThrow: (value: string) => StoredRecord.GetType<V>
-  } & Decoders<V['codec'], V>
+    jsonOrThrow: (value: string) => StoredRecord.GetType<R>
+  } & Decoders<R['codec'], R>
   // & {
   //   [I in IndexKeys<V['codec']> as AsString<V['codec'][I]>]: Decoder<V['codec']>,V>
   // }
@@ -103,8 +112,8 @@ export type RecordController<Rs extends StoredRecords, V extends StoredRecord> =
      *
      * @remarks This is a built in encoder.
      */
-    json: (record: StoredRecord.GetType<V>) => string
-  } & Encoders<V['codec'], V>
+    json: (record: StoredRecord.GetType<R>) => string
+  } & Encoders<R['codec'], R>
   /**
    * Strict predicate/type guard for this record.
    *
@@ -118,7 +127,7 @@ export type RecordController<Rs extends StoredRecords, V extends StoredRecord> =
    */
   // TODO
   // @ts-expect-error TODO
-  is(value: StoredRecords.Union<Rs>): value is StoredRecord.GetType<V>
+  is(value: StoredRecords.Union<Rs>): value is StoredRecord.GetType<R>
   /**
    * Loose predicate/type guard for this record.
    *
@@ -130,100 +139,28 @@ export type RecordController<Rs extends StoredRecords, V extends StoredRecord> =
    * are writing code that you think is dealing with the ADT then `is` would catch
    * the error of that not being the case while this function would not.
    */
-  is$(value: unknown): value is StoredRecord.GetType<V>
-} & (keyof GetConstructorInput<V> extends never
+  is$(value: unknown): value is StoredRecord.GetType<R>
+} & (keyof GetConstructorInput<R> extends never
   ? {
       /**
        * TODO
        */
-      create(): StoredRecord.GetType<V>
+      create(): StoredRecord.GetType<R>
     }
-  : keyof OmitRequired<GetConstructorInput<V>> extends never
+  : keyof OmitRequired<GetConstructorInput<R>> extends never
   ? {
       /**
        * TODO
        */
-      create(input?: GetConstructorInput<V>): StoredRecord.GetType<V>
+      create(input?: GetConstructorInput<R>): StoredRecord.GetType<R>
     }
   : {
       /**
        * TODO
        */
-      create(input: GetConstructorInput<V>): StoredRecord.GetType<V>
+      create(input: GetConstructorInput<R>): StoredRecord.GetType<R>
     }) &
-  // (V[`codec`] extends true
-  //   ? {
-  //       /**
-  //        * Serialize this record into a string representation.
-  //        */
-  //       encode: Encoder<V>
-  //       /**
-  //        * Deserialize a string representation of this record.
-  //        */
-  //       decode: Decoder<V>
-  //       /**
-  //        * Deserialize a string representation of this record.
-  //        * @throws Error if decode fails.
-  //        */
-  //       decodeOrThrow: DecoderThatThrows<V>
-  //     }
-  //   : {
-  //       /**
-  //        * This method is not available. You have not defined a codec on this record.
-  //        *
-  //        * Define a codec on your record like this:
-  //        *
-  //        * ```ts
-  //        * Alge
-  //        *  .create('Foo')
-  //        *  .record('Bar', {
-  //        *    qux: z.string(),
-  //        *  })
-  //        *  .codec({
-  //        *    encode: (data) => data.qux,
-  //        *    decode: (data) => ({ qux: data }),
-  //        *  })
-  //        * ```
-  //        */
-  //       encode: never
-  //       /**
-  //        * This method is not available. You have not defined a codec on this record.
-  //        *
-  //        * Define a codec on your record like this:
-  //        *
-  //        * ```ts
-  //        * Alge
-  //        *  .create('Foo')
-  //        *  .record('Bar', {
-  //        *    qux: z.string(),
-  //        *  })
-  //        *  .codec({
-  //        *    encode: (data) => data.qux,
-  //        *    decode: (data) => ({ qux: data }),
-  //        *  })
-  //        * ```
-  //        */
-  //       decode: never
-  //       /**
-  //        * This method is not available. You have not defined a codec on this record.
-  //        *
-  //        * Define a codec on your record like this:
-  //        *
-  //        * ```ts
-  //        * Alge
-  //        *  .create('Foo')
-  //        *  .record('Bar', {
-  //        *    qux: z.string(),
-  //        *  })
-  //        *  .codec({
-  //        *    encode: (data) => data.qux,
-  //        *    decode: (data) => ({ qux: data }),
-  //        *  })
-  //        * ```
-  //        */
-  //       decodeOrThrow: never
-  //     }) &
-  V[`extensions`]
+  R[`extensions`]
 
 export type ApplyDefaults<Defaults, Input> = {
   [K in keyof Input as K extends keyof Defaults ? never : K]: Input[K]

@@ -19,30 +19,27 @@ import { z } from 'zod'
 
 const Length = z.number().positive()
 
-//           v---------- 2. Controller
-//           |            v--------- 1. Builder
-export const Shape = Alge.data(`Shape`)
-  .record(`Rectangle`)
-  .schema({
+//           v---------- 2. ADT Controller
+//           |            v--------- 1. ADT Builder
+export const Shape = Alge.data(`Shape`, {
+  Rectangle: {
     width: Length,
     height: Length,
-  })
-  .record(`Circle`)
-  .schema({
+  },
+  Circle: {
     radius: Length,
-  })
-  .record(`Square`)
-  .schema({
+  },
+  Rectangle: {
     size: Length,
-  })
-  .done()
+  },
+})
 ```
 
 Now the Controller:
 
 ```ts
 //    v--------- 3. Instance
-//    |        v--------- 2. Controller
+//    |        v--------- 2. ADT Controller
 const circle = Shape.Circle.create({ radius: 50 })
 // { _tag: 'Circle', radius: 50 }
 
@@ -62,21 +59,24 @@ Finally are the instances which you can see above are created by the controller.
 If you don't need a full blown ADT but just one record, Alge can do that:
 
 ```ts
-//    v---------- 2. Record Controller (not ADT)
-//    |             v--------- 1. Record Builder (not ADT)
-const Circle = Alge.record(`Circle`).schema({ radius: Length }).done()
+//    v---------- 2. Record Controller
+//    |             v--------- 1. Record Builder
+const Circle = Alge.record(`Circle`, { radius: Length })
 ```
 
 If you want to compose your ADT incrementally Alge can do that:
 
 ```ts
-//    v---------- 2. Record Controller (not ADT)
-//    |             v--------- 1. Record Builder (not ADT)
-const Circle = Alge.record(`Circle`).schema({ radius: Length }).done()
-const Square = Alge.record(`Square`).schema({ size: Length }).done()
-//    v---------- 2. Controller (is ADT)
-//    |            v--------- 1. Builder (is ADT)
-const Shape = Alge.data(`Shape`).record(Circle).record(Square).done()
+//    v---------- 2. Record Controller
+//    |             v--------- 1. Record Builder
+const Circle = Alge.record(`Circle`, { radius: Length })
+const Square = Alge.record(`Square`, { size: Length })
+//    v---------- 2. ADT Controller
+//    |            v--------- 1. ADT Builder
+const Shape = Alge.data(`Shape`, {
+  Circle,
+  Square,
+})
 ```
 
 This is just a taster. Places you can go next:

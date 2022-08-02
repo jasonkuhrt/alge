@@ -1,26 +1,24 @@
 import { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
 import { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
-import { DefaultsBase } from '../record/types/builder.js'
 import { GetConstructorInput, SomeRecordController } from '../record/types/controller.js'
+import { StoredRecord } from '../record/types/StoredRecord.js'
 import { z } from 'zod'
-
-export type SchemaBase = Record<string, z.ZodType<unknown>>
 
 export type ExtensionsBase = Record<string, unknown>
 
-export type NameBase = string
+export type SomeName = string
 
 export interface CodecDefinition<V extends StoredRecord = StoredRecord> {
   encode: EncoderDefinition<V>
   decode: DecoderDefinition<V>
 }
 
-export interface CodecImplementation<V extends StoredRecord = StoredRecord> {
-  to: EncoderDefinition<V>
-  from: DecoderDefinition<V>
+export interface CodecImplementation<R extends StoredRecord = StoredRecord> {
+  to: EncoderDefinition<R>
+  from: DecoderDefinition<R>
 }
 
-export type EncoderDefinition<V extends StoredRecord> = (record: StoredRecord.GetType<V>) => string
+export type EncoderDefinition<R extends StoredRecord> = (record: StoredRecord.GetType<R>) => string
 
 export type Encoder<V extends StoredRecord> = EncoderDefinition<V>
 
@@ -40,45 +38,6 @@ export type ADTDecoder<Vs extends StoredRecords> = (value: string) => null | Sto
 export type ADTDecoderThatThrows<Vs extends StoredRecords> = (value: string) => StoredRecords.Union<Vs>
 
 export type InputBase = object
-
-export type StoredRecord = {
-  name: string
-  schema: z.ZodRawShape
-  codec: [...string[]]
-  extensions: ExtensionsBase
-  defaults: null | DefaultsBase
-}
-
-// prettier-ignore
-// eslint-disable-next-line
-export namespace StoredRecord {
-  export type Create<Name extends NameBase> = {
-    name: Name
-    schema: { _tag: z.ZodLiteral<Name> }
-    codec: []
-    // TODO
-    // eslint-disable-next-line
-    extensions: {}
-    defaults: null
-  }
-  export type AddSchema<Schema extends SchemaBase, V extends StoredRecord> =
-    Omit<V, `schema`> & { schema: Schema & { _tag: z.ZodLiteral<V['name']> } }
-    
-  export type AddCodec<Name extends string, V extends StoredRecord> =
-    Omit<V, `codec`> & { codec: [Name, ...V['codec']] }
-
-  export type AddDefaults<V extends StoredRecord, Defaults> = 
-    Omit<V, `defaults`> & { defaults: Defaults }
-
-  export type AddExtensions<Extensions extends ExtensionsBase, V extends StoredRecord> =
-    V & { extensions: Extensions }
-
-  export type GetType<V extends StoredRecord> =
-    z.TypeOf<z.ZodObject<V[`schema`]>>
-  
-  export type GetZodSchema<V extends StoredRecord> =
-    z.ZodObject<V[`schema`]>
-}
 
 export type StoredRecords = [StoredRecord, ...StoredRecord[]]
 
@@ -143,7 +102,7 @@ export namespace StoredRecords {
   }
 }
 
-export type CreateStoredRecord<Name extends NameBase> = {
+export type CreateStoredRecord<Name extends SomeName> = {
   name: Name
   schema: { _tag: z.ZodLiteral<Name> }
   codec: []

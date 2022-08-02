@@ -1,11 +1,12 @@
 import { is } from '../core/helpers.js'
-import { SomeSchemaDefinition } from '../core/internal.js'
-import { ExtensionsBase, StoredRecord } from '../core/types.js'
+import { SomeSchemaDef } from '../core/internal.js'
+import { ExtensionsBase } from '../core/types.js'
 import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/builder.js'
-import { SomeRecordController } from './types/controller.js'
+import { RecordController, SomeRecordController } from './types/controller.js'
 import { SomeCodecDefinition, SomeDefaultsProvider, SomeRecordConstructorInput } from './types/internal.js'
+import { StoredRecord } from './types/StoredRecord.js'
 
 export type RecordBuildState = Omit<StoredRecord, 'codec' | 'schema' | 'defaults'> & {
   codecs: [string, SomeCodecDefinition][]
@@ -13,13 +14,19 @@ export type RecordBuildState = Omit<StoredRecord, 'codec' | 'schema' | 'defaults
   defaultsProvider: null | SomeDefaultsProvider
 }
 
-export const record = <Name extends string>(
-  name: Name,
-  _: {
+//prettier-ignore
+export function record<Name extends string, SchemaDef extends SomeSchemaDef>(name: Name, schemaDef: SchemaDef): RecordController.CreateFromSchema<Name, SchemaDef>
+//prettier-ignore
+export function record<Name extends string>(name: Name): Initial<Name>
+//prettier-ignore
+//eslint-disable-next-line
+export function record<Name extends string>(name: Name, schemaDef?: SomeSchemaDef, _: {
     extensions?: object
     extend?: SomeRecordController
-  } = {}
-): Initial<Name> => {
+  } = {}) {
+
+  
+
   const chainTerminus = `done`
   const initialSchema = z.object({ _tag: z.literal(name) })
   const current: RecordBuildState = {
@@ -39,7 +46,7 @@ export const record = <Name extends string>(
   }
 
   const chain = {
-    schema: (schema: SomeSchemaDefinition) => {
+    schema: (schema: SomeSchemaDef) => {
       current.schema = z.object({ ...schema, _tag: z.literal(current.name) })
       return chain
     },
@@ -130,8 +137,8 @@ export const record = <Name extends string>(
           ...current.codecs.reduce(
             (acc, [key, impl]) =>
               Object.assign(acc, {
-                [key]: (record: SomeRecordController) => {
-                  return impl.to(record)
+                [key]: (recordController: SomeRecordController) => {
+                  return impl.to(recordController)
                 },
               }),
             {}
@@ -142,6 +149,8 @@ export const record = <Name extends string>(
       return controller
     },
   }
+
+
 
   const chainWrapped = _.extensions
     ? extendChain({
@@ -154,6 +163,10 @@ export const record = <Name extends string>(
         extensions: _.extensions,
       })
     : chain
+
+  if (schemaDef) {
+      return chain.schema(schemaDef).done()
+  }
 
   // TODO
   // eslint-disable-next-line
