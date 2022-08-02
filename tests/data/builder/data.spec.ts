@@ -1,16 +1,16 @@
-import { data, datum } from '../../../src/index_.js'
+import { data, record } from '../../../src/index_.js'
 import { $A, $AB, $B } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 import { z } from 'zod'
 
-describe(`.data(<datumn>)`, () => {
+describe(`.data(<record>)`, () => {
   //prettier-ignore
-  const A = datum($A).schema({ m: z.literal(`m`) }).done()
+  const A = record($A).schema({ m: z.literal(`m`) }).done()
   //prettier-ignore
-  const B = datum($B)
+  const B = record($B)
     .schema({ n: z.literal(1) })
     .done()
-  const AB = data($AB).variant(A).variant(B).done()
+  const AB = data($AB).record(A).record(B).done()
   AB.A._
   const m = AB.A.create({ m: `m` })
   const n = AB.B.create({ n: 1 })
@@ -18,7 +18,7 @@ describe(`.data(<datumn>)`, () => {
     expectType<typeof $AB>(AB.name)
     expect(AB.name).toBe($AB)
   })
-  it(`can construct variants`, () => {
+  it(`can construct records`, () => {
     expectType<{ _tag: $A; m: `m` }>(m)
     expectType<{ _tag: $B; n: 1 }>(n)
     expect(m).toEqual({ _tag: $A, m: `m`, _: { tag: $A, symbol: AB.A._.symbol } })

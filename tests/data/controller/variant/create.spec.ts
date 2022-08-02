@@ -4,8 +4,8 @@ import { expectType } from 'tsd'
 import { z } from 'zod'
 
 it(`If schema not given (aka. no properties), then constructor does not accept input`, () => {
-  const AB = data($AB).variant($A).variant($B).done()
-  // @ts-expect-error: empty object still not like empty variant
+  const AB = data($AB).record($A).record($B).done()
+  // @ts-expect-error: empty object still not like empty record
   AB.B.create({})
   expect(AB.B.create()).toEqual({ _tag: $B, _: { tag: $B, symbol: AB.B._.symbol } })
   expect(AB.A.create()).toEqual({ _tag: $A, _: { tag: $A, symbol: AB.A._.symbol } })
@@ -14,14 +14,14 @@ it(`If schema not given (aka. no properties), then constructor does not accept i
   expect(AB.A.is$({})).toEqual(false)
 })
 it(`If schema only has optional properties then constructor input is optional`, () => {
-  const AB = data($AB).variant($A).schema({ m: z.number().optional() }).done()
+  const AB = data($AB).record($A).schema({ m: z.number().optional() }).done()
   AB.A.create()
   AB.A.create({})
   expect(AB.A.create()).toEqual({ _tag: $A, _: { tag: $A, symbol: AB.A._.symbol } })
   expect(AB.A.create({})).toEqual({ _tag: $A, _: { tag: $A, symbol: AB.A._.symbol } })
   expect(AB.A.create({ m: 1 })).toEqual({ m: 1, _tag: $A, _: { tag: $A, symbol: AB.A._.symbol } })
 })
-it(`creates the variant`, () => {
+it(`creates the record`, () => {
   // @ts-expect-error: Invalid input
   AB.A.create({ x: 1 })
 

@@ -1,7 +1,7 @@
 /**
  * This example shows:
  * - How other ADTs can be used to create a new ADT.
- * - How a singular variant can be created instead of a whole ADT.
+ * - How a lone record can be created instead of a whole ADT.
  */
 import { Alge } from '../src/index.js'
 import { Moniker } from './Moniker.js'
@@ -11,8 +11,8 @@ import { z } from 'zod'
 type Version = Alge.Infer<typeof Version>
 
 const Version = Alge.data(`Version`)
-  .variant(SemVer.Exact)
-  .variant(`Tag`)
+  .record(SemVer.Exact)
+  .record(`Tag`)
   .schema({
     name: z.string().min(1), // TODO regexp
   })
@@ -27,7 +27,7 @@ const Version = Alge.data(`Version`)
   })
   .done()
 
-export const Target = Alge.datum(`Target`)
+export const Target = Alge.record(`Target`)
   .schema({
     moniker: Moniker.schema,
     version: Version.schema,

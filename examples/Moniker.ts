@@ -14,7 +14,7 @@ const replace = (pattern: RegExp, replacementValue: string) => (value: string) =
   value.replace(pattern, replacementValue)
 
 export const Moniker = Alge.data(`Moniker`)
-  .variant(`Local`)
+  .record(`Local`)
   .schema({
     name: z.string().min(1),
     scope: z
@@ -38,7 +38,7 @@ export const Moniker = Alge.data(`Moniker`)
       return { name: match[1]!, scope: match[2]! }
     },
   })
-  .variant(`Global`)
+  .record(`Global`)
   .schema({
     name: z.string().min(1),
   })

@@ -1,10 +1,10 @@
 import { $A, a, AB, b } from '../../../__helpers__.js'
 import { expectType } from 'tsd'
 
-it(`.is() is a type guard / predicate function accepting only variants of the ADT`, () => {
+it(`.is() is a type guard / predicate function accepting only records of the ADT`, () => {
   const aOrB = Math.random() > 0.5 ? a : b
 
-  // @ts-expect-error: value is not an ADT variant.
+  // @ts-expect-error: value is not an ADT record.
   AB.A.is(`whatever`)
 
   // @ts-expect-error The type has not been narrowed yet.

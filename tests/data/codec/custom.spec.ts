@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 it(`adds custom encoders to the controller`, () => {
   const AB = Alge.data($AB)
-    .variant($A)
+    .record($A)
     .schema({ a: z.number() })
     .codec(`string`, {
       to: () => ``,
@@ -28,7 +28,7 @@ describe(`encoder`, () => {
       it(`1: data instance`, () => {
         type AB = Alge.Infer<typeof AB>
         const AB = Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.number() })
           .codec(`foo`, {
             to: (data) => {
@@ -44,7 +44,7 @@ describe(`encoder`, () => {
     describe(`return`, () => {
       it(`string`, () => {
         Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.number() })
           .codec(`foo`, {
             // @ts-expect-error Must be a string
@@ -58,7 +58,7 @@ describe(`encoder`, () => {
     it(`input: requires data`, () => {
       type AB = Alge.Infer<typeof AB>
       const AB = Alge.data($AB)
-        .variant($A)
+        .record($A)
         .schema({ a: z.number() })
         .codec(`foo`, { to: () => ``, from: () => ({ a: 1 }) })
         .done()
@@ -68,10 +68,10 @@ describe(`encoder`, () => {
       it(`common encoders are available`, () => {
         type AB = Alge.Infer<typeof AB>
         const AB = Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.number() })
           .codec(`foo`, { to: (a) => a.a.toString(), from: () => ({ a: 1 }) })
-          .variant($B)
+          .record($B)
           .schema({ b: z.number() })
           .codec(`foo`, { to: (b) => b.b.toString(), from: () => ({ b: 1 }) })
           .done()
@@ -93,7 +93,7 @@ describe(`decoder`, () => {
     describe(`inputs`, () => {
       it(`1: stringified value`, () => {
         const AB = Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.number() })
           .codec(`string`, {
             to: () => ``,
@@ -104,7 +104,7 @@ describe(`decoder`, () => {
       })
       it(`2: context`, () => {
         const AB = Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.array(z.any()) })
           .codec(`string`, {
             to: () => ``,
@@ -121,7 +121,7 @@ describe(`decoder`, () => {
     describe(`return`, () => {
       it(`value must adhere to schema`, () => {
         Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.number() })
           .codec(`foo`, {
             to: () => ``,
@@ -136,7 +136,7 @@ describe(`decoder`, () => {
       })
       it(`null if decoding not possible`, () => {
         const AB = Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.number() })
           .codec(`string`, {
             to: () => ``,
@@ -150,7 +150,7 @@ describe(`decoder`, () => {
   })
   describe(`controller`, () => {
     const AB = Alge.data($AB)
-      .variant($A)
+      .record($A)
       .schema({ a: z.number() })
       .codec(`string`, {
         to: () => ``,
@@ -163,20 +163,20 @@ describe(`decoder`, () => {
       // @ts-expect-error Requires string
       AB.A.from.string(1)
     })
-    it(`has orThrow variant which throws when null is returned`, () => {
+    it(`has orThrow record which throws when null is returned`, () => {
       expect(() => AB.A.from.stringOrThrow(``)).toThrowError()
     })
     describe(`ADT level`, () => {
       it(`common decoders are available`, () => {
         type AB = Alge.Infer<typeof AB>
         const AB = Alge.data($AB)
-          .variant($A)
+          .record($A)
           .schema({ a: z.number() })
           .codec(`foo`, {
             to: (a) => a.a.toString(),
             from: (string) => (string.startsWith(`A:`) ? { a: 1 } : null),
           })
-          .variant($B)
+          .record($B)
           .schema({ b: z.number() })
           .codec(`foo`, {
             to: (b) => b.b.toString(),
@@ -194,7 +194,7 @@ describe(`decoder`, () => {
 
         expectType<(string: string) => AB['*']>(AB.from.fooOrThrow)
         expect(() => AB.from.fooOrThrow(``)).toThrowError(
-          `Failed to decode value \`''\` into any of the variants for this ADT.`
+          `Failed to decode value \`''\` into any of the records for this ADT.`
         )
       })
     })

@@ -22,16 +22,16 @@ const Length = z.number().positive()
 //           v---------- 2. Controller
 //           |            v--------- 1. Builder
 export const Shape = Alge.data(`Shape`)
-  .variant(`Rectangle`)
+  .record(`Rectangle`)
   .schema({
     width: Length,
     height: Length,
   })
-  .variant(`Circle`)
+  .record(`Circle`)
   .schema({
     radius: Length,
   })
-  .variant(`Square`)
+  .record(`Square`)
   .schema({
     size: Length,
   })
@@ -62,21 +62,21 @@ Finally are the instances which you can see above are created by the controller.
 If you don't need a full blown ADT but just one record, Alge can do that:
 
 ```ts
-//    v---------- 2. Datum Controller (not ADT)
-//    |             v--------- 1. Datum Builder (not ADT)
-const Circle = Alge.datum(`Circle`).schema({ radius: Length }).done()
+//    v---------- 2. Record Controller (not ADT)
+//    |             v--------- 1. Record Builder (not ADT)
+const Circle = Alge.record(`Circle`).schema({ radius: Length }).done()
 ```
 
 If you want to compose your ADT incrementally Alge can do that:
 
 ```ts
-//    v---------- 2. Datum Controller (not ADT)
-//    |             v--------- 1. Datum Builder (not ADT)
-const Circle = Alge.datum(`Circle`).schema({ radius: Length }).done()
-const Square = Alge.datum(`Square`).schema({ size: Length }).done()
+//    v---------- 2. Record Controller (not ADT)
+//    |             v--------- 1. Record Builder (not ADT)
+const Circle = Alge.record(`Circle`).schema({ radius: Length }).done()
+const Square = Alge.record(`Square`).schema({ size: Length }).done()
 //    v---------- 2. Controller (is ADT)
 //    |            v--------- 1. Builder (is ADT)
-const Shape = Alge.data(`Shape`).variant(Circle).variant(Square).done()
+const Shape = Alge.data(`Shape`).record(Circle).record(Square).done()
 ```
 
 This is just a taster. Places you can go next:
@@ -99,9 +99,9 @@ This is just a taster. Places you can go next:
   - [What?](#what)
   - [Why?](#why)
 - [Features](#features)
-  - [Variants](#variants)
-  - [Lone Variant](#lone-variant)
-  - [Lone Variant Composition](#lone-variant-composition)
+  - [Records](#records)
+  - [Lone Record](#lone-record)
+  - [Lone Record Composition](#lone-record-composition)
   - [Schema](#schema)
     - [Properties](#properties)
     - [Optional Properties](#optional-properties)
@@ -133,7 +133,7 @@ Alge is a Type Script library for creating [Algebraic Data Types](https://en.wik
 
 ### What?
 
-Algebraic Data Types (ADTs for short) are a methodology of modelling data. They could appear in any context that is about defining and/or navigating the shape of data. One of their fundamental benefits is that they can express different states/invariants/facts about/of data. They are the combination of two other concepts, _product types_ and _union types_.
+Algebraic Data Types (ADTs for short) are a methodology of modelling data. They could appear in any context that is about defining and/or navigating the shape of data. One of their fundamental benefits is that they can express different states/inrecords/facts about/of data. They are the combination of two other concepts, _product types_ and _union types_.
 
 A product type is like:
 
@@ -348,18 +348,18 @@ At scale, having well modelled data can be a life saver. The up front verbosity 
 
 ## Features
 
-### Variants
+### Records
 
-We can define our ADT with one or more variants using the _ADT Builder_:
+We can define our ADT with one or more records using the _ADT Builder_:
 
 ```ts
 import { Alge } from 'alge'
 
 const Shape = Alge.data('Shape')
-  .variant(`Circle`)
-  .variant(`Square`)
-  .variant('Rectangle')
-  .variant(`Triangle`)
+  .record(`Circle`)
+  .record(`Square`)
+  .record('Rectangle')
+  .record(`Triangle`)
   .done()
 ```
 
@@ -372,39 +372,39 @@ const square = Shape.Square.create()
 // { _tag: 'Square' }
 ```
 
-### Lone Variant
+### Lone Record
 
-It is possible to define a lone variant instead of a whole ADT using the root `.datum` method.
+It is possible to define a lone record instead of a whole ADT using the root `.record` method.
 
 ```ts
-const Circle = Alge.datum('Circle').done()
-const Square = Alge.datum('Square').done()
+const Circle = Alge.record('Circle').done()
+const Square = Alge.record('Square').done()
 ```
 
-### Lone Variant Composition
+### Lone Record Composition
 
-You can compose lone variants into an ADT. Doing so can be useful for code reuse and modularity or also just as an alternative style to the chaining API.
+You can compose lone records into an ADT. Doing so can be useful for code reuse and modularity or also just as an alternative style to the chaining API.
 
 ```ts
-const Shape = Alge.data('Shape').variant(Square).variant(Circle).done()
+const Shape = Alge.data('Shape').record(Square).record(Circle).done()
 ```
 
 ### Schema
 
 #### Properties
 
-We can define what properties each variant has. We use `zod` to express our schema.
+We can define what properties each record has. We use `zod` to express our schema.
 
 ```ts
 import { Alge } from 'alge'
 import { z } from 'zod'
 
 const Shape = Alge.data('Shape')
-  .variant(`Circle`)
+  .record(`Circle`)
   .schema({
     radius: z.number(),
   })
-  .variant(`Square`)
+  .record(`Square`)
   .schema({
     size: z.number(),
   })
@@ -427,12 +427,12 @@ Properties can be defined as optional via the schema and then constructors will 
 
 ```ts
 const Shape = Alge.data('Shape')
-  .variant(`Circle`)
+  .record(`Circle`)
   .schema({
     radius: z.number(),
     opacity: z.number().min(0).max(1).optional(),
   })
-  .variant(`Square`)
+  .record(`Square`)
   .schema({
     size: z.number(),
   })
@@ -462,7 +462,7 @@ import { Alge } from 'alge'
 import { z } from 'zod'
 
 const Shape = Alge.data('Shape')
-  .variant(`Circle`)
+  .record(`Circle`)
   .schema({
     radius: z.number(),
     opacity: z.number().min(0).max(1),
@@ -471,7 +471,7 @@ const Shape = Alge.data('Shape')
     opacity: 1,
     ...input,
   }))
-  .variant(`Square`)
+  .record(`Square`)
   .schema({
     size: z.number(),
   })
@@ -493,7 +493,7 @@ const circle = Shape.Circle.create({
 
 ### Identity
 
-`.is` is a variant method that is a TypeScript type guard. It checks if the given ADT value is that variant or not:
+`.is` is a record method that is a TypeScript type guard. It checks if the given ADT value is that record or not:
 
 ```ts
 const onlyCircle = (shape: Shape): null | Shape.Circle => {
@@ -527,11 +527,11 @@ const circle2 = Shape.Circle.From.json(circleJson)
 Imagine you want a way to transform your Shape data to/from a custom string representation.
 
 ```
-ADT Variant             String Representation
------------             ---------------------
+ADT Record             String Representation
+----------             ---------------------
 
-Shape Circle            (<space equal to radius>)
-Shape Square            [<space equal to size>]
+Shape Circle           (<space equal to radius>)
+Shape Square           [<space equal to size>]
 ```
 
 Let's define a string codec to achieve just this!
@@ -541,7 +541,7 @@ const circlePattern = /^\(( *)\)$/
 const squarePattern = /^\[( *)\]$/
 
 const Shape = Alge.data('Shape')
-  .variant(`Circle`)
+  .record(`Circle`)
   .schema({
     radius: z.number(),
   })
@@ -554,7 +554,7 @@ const Shape = Alge.data('Shape')
       //             ^[2]
     },
   })
-  .variant(`Square`)
+  .record(`Square`)
   .schema({
     size: z.number(),
   })
@@ -573,7 +573,7 @@ const Shape = Alge.data('Shape')
 Notes:
 
 1. We give our codec a _name_. This name is used for the derived API (see below).
-2. When returning the parsed data for our variant we do _not_ need to deal with the `_tag` property.
+2. When returning the parsed data for our record we do _not_ need to deal with the `_tag` property.
 
 The `string` codec that we have defined can now be used in the _ADT Controller_ under the `to` and `from` namespaces.
 
@@ -604,7 +604,7 @@ const circle = Shape.Circle.From.jsonOrThrow('bad')
 
 #### ADT Level
 
-When all variants share a codec definition then a generalized ADT level codec is automatically made available as well. Decoders return a union of the variants while encoders always return a string. Each variant decoder is run until one matches or none do. The decoder run order respects the order in which you defined your variants.
+When all records share a codec definition then a generalized ADT level codec is automatically made available as well. Decoders return a union of the records while encoders always return a string. Each record decoder is run until one matches or none do. The decoder run order respects the order in which you defined your records.
 
 Example (based on the `string` codec defined above):
 
@@ -627,7 +627,7 @@ const shape4 = Shape.from.stringOrThrow('!')
 
 Often you will write code (e.g. your own functions) that need to be typed with your ADT. Alge has "type functions" for this which leverages TypeScript inference.
 
-For ADTs there is `Alge.Infer`. It return an object with a property _per_ variant of the ADT _as well as_ a special property `*` which is _a union of all variants_.
+For ADTs there is `Alge.Infer`. It return an object with a property _per_ record of the ADT _as well as_ a special property `*` which is _a union of all records_.
 
 ```ts
 type Shape = Alge.Infer<typeof Shape>
@@ -645,10 +645,10 @@ const doSomething = (shape: Shape['*']): null | Shape['Circle'] => {
 }
 ```
 
-For lone variants there is `Alge.InferDatum`.
+For lone records there is `Alge.InferRecord`.
 
 ```ts
-type Circle = Alge.InferDatum<typeof Circle>
+type Circle = Alge.InferRecord<typeof Circle>
 
 const doSomething = (circle: Circle) => {
   // TODO
