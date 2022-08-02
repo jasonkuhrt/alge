@@ -66,6 +66,6 @@ export interface Done<V extends StoredRecord> {
 
 // Helpers
 
-export type StoredRecord<Name extends string = string> = {
+export type ThisStoredRecord<Name extends string = string> = {
   name: Name
 }

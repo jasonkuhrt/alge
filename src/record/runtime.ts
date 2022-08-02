@@ -1,15 +1,11 @@
 import { is } from '../core/helpers.js'
+import { SomeSchemaDefinition } from '../core/internal.js'
 import { ExtensionsBase, StoredRecord } from '../core/types.js'
 import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/builder.js'
 import { SomeRecordController } from './types/controller.js'
-import {
-  SomeCodecDefinition,
-  SomeDefaultsProvider,
-  SomeRecordConstructorInput,
-  SomeSchema,
-} from './types/internal.js'
+import { SomeCodecDefinition, SomeDefaultsProvider, SomeRecordConstructorInput } from './types/internal.js'
 
 export type RecordBuildState = Omit<StoredRecord, 'codec' | 'schema' | 'defaults'> & {
   codecs: [string, SomeCodecDefinition][]
@@ -43,7 +39,7 @@ export const record = <Name extends string>(
   }
 
   const chain = {
-    schema: (schema: SomeSchema) => {
+    schema: (schema: SomeSchemaDefinition) => {
       current.schema = z.object({ ...schema, _tag: z.literal(current.name) })
       return chain
     },

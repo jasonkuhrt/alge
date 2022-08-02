@@ -39,10 +39,10 @@ export type RecordsMethods<Vs extends StoredRecords> = {
 // Helpers
 // -------
 
-export type DecoderMethods<Name extends string, Vs extends StoredRecords> = {
-  [N in Name]: (value: string) => null | StoredRecords.Union<Vs>
+export type DecoderMethods<Name extends string, Rs extends StoredRecords> = {
+  [N in Name]: (value: string) => null | StoredRecords.Union<Rs>
 } & {
-  [N in Name as `${N}OrThrow`]: (value: string) => StoredRecords.Union<Vs>
+  [N in Name as `${N}OrThrow`]: (value: string) => StoredRecords.Union<Rs>
 }
 
 export type EncoderMethods<Name extends string, Vs extends StoredRecords> = {

@@ -63,7 +63,7 @@ type DecoderMethods<Name extends string, V extends StoredRecord> = {
 }
 
 // prettier-ignore
-export type RecordController<Vs extends StoredRecords, V extends StoredRecord> = {
+export type RecordController<Rs extends StoredRecords, V extends StoredRecord> = {
   _: {
     defaultsProvider: null extends V['defaults']
       ? null
@@ -118,7 +118,7 @@ export type RecordController<Vs extends StoredRecords, V extends StoredRecord> =
    */
   // TODO
   // @ts-expect-error TODO
-  is(value: StoredRecords.Union<Vs>): value is StoredRecord.GetType<V>
+  is(value: StoredRecords.Union<Rs>): value is StoredRecord.GetType<V>
   /**
    * Loose predicate/type guard for this record.
    *

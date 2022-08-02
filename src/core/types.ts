@@ -20,7 +20,7 @@ export interface CodecImplementation<V extends StoredRecord = StoredRecord> {
   from: DecoderDefinition<V>
 }
 
-export type EncoderDefinition<V extends StoredRecord> = (record: StoredRecords.GetType<V>) => string
+export type EncoderDefinition<V extends StoredRecord> = (record: StoredRecord.GetType<V>) => string
 
 export type Encoder<V extends StoredRecord> = EncoderDefinition<V>
 
@@ -28,12 +28,12 @@ export type ADTEncoder<Vs extends StoredRecords> = (adt: StoredRecords.Union<Vs>
 
 export type DecoderDefinition<V extends StoredRecord> = (
   encodedData: string,
-  extensions: V[`extensions`] & { schema: StoredRecords.GetZodSchema<V>; name: V[`name`] }
+  extensions: V[`extensions`] & { schema: StoredRecord.GetZodSchema<V>; name: V[`name`] }
 ) => null | GetConstructorInput<V>
 
-export type Decoder<V extends StoredRecord> = (value: string) => null | StoredRecords.GetType<V>
+export type Decoder<V extends StoredRecord> = (value: string) => null | StoredRecord.GetType<V>
 
-export type DecoderThatThrows<V extends StoredRecord> = (value: string) => StoredRecords.GetType<V>
+export type DecoderThatThrows<V extends StoredRecord> = (value: string) => StoredRecord.GetType<V>
 
 export type ADTDecoder<Vs extends StoredRecords> = (value: string) => null | StoredRecords.Union<Vs>
 
@@ -51,7 +51,7 @@ export type StoredRecord = {
 
 // prettier-ignore
 // eslint-disable-next-line
-export namespace StoredRecords {
+export namespace StoredRecord {
   export type Create<Name extends NameBase> = {
     name: Name
     schema: { _tag: z.ZodLiteral<Name> }
