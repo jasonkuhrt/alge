@@ -1,3 +1,8 @@
+/**
+ * This example shows created records, but no ADTs.
+ * Creating records can be useful. You do not always need
+ * ADTs. Sometimes just a record is all that is needed.
+ */
 import { Alge } from '../src/index.js'
 import { z } from 'zod'
 

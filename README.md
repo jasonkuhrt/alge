@@ -21,18 +21,21 @@ const Length = z.number().positive()
 
 //           v---------- 2. ADT Controller
 //           |            v--------- 1. ADT Builder
-export const Shape = Alge.data(`Shape`, {
-  Rectangle: {
+export const Shape = Alge.data(`Shape`)
+  .record(`Rectangle`)
+  .schema({
     width: Length,
     height: Length,
-  },
-  Circle: {
+  })
+  .record(`Circle`)
+  .schema({
     radius: Length,
-  },
-  Rectangle: {
+  })
+  .record(`Square`)
+  .schema({
     size: Length,
-  },
-})
+  })
+  .done()
 ```
 
 Now the Controller:
