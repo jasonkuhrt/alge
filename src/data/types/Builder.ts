@@ -8,6 +8,7 @@ import {
   CreateStoredRecord,
   CreateStoredRecordFromRecordController,
   ExtensionsBase,
+  SomeName,
   StoredRecords,
 } from '../../core/types.js'
 import { SomeRecordController } from '../../record/types/controller.js'
@@ -17,7 +18,7 @@ import { DataController } from './Controller.js'
 /**
  * The initial API for building an ADT.
  */
-export type Initial<ADT extends StoredADT, Vs extends StoredRecords> = RecordRequired<ADT, Vs>
+export type Initial<ADT extends StoredADT, Rs extends StoredRecords> = RecordRequired<ADT, Rs>
 
 /**
  * The builder API when it is in a state where a record is required.
@@ -25,9 +26,9 @@ export type Initial<ADT extends StoredADT, Vs extends StoredRecords> = RecordReq
  * @remarks This happens to be the initial state of the builder API.
  */
 // prettier-ignore
-export interface RecordRequired<ADT extends StoredADT, Vs extends StoredRecords> {
-  record<Name extends string>(name: Name): PostRecord<ADT, CreateStoredRecord<Name>, Vs>
-  record<DC extends SomeRecordController>(record: DC): PostRecord<ADT, CreateStoredRecordFromRecordController<DC>, Vs>
+export interface RecordRequired<ADT extends StoredADT, Rs extends StoredRecords> {
+  record<Name extends string>(name: Name): PostRecord<ADT, CreateStoredRecord<Name>, Rs>
+  record<DC extends SomeRecordController>(record: DC): PostRecord<ADT, CreateStoredRecordFromRecordController<DC>, Rs>
 }
 
 /**
@@ -36,10 +37,10 @@ export interface RecordRequired<ADT extends StoredADT, Vs extends StoredRecords>
  * @remarks This happens to be the initial state of the builder API.
  */
 // prettier-ignore
-export interface PostRecord<ADT extends StoredADT, V extends StoredRecord, Vs extends StoredRecords>
-       extends RecordRequired<ADT, [V, ...Vs]>,
-               Done<ADT, V, Vs> {
-  schema<Schema extends SomeSchemaDef>(schema: Schema): PostSchema<ADT, StoredRecord.AddSchemaDefinition<Schema, V>, Vs>
+export interface PostRecord<ADT extends StoredADT, R extends StoredRecord, Vs extends StoredRecords>
+       extends RecordRequired<ADT, [R, ...Vs]>,
+               Done<ADT, R, Vs> {
+  schema<Schema extends SomeSchemaDef>(schema: Schema): PostSchema<ADT, StoredRecord.AddSchemaDefinition<Schema, R>, Vs>
 }
 
 /**
@@ -47,19 +48,23 @@ export interface PostRecord<ADT extends StoredADT, V extends StoredRecord, Vs ex
  * At this point the ADT can be marked as done.
  */
 // prettier-ignore
-export interface PostSchema<ADT extends StoredADT, V extends StoredRecord, Vs extends StoredRecords>
-       extends RecordRequired<ADT, [V, ...Vs]>,
-               Done<ADT, V, Vs> {
-  codec<Name extends string>(name: Name, implementation: CodecImplementation<V>): PostSchema<ADT, StoredRecord.AddCodec<Name, V>, Vs>
-  extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostSchema<ADT, StoredRecord.AddExtensions<Extensions, V>, Vs>
+export interface PostSchema<ADT extends StoredADT, R extends StoredRecord, Rs extends StoredRecords>
+       extends RecordRequired<ADT, [R, ...Rs]>,
+               Done<ADT, R, Rs> {
+  codec<Name extends string>(name: Name, implementation: CodecImplementation<R>): PostSchema<ADT, StoredRecord.AddCodec<Name, R>, Rs>
+  extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostSchema<ADT, StoredRecord.AddExtensions<Extensions, R>, Rs>
 }
 
-export interface Done<ADT extends StoredADT, V extends StoredRecord, Vs extends StoredRecords> {
-  done(): DataController<ADT, [V, ...Vs]>
+export interface Done<ADT extends StoredADT, R extends StoredRecord, Rs extends StoredRecords> {
+  done(): DataController<ADT, [R, ...Rs]>
 }
 
 // Helpers
 
-export type StoredADT<Name extends string = string> = {
+export type StoredADT<Name extends SomeName = SomeName> = {
   name: Name
+}
+
+export namespace StoredADT {
+  export type Create<Name extends SomeName = SomeName> = StoredADT<Name>
 }

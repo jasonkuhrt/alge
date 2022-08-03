@@ -1,6 +1,50 @@
-import { StoredRecords } from '../../core/types.js'
+import { SomeSchemaDef } from '../../core/internal.js'
+import { SomeName, StoredRecords } from '../../core/types.js'
+import { ObjectValues, OnlyStrings } from '../../lib/utils.js'
 import { RecordController } from '../../record/types/controller.js'
+import { StoredRecord } from '../../record/types/StoredRecord.js'
 import { StoredADT } from './Builder.js'
+
+export type SomeShortHandRecordDefs = Record<string, SomeSchemaDef>
+
+// eslint-disable-next-line
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never
+
+// eslint-disable-next-line
+type LastOf<T> = UnionToIntersection<T extends any ? () => T : never> extends () => infer R ? R : never
+
+// eslint-disable-next-line
+type Push<T extends any[], V> = [...T, V]
+
+// TS4.1+
+type TuplifyUnion<T, L = LastOf<T>, N = [T] extends [never] ? true : false> = true extends N
+  ? []
+  : Push<TuplifyUnion<Exclude<T, L>>, L>
+
+export namespace DataController {
+  export type createDataControllerFromShortHandRecords<
+    Name extends SomeName,
+    shortHandRecordDefs extends SomeShortHandRecordDefs
+  > = DataController<StoredADT.Create<Name>, StoredRecordsFromShortHandRecordDefs<shortHandRecordDefs>>
+
+  // type x = StoredRecordsFromShortHandRecordDefs<{ a: { n: z.ZodString }; b: { m: z.ZodString } }>
+
+  type StoredRecordsFromShortHandRecordDefs<shortHandRecordDefs extends SomeShortHandRecordDefs> =
+    OnlyStoredRecords<
+      TuplifyUnion<
+        ObjectValues<{
+          [Name in OnlyStrings<keyof shortHandRecordDefs>]: StoredRecord.AddSchemaDefinition<
+            shortHandRecordDefs[Name],
+            StoredRecord.Create<Name>
+          >
+        }>
+      >
+    >
+
+  type OnlyStoredRecords<t> = t extends StoredRecords ? t : never
+}
 
 // prettier-ignore
 export type DataController<ADT extends StoredADT, Vs extends StoredRecords> =

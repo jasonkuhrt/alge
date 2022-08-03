@@ -11,7 +11,7 @@ export const Shape = Alge.data(`Shape`, {
   Circle: {
     radius: Length,
   },
-  Rectangle: {
+  Square: {
     size: Length,
   },
 })

@@ -6,6 +6,7 @@ import { record } from '../record/runtime.js'
 import { SomeRecord, SomeRecordController } from '../record/types/controller.js'
 import { SomeDecodeOrThrower, SomeDecoder, SomeEncoder, SomeRecordBuilder } from '../record/types/internal.js'
 import { Initial } from './types/Builder.js'
+import { DataController, SomeShortHandRecordDefs } from './types/Controller.js'
 import { SomeADT } from './types/internal.js'
 import { inspect } from 'util'
 import { SomeZodObject } from 'zod'
@@ -17,11 +18,16 @@ export type SomeAdtMethods = {
   to: Record<string, SomeEncoder>
 }
 
+//prettier-ignore
+export function data <Name extends string, ShortHandRecordDefs extends SomeShortHandRecordDefs>(name: Name, shortHandRecordDefs: ShortHandRecordDefs): DataController.createDataControllerFromShortHandRecords<Name, ShortHandRecordDefs>
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
 // @ts-expect-error empty init tuple
-export const data = <Name extends string>(name: Name): Initial<{ name: Name }, []> => {
+//prettier-ignore
+export function data <Name extends string>(name: Name): Initial<{ name: Name }, []>
+//eslint-disable-next-line
+export function data<Name extends string>(name: Name, shortHandRecordDefinitions?: any) {
   // let currentRecord: null | SomeRecordDefinition = null
   // const records: SomeRecordDefinition[] = []
   let currentRecordBuilder: null | SomeRecordBuilder = null
@@ -138,6 +144,16 @@ export const data = <Name extends string>(name: Name): Initial<{ name: Name }, [
     },
   }
 
+  if (shortHandRecordDefinitions) {
+    let b = builder
+    //eslint-disable-next-line
+    for (const [name, schemaDefinition] of Object.entries(shortHandRecordDefinitions)) {
+      // @ts-expect-error todo
+      //eslint-disable-next-line
+      b = b.record(name).schema(schemaDefinition)
+    }
+    return b.done()
+  }
   // TODO
   // eslint-disable-next-line
   return builder as any
