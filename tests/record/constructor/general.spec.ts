@@ -12,6 +12,7 @@ it(`If schema not given (aka. no properties), then constructor does not accept i
   expect((A as any).is({})).toEqual(false)
   expect(A.is$({})).toEqual(false)
 })
+
 it(`If schema only has optional properties then constructor input is optional`, () => {
   const A = Alge.record($A).schema({ m: z.number().optional() }).done()
   A.create()
@@ -20,12 +21,13 @@ it(`If schema only has optional properties then constructor input is optional`, 
   expect(A.create({})).toEqual({ _tag: $A, _: { tag: $A, symbol: A._.symbol } })
   expect(A.create({ m: 1 })).toEqual({ m: 1, _tag: $A, _: { tag: $A, symbol: A._.symbol } })
 })
+
 it(`creates the record`, () => {
   // @ts-expect-error: Invalid input
-  A.create({ x: 1 })
+  expect(() => A.create({ x: 1 })).toThrowError()
 
   // @ts-expect-error: Input required
-  A.create()
+  expect(() => A.create()).toThrowError()
 
   // @ts-expect-error: Excess invalid input
   A.create({ m: `m`, n: 2 })

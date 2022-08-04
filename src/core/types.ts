@@ -1,6 +1,6 @@
 import { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
 import { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
-import { GetConstructorInput, SomeRecordController } from '../record/types/controller.js'
+import { RecordController, SomeRecordController } from '../record/types/controller.js'
 import { StoredRecord } from '../record/types/StoredRecord.js'
 import { z } from 'zod'
 
@@ -27,7 +27,7 @@ export type ADTEncoder<Vs extends StoredRecords> = (adt: StoredRecords.Union<Vs>
 export type DecoderDefinition<V extends StoredRecord> = (
   encodedData: string,
   extensions: V[`extensions`] & { schema: StoredRecord.GetZodSchema<V>; name: V[`name`] }
-) => null | GetConstructorInput<V>
+) => null | RecordController.GetConstructorInput<V>
 
 export type Decoder<V extends StoredRecord> = (value: string) => null | StoredRecord.GetType<V>
 
