@@ -5,11 +5,6 @@ import { z } from '../../lib/z/index.js'
 import { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
 import { StoredRecord } from './StoredRecord.js'
 
-export type GetConstructorInput<V extends StoredRecord> = ApplyDefaults<
-  V['defaults'],
-  z.TypeOf<z.Omit<StoredRecord.GetZodSchema<V>, { _tag: true }>>
->
-
 export type SomeRecord = {
   _tag: string
   _: {
@@ -69,6 +64,11 @@ export namespace RecordController {
   >
 
   export type CreateFromStoredRecord<R extends StoredRecord> = RecordController<[R], R>
+
+  export type GetConstructorInput<V extends StoredRecord> = ApplyDefaults<
+    V['defaults'],
+    z.input<z.Omit<StoredRecord.GetZodSchema<V>, { _tag: true }>>
+  >
 }
 
 // prettier-ignore
@@ -140,25 +140,25 @@ export type RecordController<Rs extends StoredRecords, R extends StoredRecord> =
    * the error of that not being the case while this function would not.
    */
   is$(value: unknown): value is StoredRecord.GetType<R>
-} & (keyof GetConstructorInput<R> extends never
+} & (keyof RecordController.GetConstructorInput<R> extends never
   ? {
       /**
        * TODO
        */
       create(): StoredRecord.GetType<R>
     }
-  : keyof OmitRequired<GetConstructorInput<R>> extends never
+  : keyof OmitRequired<RecordController.GetConstructorInput<R>> extends never
   ? {
       /**
        * TODO
        */
-      create(input?: GetConstructorInput<R>): StoredRecord.GetType<R>
+      create(input?: RecordController.GetConstructorInput<R>): StoredRecord.GetType<R>
     }
   : {
       /**
        * TODO
        */
-      create(input: GetConstructorInput<R>): StoredRecord.GetType<R>
+      create(input: RecordController.GetConstructorInput<R>): StoredRecord.GetType<R>
     }) &
   R[`extensions`]
 

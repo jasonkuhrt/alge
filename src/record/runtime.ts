@@ -18,15 +18,15 @@ export type RecordBuildState = Omit<StoredRecord, 'codec' | 'schema' | 'defaults
 export function record<Name extends string, SchemaDef extends SomeSchemaDef>(name: Name, schemaDef: SchemaDef): RecordController.CreateFromSchema<Name, SchemaDef>
 //prettier-ignore
 export function record<Name extends string>(name: Name): Initial<Name>
-//prettier-ignore
 //eslint-disable-next-line
-export function record<Name extends string>(name: Name, schemaDef?: SomeSchemaDef, _: {
+export function record<Name extends string>(
+  name: Name,
+  schemaDef?: SomeSchemaDef,
+  _: {
     extensions?: object
     extend?: SomeRecordController
-  } = {}) {
-
-  
-
+  } = {}
+) {
   const chainTerminus = `done`
   const initialSchema = z.object({ _tag: z.literal(name) })
   const current: RecordBuildState = {
@@ -80,15 +80,17 @@ export function record<Name extends string>(name: Name, schemaDef?: SomeSchemaDe
           codecs: current.codecs.map((_) => _[0]),
           defaultsProvider: current.defaultsProvider,
         },
-        create: (input: SomeRecordConstructorInput) => ({
-          // TODO pass through zod validation
-          ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
-          _tag: current.name,
-          _: {
-            symbol,
-            tag: current.name,
-          },
-        }),
+        create: (input: SomeRecordConstructorInput) => {
+          const data = {
+            ...applyDefaults(input ?? {}, current.defaultsProvider?.(input ?? {}) ?? {}),
+            _tag: current.name,
+            _: {
+              symbol,
+              tag: current.name,
+            },
+          }
+          return current.schema.passthrough().parse(data) as object
+        },
         //eslint-disable-next-line
         is$: (value: unknown) => is(value, symbol),
         is: (value: unknown) => is(value, symbol),
@@ -150,8 +152,6 @@ export function record<Name extends string>(name: Name, schemaDef?: SomeSchemaDe
     },
   }
 
-
-
   const chainWrapped = _.extensions
     ? extendChain({
         chain: {
@@ -165,7 +165,7 @@ export function record<Name extends string>(name: Name, schemaDef?: SomeSchemaDe
     : chain
 
   if (schemaDef) {
-      return chain.schema(schemaDef).done()
+    return chain.schema(schemaDef).done()
   }
 
   // TODO
