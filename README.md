@@ -5,7 +5,7 @@
 
 ## TL;DR
 
-Type safe fluent API library for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)). Schemas powered by [Zod](https://github.com/colinhacks/zod) <3.
+Type safe library for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)). Schemas powered by [Zod](https://github.com/colinhacks/zod) <3.
 
 There are three distinct conceptual levels in Alge. Firstly there is a builder for defining your ADT in the first place. Secondly there is a controller for working with your defined ADT such as construction, type guards, and codecs. Finally there are the actual pure-data instances of your ADT.
 
@@ -98,20 +98,30 @@ This is just a taster. Places you can go next:
 - [About Algebraic Data Types](#about-algebraic-data-types)
   - [What?](#what)
   - [Why?](#why)
-- [Features](#features)
+
+* [Features](#features)
   - [Records](#records)
-  - [Lone Record](#lone-record)
-  - [Lone Record Composition](#lone-record-composition)
-  - [Schema](#schema)
-    - [Properties](#properties)
-    - [Optional Properties](#optional-properties)
-    - [Property Defaults](#property-defaults)
-  - [Identity](#identity)
-  - [Codecs](#codecs)
-    - [JSON](#json)
-    - [Custom](#custom)
-    - [Throw Decoding](#throw-decoding)
-    - [ADT Level](#adt-level)
+    - [Definition (`.record`)](#definition-record)
+    - [Construction (`.create`)](#construction-create)
+    - [Input Defaults](#input-defaults)
+    - [Input Validation](#input-validation)
+    - [Metadata](#metadata)
+    - [Chaining API](#chaining-api)
+    - [Codecs](#codecs)
+      - [Definition (`.codec`)](#definition-codec)
+      - [Usage (`.to.`, `.from`)](#usage-to-from)
+      - [Built In JSON](#built-in-json)
+      - [OrThrow Decoders](#orthrow-decoders)
+  - [Data (Algebraic Data Types)](#data-algebraic-data-types)
+    - [Definition](#definition)
+      - [Referencing Records](#referencing-records)
+      - [Inline Records](#inline-records)
+    - [Construction](#construction)
+    - [Chaining API](#chaining-api-1)
+    - [Identity (`.is`, `.is$`)](#identity-is-is)
+    - [Codecs](#codecs-1)
+      - [Definition (`.codec`)](#definition-codec-1)
+      - [Usage (`to`, `from`)](#usage-to-from)
   - [Static Types](#static-types)
     - [Namespaces](#namespaces)
 
@@ -346,154 +356,205 @@ At scale, having well modelled data can be a life saver. The up front verbosity 
 
 </br></br>
 
-## Features
+# Features
 
-### Records
-
-We can define our ADT with one or more records using the _ADT Builder_:
-
-```ts
-import { Alge } from 'alge'
-
-const Shape = Alge.data('Shape')
-  .record(`Circle`)
-  .record(`Square`)
-  .record('Rectangle')
-  .record(`Triangle`)
-  .done()
-```
-
-In return we get back an _ADT Controller_. We can use it to create data:
-
-```ts
-const circle = Shape.Circle.create()
-// { _tag: 'Circle' }
-const square = Shape.Square.create()
-// { _tag: 'Square' }
-```
-
-### Lone Record
-
-It is possible to define a lone record instead of a whole ADT using the root `.record` method.
-
-```ts
-const Circle = Alge.record('Circle').done()
-const Square = Alge.record('Square').done()
-```
-
-### Lone Record Composition
-
-You can compose lone records into an ADT. Doing so can be useful for code reuse and modularity or also just as an alternative style to the chaining API.
-
-```ts
-const Shape = Alge.data('Shape').record(Square).record(Circle).done()
-```
-
-### Schema
-
-#### Properties
-
-We can define what properties each record has. We use `zod` to express our schema.
+All code blocks below assume these imports:
 
 ```ts
 import { Alge } from 'alge'
 import { z } from 'zod'
+```
 
-const Shape = Alge.data('Shape')
-  .record(`Circle`)
+## Records
+
+### Definition (`.record`)
+
+Use the Record Builder to define a record. At a minimum you specify the name and schema. Names should be in [pascal case](https://techterms.com/definition/pascalcase) to avoid name collisions with the Alge API (see below).
+
+```ts
+const Circle = Alge.record('Circle', {
+  radius: z.number().positive(),
+})
+```
+
+### Construction (`.create`)
+
+Once you've defined a record with the Record Builder you get back a Record Controller. Use it to create instances of your record:
+
+```ts
+const circle = Circle.create({ radius: 10 })
+// { _tag: 'circle', radius: 10 }
+```
+
+The `_tag` property is present to track the name of your record. you normally shouldn't have to interact directly with it.
+
+### Input Defaults
+
+Leverage Zod to get defaults for your properties ([zod docs](https://github.com/colinhacks/zod#default)):
+
+```ts
+const Circle = Alge.record('Circle', {
+  radius: z.number().positive().default(0),
+})
+
+const circle = Circle.create()
+// { _tag: 'circle', radius: 0 }
+```
+
+### Input Validation
+
+Input is validated via Zod. For example a negative number where only positives are accepted.
+
+```ts
+const circle = circle.create({ radius: -10 })
+// throws
+```
+
+### Metadata
+
+The controller gives you access to metadata about your record:
+
+```ts
+circle.name // 'Circle'
+circle.schema // a Zod schema instance
+```
+
+### Chaining API
+
+There is a chaining API available which is more verbose but also affords more features (see further down).
+
+```ts
+const Circle = Alge.record('Circle')
   .schema({
-    radius: z.number(),
-  })
-  .record(`Square`)
-  .schema({
-    size: z.number(),
+    radius: z.number().positive(),
   })
   .done()
 ```
 
-The defined schema is used by the _ADT Controller_ constructors to type check your code and give you autocomplete:
+### Codecs
+
+#### Definition (`.codec`)
+
+You can define a named codec which allows your record to be encoded to/decoded from another representation.
+
+The encoder (`to`) transforms your record into a string.
+
+The decoder (`from`) transforms a string into your record, or `null` if the string is invalid.
 
 ```ts
-const circle = Shape.Circle.create({ radius: 10 })
-// { _tag: 'Circle', radius: 10 }
-
-const square = Shape.Square.create({ size: 20 })
-// { _tag: 'Square', size: 20 }
-```
-
-#### Optional Properties
-
-Properties can be defined as optional via the schema and then constructors will not require them in the input.
-
-```ts
-const Shape = Alge.data('Shape')
-  .record(`Circle`)
+const Circle = Alge.record('Circle')
   .schema({
-    radius: z.number(),
-    opacity: z.number().min(0).max(1).optional(),
+    radius: z.number().positive().default(1),
   })
-  .record(`Square`)
-  .schema({
-    size: z.number(),
-  })
-  .done()
-
-const circle = Shape.Circle.create({
-  radius: 50,
-  // opacity: ...
-  //
-  // ^-- type:     opacity?: number
-})
-// { _tag: 'Circle', size: 50 }
-
-const circle = Shape.Circle.create({
-  radius: 50,
-  opacity: 0.4,
-})
-// { _tag: 'Circle', size: 50, opacity: 0.4 }
-```
-
-#### Property Defaults
-
-We can define defaults for properties. We just return values in the `defaults` method.
-
-```ts
-import { Alge } from 'alge'
-import { z } from 'zod'
-
-const Shape = Alge.data('Shape')
-  .record(`Circle`)
-  .schema({
-    radius: z.number(),
-    opacity: z.number().min(0).max(1),
-  })
-  .defaults((input) => ({
-    opacity: 1,
-    ...input,
-  }))
-  .record(`Square`)
-  .schema({
-    size: z.number(),
+  .codec('graphic', {
+    //    ^[1]
+    to: (circle) => `(${circle.radius})`,
+    from (string) => {
+      const match = string.match(^/\((\d+)\)/$)
+      return match ? { radius: radius[1]! } : null
+    //               ^[2]
+    }
   })
   .done()
 ```
 
-Now we can create circles with opacity implicitly specified via the default
+Notes:
+
+1. We give our codec a _name_. This name is used for the derived API (see "usage" below).
+2. When returning the parsed data for our record we do _not_ need to deal with the `_tag` property.
+
+#### Usage (`.to.`, `.from`)
+
+Codecs are exposed under the `.from` and `.to` (decoders/encoders) properties:
 
 ```ts
-const circle = Shape.Circle.create({
-  radius: 50,
-  // opacity: ...
-  //
-  // ^-- type:     opacity?: number
-  // ^-- default:  1
-})
-// { _tag: 'Circle', radius: 50, opacity: 1 }
+const circle = Circle.create()
+// { _tag: 'Circle', radius: 1 }
+
+Circle.to.graphic(circle)
+// (1)
+
+Circle.from.graphic(`(1)`)
+// { _tag: 'Circle', radius: 1 }
+
+Circle.from.graphic(`()`)
+// null
 ```
 
-### Identity
+#### Built In JSON
 
-`.is` is a record method that is a TypeScript type guard. It checks if the given ADT value is that record or not:
+All records have a JSON codec:
+
+```ts
+Circle.to.json(circle)
+// '{ "_tag": "Circle", "radius": 1 }'
+
+Circle.from.json('{ "_tag": "Circle", "radius": 1 }')
+// { _tag: 'Circle', radius: 1 }
+```
+
+#### OrThrow Decoders
+
+All decoders, JSON or your custom ones, have a variant of decode that will throw an `Error` when decoding fails:
+
+```ts
+Circle.from.graphicOrThrow(`()`)
+// throws
+
+Circle.from.jsonOrThrow(`bad`)
+// throws
+```
+
+## Data (Algebraic Data Types)
+
+The ADT Builder is an extension of the Record Builder and the ADT Controller it returns is an extension of the Record Controller.
+
+### Definition
+
+#### Referencing Records
+
+Records can be passes into the Data Builder:
+
+```ts
+const Circle = Alge.record('Circle', { radius: z.number() })
+const Square = Alge.record('Square', { size: z.number() })
+
+const Shape = Alge.data('Shape', { Circle, Square })
+```
+
+#### Inline Records
+
+Records can also be defined inline:
+
+```ts
+const Shape = Alge.data('Shape', {
+  Circle: { radius: z.number() },
+  Square: { size: z.number() },
+})
+```
+
+### Construction
+
+The ADT Controller contains one Record Controller for every record defined under a property of that records name. Use it just like you did before:
+
+```ts
+const circle = Shape.Circle.create({ radius: 1 })
+// { _tag: 'Circle', radius: 1 }
+const square = Shape.Square.create({ size: 2 })
+// { _tag: 'Square', size: 2 }
+```
+
+### Chaining API
+
+As with records before there is a chaining API for ADTs that is more verbose but has additional features.
+
+```ts
+const Shape = Alge.data('shape').record(Circle).record(Square).done()
+```
+
+### Identity (`.is`, `.is$`)
+
+Use the `.is` Record Controller method as a TypeScript type guard. It checks if the given value is that record or not:
 
 ```ts
 const onlyCircle = (shape: Shape): null | Shape.Circle => {
@@ -501,136 +562,97 @@ const onlyCircle = (shape: Shape): null | Shape.Circle => {
 }
 ```
 
-When you're working with unknown values there is the `.$is` method which takes any input. It is less type safe than `.is` so prefer `.is` when you can use it:
+When you're working with unknown values there is the `.$is` method which takes `unknown` input. It is less type safe than `.is` so avoid `.is$` when you can:
 
 ```ts
-const onlyScoped = (someValue: unknown): null | Shape.Circle => {
+const onlyCircle = (someValue: unknown): null | Shape.Circle => {
   return Shape.Circle.$is(someValue) ? someValue : null
 }
 ```
 
 ### Codecs
 
-#### JSON
+When a codec of some name is defined for every record in an ADT then something special happens. The ADT gets access to a generalized version of the codec with these features:
 
-Sometimes there are other representations you want for your data. JSON is a very common one for transferring data between processes, over the network, etc. You can define your own codecs with Alge but JSON comes built in:
+1. A generalized decoder that will take a string and return a record instance of the first record decoder to return non-null. The static type is a union of all the records in the ADT (plus `null`).
+2. A generalized encoder that will dispatch automatically to the correct Record encoder based on the passed in record's `_tag` value.
 
-```ts
-const circleJson = Shape.Circle.to.json(circle)
-// '{ "_tag": "Circle", "radius": 50 }'
-const circle2 = Shape.Circle.From.json(circleJson)
-// { "_tag": "Circle", "radius": 50 }
-```
+#### Definition (`.codec`)
 
-#### Custom
-
-Imagine you want a way to transform your Shape data to/from a custom string representation.
-
-```
-ADT Record             String Representation
-----------             ---------------------
-
-Shape Circle           (<space equal to radius>)
-Shape Square           [<space equal to size>]
-```
-
-Let's define a string codec to achieve just this!
+Here is an example of defining a custom codec for each record in an ADT.
 
 ```ts
 const circlePattern = /^\(( *)\)$/
 const squarePattern = /^\[( *)\]$/
 
-const Shape = Alge.data('Shape')
+const shape = Alge.data('Shape')
   .record(`Circle`)
   .schema({
     radius: z.number(),
   })
-  .codec('string', {
-    //   ^[1]
+  .codec('graphic', {
     to: (circle) => `(${' '.repeat(circle.radius)})`,
-    from: (circleString) => {
-      const match = circlePattern.exec(circleString)
+    from: (string) => {
+      const match = string.exec(circleString)
       return match ? { radius: match[1]!.length } : null
-      //             ^[2]
     },
   })
-  .record(`Square`)
+  .record(`square`)
   .schema({
     size: z.number(),
   })
-  .codec('string', {
-    //   ^[1]
+  .codec('graphic', {
     to: (square) => `[${' '.repeat(square.size)}]`,
-    from: (squareString) => {
-      const match = squarePattern.exec(squareString)
+    from: (string) => {
+      const match = squarePattern.exec(string)
       return match ? { size: match[1]!.length } : null
-      //             ^[2]
     },
   })
   .done()
 ```
 
-Notes:
-
-1. We give our codec a _name_. This name is used for the derived API (see below).
-2. When returning the parsed data for our record we do _not_ need to deal with the `_tag` property.
-
-The `string` codec that we have defined can now be used in the _ADT Controller_ under the `to` and `from` namespaces.
+#### Usage (`to`, `from`)
 
 ```ts
 const circle = Shape.Circle.create({ radius: 3 })
-// { _tag: 'Circle', radius: 3 }
-const circleString = Shape.Circle.to.string(circle)
+// { _tag: 'circle', radius: 3 }
+const circleString = Shape.Circle.to.graphic(circle)
 // '(   )'
-const circle2 = Shape.Circle.From.string(circleString)
-// { _tag: 'Circle', radius: 3 }
-```
-
-Decoding could fail if the input is malformed. When that happens `null` is returned.
-
-```ts
-const circle = Shape.Circle.From.string('(]')
+const circle2 = Shape.Circle.from.graphic(circleString)
+// { _tag: 'circle', radius: 3 }
+const circle3 = Shape.Circle.from.graphic('(]')
 // null
-```
-
-#### Throw Decoding
-
-When `null` is not convenient we can use the `*orThrow` method instead:
-
-```ts
-// throws
-const circle = Shape.Circle.From.jsonOrThrow('bad')
-```
-
-#### ADT Level
-
-When all records share a codec definition then a generalized ADT level codec is automatically made available as well. Decoders return a union of the records while encoders always return a string. Each record decoder is run until one matches or none do. The decoder run order respects the order in which you defined your records.
-
-Example (based on the `string` codec defined above):
-
-```ts
-const shape1 = Shape.from.string('()')
-// type: Circle | Square | null
-// value: { _tag: 'Circle', radius: 0 }
-const shape2 = Shape.from.string('[]')
-// type: Circle | Square | null
-// value: { _tag: 'Square', size: 0 }
-const shape3 = Shape.from.string('!')
-// type: Circle | Square | null
+const shape1 = shape.from.graphic('()')
+// type: circle | square | null
+// value: { _tag: 'circle', radius: 0 }
+const shape2 = Shape.from.graphic('[]')
+// type: circle | square | null
+// value: { _tag: 'square', size: 0 }
+const shape3 = Shape.from.graphic('!')
+// type: circle | square | null
 // value: null
-const shape4 = Shape.from.stringOrThrow('!')
-// type: Circle | Square
+const shape4 = Shape.from.graphicOrThrow('!')
+// type: circle | square
 // value: throws
 ```
 
-### Static Types
-
-Often you will write code (e.g. your own functions) that need to be typed with your ADT. Alge has "type functions" for this which leverages TypeScript inference.
-
-For ADTs there is `Alge.Infer`. It return an object with a property _per_ record of the ADT _as well as_ a special property `*` which is _a union of all records_.
+As mentioned all records have a JSON codec, thus all ADTs have a generalized one.
 
 ```ts
-type Shape = Alge.Infer<typeof Shape>
+const circleJson = Shape.to.json(circle)
+// '{ "_tag": "circle", "radius": 50 }'
+const circle2 = shape.from.json(circleJson)
+// { "_tag": "circle", "radius": 50 }
+```
+
+## Static Types
+
+Often you will write code (e.g. your own functions) that need to be typed with your adt. alge has "type functions" for this which leverages typescript inference.
+
+For adts there is `alge.Infer`. it return an object with a property _per_ record of the adt _as well as_ a special property `*` which is _a union of all records_.
+
+```ts
+type Shape = Alge.Infer<typeof shape>
 /*
 {
   Circle: { _tag: 'Circle', radius: number }
@@ -640,24 +662,24 @@ type Shape = Alge.Infer<typeof Shape>
 }
 */
 
-const doSomething = (shape: Shape['*']): null | Shape['Circle'] => {
-  // TODO
+const doSomething = (shape: Shape['*']): null | Shape['circle'] => {
+  // todo
 }
 ```
 
-For lone records there is `Alge.InferRecord`.
+For lone records there is `alge.InferRecord`.
 
 ```ts
 type Circle = Alge.InferRecord<typeof Circle>
 
 const doSomething = (circle: Circle) => {
-  // TODO
+  // todo
 }
 ```
 
-#### Namespaces
+### Namespaces
 
-When working with inferred ADT types, if you prefer to work with namespaces rather than objects to reference types you can use the following pattern:
+When working with inferred adt types, if you prefer to work with namespaces rather than objects to reference types you can use the following pattern:
 
 ```ts
 type ShapeInferred = Alge.Infer<typeof Shape>
@@ -670,10 +692,10 @@ namespace Shape {
 }
 
 const doSomething = (shape: Shape): null | Shape.Circle => {
-  // TODO
+  // todo
 }
 ```
 
 </br></br>
 
-![Alt](https://repobeats.axiom.co/api/embed/3c932f1cb76da4ad21328bfdd0ad1c6fbbe76a0b.svg 'Repobeats analytics image')
+![alt](https://repobeats.axiom.co/api/embed/3c932f1cb76da4ad21328bfdd0ad1c6fbbe76a0b.svg 'repobeats analytics image')
