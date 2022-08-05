@@ -1,6 +1,6 @@
 import { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
 import { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
-import { RecordController, SomeRecordController } from '../record/types/controller.js'
+import { RecordController } from '../record/types/controller.js'
 import { SomeStoredRecord, StoredRecord } from '../record/types/StoredRecord.js'
 import { z } from 'zod'
 
