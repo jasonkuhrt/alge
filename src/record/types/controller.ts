@@ -3,7 +3,7 @@ import { Encoder, SomeName, StoredRecords } from '../../core/types.js'
 import { OmitRequired, Rest } from '../../lib/utils.js'
 import { z } from '../../lib/z/index.js'
 import { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
-import { StoredRecord } from './StoredRecord.js'
+import { SomeStoredRecord, StoredRecord } from './StoredRecord.js'
 
 export type SomeRecord = {
   _tag: string
@@ -35,44 +35,49 @@ export type SomeRecordController = {
 }
 
 // eslint-disable-next-line
-type Encoders<Names extends string[], V extends StoredRecord> = Encoders_<{}, Names, V>
+type Encoders<Names extends string[], V extends SomeStoredRecord> = Encoders_<{}, Names, V>
 
-type Encoders_<Obj, Names extends string[], V extends StoredRecord> = Names extends []
+type Encoders_<Obj, Names extends string[], V extends SomeStoredRecord> = Names extends []
   ? Obj
   : Decoders_<Obj & Encoder_<Names[0], V>, Rest<Names>, V>
 
-type Encoder_<Name extends string, V extends StoredRecord> = {
+type Encoder_<Name extends string, V extends SomeStoredRecord> = {
   [N in Name]: Encoder<V>
 }
 
 // eslint-disable-next-line
-type Decoders<Names extends string[], V extends StoredRecord> = Decoders_<{}, Names, V>
+type Decoders<Names extends string[], V extends SomeStoredRecord> = Decoders_<{}, Names, V>
 
-type Decoders_<Obj, Names extends string[], R extends StoredRecord> = Names extends []
+type Decoders_<Obj, Names extends string[], R extends SomeStoredRecord> = Names extends []
   ? Obj
   : Decoders_<Obj & DecoderMethods<Names[0], R>, Rest<Names>, R>
 
-type DecoderMethods<Name extends string, R extends StoredRecord> = {
+type DecoderMethods<Name extends string, R extends SomeStoredRecord> = {
   [N in Name]: (value: string) => null | StoredRecord.GetType<R>
 } & {
   [N in Name as `${N}OrThrow`]: (value: string) => StoredRecord.GetType<R>
 }
 
 export namespace RecordController {
-  export type CreateFromSchema<Name extends SomeName, Schema extends SomeSchemaDef> = CreateFromStoredRecord<
-    StoredRecord.AddSchemaDefinition<Schema, StoredRecord.Create<Name>>
+  export type CreateFromSchema<Name extends SomeName, Schema extends SomeSchema> = CreateFromStoredRecord<
+    StoredRecord.AddSchema<Schema, StoredRecord.Create<Name>>
   >
 
-  export type CreateFromStoredRecord<R extends StoredRecord> = RecordController<[R], R>
+  export type CreateFromSchemaDef<
+    Name extends SomeName,
+    SchemaDef extends SomeSchemaDef
+  > = CreateFromStoredRecord<StoredRecord.AddSchemaDef<SchemaDef, StoredRecord.Create<Name>>>
 
-  export type GetConstructorInput<V extends StoredRecord> = ApplyDefaults<
+  export type CreateFromStoredRecord<R extends SomeStoredRecord> = RecordController<[R], R>
+
+  export type GetConstructorInput<V extends SomeStoredRecord> = ApplyDefaults<
     V['defaults'],
-    z.input<z.Omit<StoredRecord.GetZodSchema<V>, { _tag: true }>>
+    z.input<z.Omit<V['schema'], { _tag: true }>>
   >
 }
 
 // prettier-ignore
-export type RecordController<Rs extends StoredRecords, R extends StoredRecord> = {
+export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecord> = {
   _: {
     defaultsProvider: null extends R['defaults']
       ? null
@@ -82,7 +87,7 @@ export type RecordController<Rs extends StoredRecords, R extends StoredRecord> =
     codecs: [...string[]]
   }
   name: R[`name`]
-  schema: StoredRecord.GetZodSchema<R>
+  schema: R['schema']
   /**
    * Decoders for this record. Decoders are used to transform other representations of your record back into a record instance.
    */
@@ -125,8 +130,6 @@ export type RecordController<Rs extends StoredRecords, R extends StoredRecord> =
    *
    * Use `is$` when you have to deal with situations where you know the value could not be an ADT record, but might be.
    */
-  // TODO
-  // @ts-expect-error TODO
   is(value: StoredRecords.Union<Rs>): value is StoredRecord.GetType<R>
   /**
    * Loose predicate/type guard for this record.

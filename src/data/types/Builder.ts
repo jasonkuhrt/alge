@@ -3,16 +3,9 @@
  */
 
 import { SomeSchemaDef } from '../../core/internal.js'
-import {
-  CodecImplementation,
-  CreateStoredRecord,
-  CreateStoredRecordFromRecordController,
-  ExtensionsBase,
-  SomeName,
-  StoredRecords,
-} from '../../core/types.js'
+import { CodecImplementation, ExtensionsBase, SomeName, StoredRecords } from '../../core/types.js'
 import { SomeRecordController } from '../../record/types/controller.js'
-import { StoredRecord } from '../../record/types/StoredRecord.js'
+import { SomeStoredRecord, StoredRecord } from '../../record/types/StoredRecord.js'
 import { DataController } from './Controller.js'
 
 /**
@@ -27,8 +20,8 @@ export type Initial<ADT extends StoredADT, Rs extends StoredRecords> = RecordReq
  */
 // prettier-ignore
 export interface RecordRequired<ADT extends StoredADT, Rs extends StoredRecords> {
-  record<Name extends string>(name: Name): PostRecord<ADT, CreateStoredRecord<Name>, Rs>
-  record<DC extends SomeRecordController>(record: DC): PostRecord<ADT, CreateStoredRecordFromRecordController<DC>, Rs>
+  record<Name extends string>(name: Name): PostRecord<ADT, StoredRecord.Create<Name>, Rs>
+  record<RC extends SomeRecordController>(recordController: RC): PostRecord<ADT, StoredRecord.CreateFromRecordController<RC>, Rs>
 }
 
 /**
@@ -37,10 +30,10 @@ export interface RecordRequired<ADT extends StoredADT, Rs extends StoredRecords>
  * @remarks This happens to be the initial state of the builder API.
  */
 // prettier-ignore
-export interface PostRecord<ADT extends StoredADT, R extends StoredRecord, Vs extends StoredRecords>
+export interface PostRecord<ADT extends StoredADT, R extends SomeStoredRecord, Vs extends StoredRecords>
        extends RecordRequired<ADT, [R, ...Vs]>,
                Done<ADT, R, Vs> {
-  schema<Schema extends SomeSchemaDef>(schema: Schema): PostSchema<ADT, StoredRecord.AddSchemaDefinition<Schema, R>, Vs>
+  schema<Schema extends SomeSchemaDef>(schema: Schema): PostSchema<ADT, StoredRecord.AddSchemaDef<Schema, R>, Vs>
 }
 
 /**
@@ -48,14 +41,14 @@ export interface PostRecord<ADT extends StoredADT, R extends StoredRecord, Vs ex
  * At this point the ADT can be marked as done.
  */
 // prettier-ignore
-export interface PostSchema<ADT extends StoredADT, R extends StoredRecord, Rs extends StoredRecords>
+export interface PostSchema<ADT extends StoredADT, R extends SomeStoredRecord, Rs extends StoredRecords>
        extends RecordRequired<ADT, [R, ...Rs]>,
                Done<ADT, R, Rs> {
   codec<Name extends string>(name: Name, implementation: CodecImplementation<R>): PostSchema<ADT, StoredRecord.AddCodec<Name, R>, Rs>
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostSchema<ADT, StoredRecord.AddExtensions<Extensions, R>, Rs>
 }
 
-export interface Done<ADT extends StoredADT, R extends StoredRecord, Rs extends StoredRecords> {
+export interface Done<ADT extends StoredADT, R extends SomeStoredRecord, Rs extends StoredRecords> {
   done(): DataController<ADT, [R, ...Rs]>
 }
 

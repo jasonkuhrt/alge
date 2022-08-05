@@ -1,37 +1,37 @@
 import { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
 import { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
-import { RecordController, SomeRecordController } from '../record/types/controller.js'
-import { StoredRecord } from '../record/types/StoredRecord.js'
+import { RecordController } from '../record/types/controller.js'
+import { SomeStoredRecord, StoredRecord } from '../record/types/StoredRecord.js'
 import { z } from 'zod'
 
 export type ExtensionsBase = Record<string, unknown>
 
 export type SomeName = string
 
-export interface CodecDefinition<V extends StoredRecord = StoredRecord> {
+export interface CodecDefinition<V extends SomeStoredRecord = SomeStoredRecord> {
   encode: EncoderDefinition<V>
   decode: DecoderDefinition<V>
 }
 
-export interface CodecImplementation<R extends StoredRecord = StoredRecord> {
+export interface CodecImplementation<R extends SomeStoredRecord = SomeStoredRecord> {
   to: EncoderDefinition<R>
   from: DecoderDefinition<R>
 }
 
-export type EncoderDefinition<R extends StoredRecord> = (record: StoredRecord.GetType<R>) => string
+export type EncoderDefinition<R extends SomeStoredRecord> = (record: StoredRecord.GetType<R>) => string
 
-export type Encoder<V extends StoredRecord> = EncoderDefinition<V>
+export type Encoder<V extends SomeStoredRecord> = EncoderDefinition<V>
 
 export type ADTEncoder<Vs extends StoredRecords> = (adt: StoredRecords.Union<Vs>) => string
 
-export type DecoderDefinition<V extends StoredRecord> = (
+export type DecoderDefinition<V extends SomeStoredRecord> = (
   encodedData: string,
-  extensions: V[`extensions`] & { schema: StoredRecord.GetZodSchema<V>; name: V[`name`] }
+  extensions: V[`extensions`] & { schema: V['schema']; name: V[`name`] }
 ) => null | RecordController.GetConstructorInput<V>
 
-export type Decoder<V extends StoredRecord> = (value: string) => null | StoredRecord.GetType<V>
+export type Decoder<V extends SomeStoredRecord> = (value: string) => null | StoredRecord.GetType<V>
 
-export type DecoderThatThrows<V extends StoredRecord> = (value: string) => StoredRecord.GetType<V>
+export type DecoderThatThrows<V extends SomeStoredRecord> = (value: string) => StoredRecord.GetType<V>
 
 export type ADTDecoder<Vs extends StoredRecords> = (value: string) => null | StoredRecords.Union<Vs>
 
@@ -39,7 +39,7 @@ export type ADTDecoderThatThrows<Vs extends StoredRecords> = (value: string) => 
 
 export type InputBase = object
 
-export type StoredRecords = [StoredRecord, ...StoredRecord[]]
+export type StoredRecords = [SomeStoredRecord, ...SomeStoredRecord[]]
 
 export type SomeRecordInternals = {
   _: {
@@ -74,13 +74,13 @@ export namespace StoredRecords {
   /**
    * Get the methods for encoders that are defined across all records.
    */
-  export type GetAdtLevelEncoderMethods<Vs extends StoredRecords> = UnionToIntersection<
+  export type GetAdtLevelEncoderMethods<Rs extends StoredRecords> = UnionToIntersection<
     ObjectValues<{
-      [Codec in GetCommonCodecs<Vs>]: EncoderMethods<AssertString<Codec>, Vs>
+      [Codec in GetCommonCodecs<Rs>]: EncoderMethods<AssertString<Codec>, Rs>
     }>
   >
 
-  export type ZodUnion<Vs extends StoredRecords> = z.ZodUnion<ToZodObjects<Vs>>
+  export type ZodUnion<Rs extends StoredRecords> = z.ZodUnion<RecordsToSchemas<Rs>>
 
   export type Union<Vs extends StoredRecords> = z.TypeOf<ZodUnion<Vs>>
 
@@ -97,27 +97,7 @@ export namespace StoredRecords {
     ? true
     : false
 
-  type ToZodObjects<Vs extends StoredRecords> = {
-    [Index in keyof Vs]: z.ZodObject<Vs[Index][`schema`]>
+  type RecordsToSchemas<Rs extends StoredRecords> = {
+    [Index in keyof Rs]: Rs[Index][`schema`]
   }
-}
-
-export type CreateStoredRecord<Name extends SomeName> = {
-  name: Name
-  schema: { _tag: z.ZodLiteral<Name> }
-  codec: []
-  // TODO
-  // eslint-disable-next-line
-  extensions: {}
-  defaults: null
-}
-
-export type CreateStoredRecordFromRecordController<Record extends SomeRecordController> = {
-  name: Record['name']
-  schema: Record['schema']['shape']
-  codec: Record['_']['codecs']
-  extensions: Omit<Record, 'symbol' | 'create' | 'name' | 'schema' | 'encode' | 'decode' | 'is' | '$is'>
-  defaults: null extends Record['_']['defaultsProvider']
-    ? null
-    : ReturnType<Exclude<Record['_']['defaultsProvider'], null>>
 }
