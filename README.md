@@ -377,6 +377,12 @@ const Circle = Alge.record('Circle', {
 })
 ```
 
+If you already have a Zod Object defined from somewhere else you can just pass it in:
+
+```ts
+const Circle = Alge.record('Circle', CircleSchema)
+```
+
 ### Construction (`.create`)
 
 Once you've defined a record with the Record Builder you get back a Record Controller. Use it to create instances of your record:
@@ -429,6 +435,12 @@ const Circle = Alge.record('Circle')
     radius: z.number().positive(),
   })
   .done()
+```
+
+Like in the shorthand form, if you already have a Zod Object defined from somewhere else you can just pass it in:
+
+```ts
+const Circle = Alge.record('Circle').schema(CircleSchema).done()
 ```
 
 ### Codecs

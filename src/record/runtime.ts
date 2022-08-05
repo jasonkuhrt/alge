@@ -1,27 +1,29 @@
 import { is } from '../core/helpers.js'
-import { SomeSchemaDef } from '../core/internal.js'
+import { SomeSchema, SomeSchemaDef } from '../core/internal.js'
 import { ExtensionsBase } from '../core/types.js'
 import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { Initial } from './types/builder.js'
 import { RecordController, SomeRecordController } from './types/controller.js'
 import { SomeCodecDefinition, SomeDefaultsProvider, SomeRecordConstructorInput } from './types/internal.js'
-import { StoredRecord } from './types/StoredRecord.js'
+import { SomeStoredRecord } from './types/StoredRecord.js'
 
-export type RecordBuildState = Omit<StoredRecord, 'codec' | 'schema' | 'defaults'> & {
+export type RecordBuildState = Omit<SomeStoredRecord, 'codec' | 'schema' | 'defaults'> & {
   codecs: [string, SomeCodecDefinition][]
-  schema: z.SomeZodObject
+  schema: SomeSchema
   defaultsProvider: null | SomeDefaultsProvider
 }
 
 //prettier-ignore
-export function record<Name extends string, SchemaDef extends SomeSchemaDef>(name: Name, schemaDef: SchemaDef): RecordController.CreateFromSchema<Name, SchemaDef>
+export function record<Name extends string, Schema extends SomeSchema>(name: Name, zodSchemaObject: Schema): RecordController.CreateFromSchema<Name, Schema>
+//prettier-ignore
+export function record<Name extends string, SchemaDef extends SomeSchemaDef>(name: Name, schemaDefinition: SchemaDef): RecordController.CreateFromSchemaDef<Name, SchemaDef>
 //prettier-ignore
 export function record<Name extends string>(name: Name): Initial<Name>
 //eslint-disable-next-line
 export function record<Name extends string>(
   name: Name,
-  schemaDef?: SomeSchemaDef,
+  schemaOrSchemaDef?: SomeSchema | SomeSchemaDef,
   _: {
     extensions?: object
     extend?: SomeRecordController
@@ -46,8 +48,14 @@ export function record<Name extends string>(
   }
 
   const chain = {
-    schema: (schema: SomeSchemaDef) => {
-      current.schema = z.object({ ...schema, _tag: z.literal(current.name) })
+    schema: (schemaOrSchemaDef: SomeSchemaDef | SomeSchema) => {
+      if (`_def` in schemaOrSchemaDef) {
+        // @ts-expect-error: TODO
+        // eslint-disable-next-line
+        current.schema = schemaOrSchemaDef.extend({ _tag: z.literal(current.name) })
+      } else {
+        current.schema = z.object({ ...schemaOrSchemaDef, _tag: z.literal(current.name) })
+      }
       return chain
     },
     extend: (extensions: ExtensionsBase) => {
@@ -164,8 +172,8 @@ export function record<Name extends string>(
       })
     : chain
 
-  if (schemaDef) {
-    return chain.schema(schemaDef).done()
+  if (schemaOrSchemaDef) {
+    return chain.schema(schemaOrSchemaDef).done()
   }
 
   // TODO

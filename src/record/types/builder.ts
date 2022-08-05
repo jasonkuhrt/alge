@@ -2,11 +2,11 @@
  * This module is concerned with the static types for the API of building up an ADT.
  */
 
-import { SomeSchemaDef } from '../../core/internal.js'
+import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
 import { CodecImplementation, ExtensionsBase } from '../../core/types.js'
 import { RecordController } from './controller.js'
 import { SomeDefaultsProvider } from './internal.js'
-import { StoredRecord } from './StoredRecord.js'
+import { SomeStoredRecord, StoredRecord } from './StoredRecord.js'
 
 export type SomeDefaults = object
 
@@ -21,8 +21,9 @@ export type Initial<Tag extends string> = PostTag<StoredRecord.Create<Tag>>
  * @remarks This happens to be the initial state of the builder API.
  */
 // prettier-ignore
-export interface PostTag<R extends StoredRecord> extends Done<R> {
-  schema<Schema extends SomeSchemaDef>(schema: Schema): PostSchema<StoredRecord.AddSchemaDefinition<Schema, R>>
+export interface PostTag<R extends SomeStoredRecord> extends Done<R> {
+  schema<Schema extends SomeSchema>(zodObject: Schema): PostSchema<StoredRecord.AddSchema<Schema, R>>
+  schema<SchemaDef extends SomeSchemaDef>(schemaDefinition: SchemaDef): PostSchema<StoredRecord.AddSchemaDef<SchemaDef, R>>
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostExtend<StoredRecord.AddExtensions<Extensions, R>>
 }
 
@@ -31,20 +32,20 @@ export interface PostTag<R extends StoredRecord> extends Done<R> {
  * At this point the ADT can be marked as done.
  */
 // prettier-ignore
-export interface PostSchema<R extends StoredRecord> extends Done<R> {
+export interface PostSchema<R extends SomeStoredRecord> extends Done<R> {
   codec<Name extends string>(name: Name, implementation: CodecImplementation<R>): PostSchema<StoredRecord.AddCodec<Name, R>>
   defaults<Defaults extends Partial<StoredRecord.GetType<R>>>(defaults: SomeDefaultsProvider<Partial<StoredRecord.GetType<R>>, Defaults>): PostDefaults<StoredRecord.AddDefaults<R, Defaults>>
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostExtend<StoredRecord.AddExtensions<Extensions, R>>
 }
 
 // prettier-ignore
-export interface PostExtend<R extends StoredRecord> extends Done<R> {
+export interface PostExtend<R extends SomeStoredRecord> extends Done<R> {
   defaults<Defaults extends Partial<StoredRecord.GetType<R>>>(defaults: SomeDefaultsProvider<Partial<StoredRecord.GetType<R>>, Defaults>): PostDefaults<StoredRecord.AddDefaults<R, Defaults>>
   codec<Name extends string>(name: Name, implementation: CodecImplementation<R>): PostExtend<StoredRecord.AddCodec<Name, R>>
 }
 
 // prettier-ignore
-export interface PostDefaults<R extends StoredRecord> extends Done<R> {
+export interface PostDefaults<R extends SomeStoredRecord> extends Done<R> {
   codec<Name extends string>(name: Name, implementation: CodecImplementation<R>): PostDefaults<StoredRecord.AddCodec<Name, R>>
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): PostExtend<StoredRecord.AddExtensions<Extensions, R>>
 }
@@ -54,7 +55,7 @@ export interface PostDefaults<R extends StoredRecord> extends Done<R> {
  * At this point the ADT can be marked as done.
  */
 // prettier-ignore
-export interface Extend<V extends StoredRecord> {
+export interface Extend<V extends SomeStoredRecord> {
   /**
    * Extend the ADT with new properties.
    * TODO
@@ -62,7 +63,7 @@ export interface Extend<V extends StoredRecord> {
   extend<Extensions extends ExtensionsBase>(extensions: Extensions): Extend<StoredRecord.AddExtensions<Extensions, V>>
 }
 
-export interface Done<V extends StoredRecord> {
+export interface Done<V extends SomeStoredRecord> {
   done(): RecordController<[V], V>
 }
 

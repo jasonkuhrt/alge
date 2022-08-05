@@ -35,7 +35,7 @@ export namespace DataController {
     OnlyStoredRecords<
       TuplifyUnion<
         ObjectValues<{
-          [Name in OnlyStrings<keyof shortHandRecordDefs>]: StoredRecord.AddSchemaDefinition<
+          [Name in OnlyStrings<keyof shortHandRecordDefs>]: StoredRecord.AddSchemaDef<
             shortHandRecordDefs[Name],
             StoredRecord.Create<Name>
           >

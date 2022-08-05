@@ -1,13 +1,14 @@
 // prettier-ignore
 
-import { SomeSchemaDef } from '../../core/internal.js'
+import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
 import { ExtensionsBase, SomeName } from '../../core/types.js'
 import { SomeDefaults } from './builder.js'
+import { SomeRecordController } from './controller.js'
 import { z } from 'zod'
 
-export type StoredRecord = {
+export type SomeStoredRecord = {
   name: string
-  schema: z.ZodRawShape
+  schema: SomeSchema
   codec: [...string[]]
   extensions: ExtensionsBase
   defaults: null | SomeDefaults
@@ -17,7 +18,7 @@ export type StoredRecord = {
 export namespace StoredRecord {
   export type Create<Name extends SomeName> = {
     name: Name
-    schema: { _tag: z.ZodLiteral<Name> }
+    schema: z.ZodObject<{ _tag: z.ZodLiteral<Name> }>
     codec: []
     // TODO
     // eslint-disable-next-line
@@ -25,22 +26,33 @@ export namespace StoredRecord {
     defaults: null
   }
 
-  export type AddSchemaDefinition<Schema extends SomeSchemaDef, V extends StoredRecord> = Omit<
-    V,
-    `schema`
-  > & { schema: Schema & { _tag: z.ZodLiteral<V['name']> } }
+  export type CreateFromRecordController<RC extends SomeRecordController> = {
+    name: RC['name']
+    schema: RC['schema']
+    codec: RC['_']['codecs']
+    extensions: Omit<RC, 'symbol' | 'create' | 'name' | 'schema' | 'encode' | 'decode' | 'is' | '$is'>
+    defaults: null extends RC['_']['defaultsProvider']
+      ? null
+      : ReturnType<Exclude<RC['_']['defaultsProvider'], null>>
+  }
 
-  export type AddCodec<Name extends string, V extends StoredRecord> = Omit<V, `codec`> & {
+  export type AddSchema<Schema extends SomeSchema, V extends SomeStoredRecord> = Omit<V, `schema`> & {
+    schema: z.ZodObject<z.objectUtil.MergeShapes<Schema['shape'], { _tag: z.ZodLiteral<V['name']> }>>
+  }
+
+  export type AddSchemaDef<Schema extends SomeSchemaDef, V extends SomeStoredRecord> = Omit<V, `schema`> & {
+    schema: z.ZodObject<Schema & { _tag: z.ZodLiteral<V['name']> }>
+  }
+
+  export type AddCodec<Name extends string, V extends SomeStoredRecord> = Omit<V, `codec`> & {
     codec: [Name, ...V['codec']]
   }
 
-  export type AddDefaults<V extends StoredRecord, Defaults> = Omit<V, `defaults`> & { defaults: Defaults }
+  export type AddDefaults<V extends SomeStoredRecord, Defaults> = Omit<V, `defaults`> & { defaults: Defaults }
 
-  export type AddExtensions<Extensions extends ExtensionsBase, V extends StoredRecord> = V & {
+  export type AddExtensions<Extensions extends ExtensionsBase, V extends SomeStoredRecord> = V & {
     extensions: Extensions
   }
 
-  export type GetType<R extends StoredRecord> = z.TypeOf<z.ZodObject<R[`schema`]>>
-
-  export type GetZodSchema<V extends StoredRecord> = z.ZodObject<V[`schema`]>
+  export type GetType<R extends SomeStoredRecord> = z.TypeOf<R[`schema`]>
 }
