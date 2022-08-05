@@ -2,7 +2,7 @@
  * This module is concerned with the static types for the API of building up an ADT.
  */
 
-import { SomeSchemaDef } from '../../core/internal.js'
+import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
 import { CodecImplementation, ExtensionsBase, SomeName, StoredRecords } from '../../core/types.js'
 import { SomeRecordController } from '../../record/types/controller.js'
 import { SomeStoredRecord, StoredRecord } from '../../record/types/StoredRecord.js'
@@ -33,7 +33,8 @@ export interface RecordRequired<ADT extends StoredADT, Rs extends StoredRecords>
 export interface PostRecord<ADT extends StoredADT, R extends SomeStoredRecord, Vs extends StoredRecords>
        extends RecordRequired<ADT, [R, ...Vs]>,
                Done<ADT, R, Vs> {
-  schema<Schema extends SomeSchemaDef>(schema: Schema): PostSchema<ADT, StoredRecord.AddSchemaDef<Schema, R>, Vs>
+  schema<Schema extends SomeSchema>(schema: Schema): PostSchema<ADT, StoredRecord.AddSchema<Schema, R>, Vs>
+  schema<SchemaDef extends SomeSchemaDef>(schemaDefinition: SchemaDef): PostSchema<ADT, StoredRecord.AddSchemaDef<SchemaDef, R>, Vs>
 }
 
 /**

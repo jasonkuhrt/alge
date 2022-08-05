@@ -545,6 +545,16 @@ const Shape = Alge.data('Shape', {
 })
 ```
 
+#### Referencing Zod Objects
+
+Existing Zod object schemas are also accepted:
+
+```ts
+const Circle = z.object({ radius: z.number() })
+const Square = z.object({ size: z.number() })
+const Shape = Alge.data('Shape', { Circle, Square })
+```
+
 ### Construction
 
 The ADT Controller contains one Record Controller for every record defined under a property of that records name. Use it just like you did before:
@@ -562,6 +572,19 @@ As with records before there is a chaining API for ADTs that is more verbose but
 
 ```ts
 const Shape = Alge.data('shape').record(Circle).record(Square).done()
+```
+
+As with the shorthand your existing Zod objects can be passed in:
+
+```ts
+const CircleSchema = z.object({ radius: z.number() })
+const SquareSchema = z.object({ size: z.number() })
+const Shape = Alge.data('shape')
+  .record('Circle')
+  .schema(CircleSchema)
+  .record('Square')
+  .schema(SquareSchema)
+  .done()
 ```
 
 ### Identity (`.is`, `.is$`)

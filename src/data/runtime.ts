@@ -6,7 +6,11 @@ import { record } from '../record/runtime.js'
 import { SomeRecord, SomeRecordController } from '../record/types/controller.js'
 import { SomeDecodeOrThrower, SomeDecoder, SomeEncoder, SomeRecordBuilder } from '../record/types/internal.js'
 import { Initial } from './types/Builder.js'
-import { DataController, SomeShortHandRecordDefs } from './types/Controller.js'
+import {
+  DataController,
+  SomeShortHandRecordSchemaDefs,
+  SomeShortHandRecordSchemas,
+} from './types/Controller.js'
 import { SomeADT } from './types/internal.js'
 import { inspect } from 'util'
 import { SomeZodObject } from 'zod'
@@ -19,7 +23,9 @@ export type SomeAdtMethods = {
 }
 
 //prettier-ignore
-export function data <Name extends string, ShortHandRecordDefs extends SomeShortHandRecordDefs>(name: Name, shortHandRecordDefs: ShortHandRecordDefs): DataController.createDataControllerFromShortHandRecords<Name, ShortHandRecordDefs>
+export function data <Name extends string, ShortHandRecordSchemas extends SomeShortHandRecordSchemas>(name: Name, shortHandRecordSchemas: ShortHandRecordSchemas): DataController.createFromShortHandRecordSchemas<Name, ShortHandRecordSchemas>
+//prettier-ignore
+export function data <Name extends string, ShortHandRecordDefs extends SomeShortHandRecordSchemaDefs>(name: Name, shortHandRecordSchemaDefinitions: ShortHandRecordDefs): DataController.createFromShortHandRecordSchemaDefs<Name, ShortHandRecordDefs>
 /**
  * Define an algebraic data type. There must be at least two members. If all members have a parse function then an ADT level parse function will automatically be derived.
  */
@@ -27,7 +33,7 @@ export function data <Name extends string, ShortHandRecordDefs extends SomeShort
 //prettier-ignore
 export function data <Name extends string>(name: Name): Initial<{ name: Name }, []>
 //eslint-disable-next-line
-export function data<Name extends string>(name: Name, shortHandRecordDefinitions?: any) {
+export function data<Name extends string>(name: Name, shortHandRecordSchemaDefinitionsOrSchemas?: any) {
   // let currentRecord: null | SomeRecordDefinition = null
   // const records: SomeRecordDefinition[] = []
   let currentRecordBuilder: null | SomeRecordBuilder = null
@@ -144,10 +150,10 @@ export function data<Name extends string>(name: Name, shortHandRecordDefinitions
     },
   }
 
-  if (shortHandRecordDefinitions) {
+  if (shortHandRecordSchemaDefinitionsOrSchemas) {
     let b = builder
     //eslint-disable-next-line
-    for (const [name, schemaDefinition] of Object.entries(shortHandRecordDefinitions)) {
+    for (const [name, schemaDefinition] of Object.entries(shortHandRecordSchemaDefinitionsOrSchemas)) {
       // @ts-expect-error todo
       //eslint-disable-next-line
       b = b.record(name).schema(schemaDefinition)

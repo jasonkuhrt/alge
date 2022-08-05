@@ -1,11 +1,13 @@
-import { SomeSchemaDef } from '../../core/internal.js'
+import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
 import { SomeName, StoredRecords } from '../../core/types.js'
 import { ObjectValues, OnlyStrings } from '../../lib/utils.js'
 import { RecordController } from '../../record/types/controller.js'
 import { StoredRecord } from '../../record/types/StoredRecord.js'
 import { StoredADT } from './Builder.js'
 
-export type SomeShortHandRecordDefs = Record<string, SomeSchemaDef>
+export type SomeShortHandRecordSchemaDefs = Record<string, SomeSchemaDef>
+
+export type SomeShortHandRecordSchemas = Record<string, SomeSchema>
 
 // eslint-disable-next-line
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
@@ -24,14 +26,31 @@ type TuplifyUnion<T, L = LastOf<T>, N = [T] extends [never] ? true : false> = tr
   : Push<TuplifyUnion<Exclude<T, L>>, L>
 
 export namespace DataController {
-  export type createDataControllerFromShortHandRecords<
+  export type createFromShortHandRecordSchemas<
     Name extends SomeName,
-    shortHandRecordDefs extends SomeShortHandRecordDefs
-  > = DataController<StoredADT.Create<Name>, StoredRecordsFromShortHandRecordDefs<shortHandRecordDefs>>
+    shortHandRecordDefs extends SomeShortHandRecordSchemas
+  > = DataController<StoredADT.Create<Name>, StoredRecordsFromShortHandRecordSchemas<shortHandRecordDefs>>
+
+  type StoredRecordsFromShortHandRecordSchemas<shortHandRecordDefs extends SomeShortHandRecordSchemas> =
+    OnlyStoredRecords<
+      TuplifyUnion<
+        ObjectValues<{
+          [Name in OnlyStrings<keyof shortHandRecordDefs>]: StoredRecord.AddSchema<
+            shortHandRecordDefs[Name],
+            StoredRecord.Create<Name>
+          >
+        }>
+      >
+    >
+
+  export type createFromShortHandRecordSchemaDefs<
+    Name extends SomeName,
+    shortHandRecordDefs extends SomeShortHandRecordSchemaDefs
+  > = DataController<StoredADT.Create<Name>, StoredRecordsFromShortHandRecordSchemaDefs<shortHandRecordDefs>>
 
   // type x = StoredRecordsFromShortHandRecordDefs<{ a: { n: z.ZodString }; b: { m: z.ZodString } }>
 
-  type StoredRecordsFromShortHandRecordDefs<shortHandRecordDefs extends SomeShortHandRecordDefs> =
+  type StoredRecordsFromShortHandRecordSchemaDefs<shortHandRecordDefs extends SomeShortHandRecordSchemaDefs> =
     OnlyStoredRecords<
       TuplifyUnion<
         ObjectValues<{

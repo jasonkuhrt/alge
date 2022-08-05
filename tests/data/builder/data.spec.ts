@@ -18,6 +18,7 @@ describe(`.data(<record>)`, () => {
     expectType<typeof $AB>(AB.name)
     expect(AB.name).toBe($AB)
   })
+
   it(`can construct records`, () => {
     expectType<{ _tag: $A; m: `m` }>(m)
     expectType<{ _tag: $B; n: 1 }>(n)
