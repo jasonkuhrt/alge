@@ -3,7 +3,7 @@ import { r } from '../lib/r.js'
 import { code, isEmpty, TupleToObject } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { record } from '../record/runtime.js'
-import { SomeRecordController,SomeRecordInternal } from '../record/types/controller.js'
+import { SomeRecordController, SomeRecordInternal } from '../record/types/controller.js'
 import { SomeDecodeOrThrower, SomeDecoder, SomeEncoder, SomeRecordBuilder } from '../record/types/internal.js'
 import { Initial } from './types/Builder.js'
 import {
