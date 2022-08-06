@@ -7,6 +7,10 @@ import { SomeStoredRecord, StoredRecord } from './StoredRecord.js'
 
 export type SomeRecord = {
   _tag: string
+}
+
+export type SomeRecordInternal = {
+  _tag: string
   _: {
     tag: string
   }

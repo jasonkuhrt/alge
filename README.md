@@ -1,4 +1,4 @@
-# Alge 🌱
+# alge 🌱
 
 [![trunk](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml/badge.svg)](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml)
 [![npm version](https://img.shields.io/npm/v/alge.svg)](https://www.npmjs.com/package/alge)
@@ -11,10 +11,21 @@ There are three distinct conceptual levels in Alge. Firstly there is a builder f
 
 ![Alge Anatomy](docs/assets/Alge%20Anatomy.png)
 
-Here's how it looks like in code. First the Builder which outputs a Controller.
+Here's how it looks like in code.
+
+At its simplest you can create one off records:
 
 ```ts
-import { Alge } from '../src/index.js'
+import { Alge } from 'alge'
+import { z } from 'zod'
+
+const Circle = Alge.record(`Circle`, { radius: z.number().positive() })
+```
+
+But you can as easily make full blown ADTs too:
+
+```ts
+import { Alge } from 'alge'
 import { z } from 'zod'
 
 const Length = z.number().positive()
@@ -29,13 +40,13 @@ export const Shape = Alge.data(`Shape`, {
   Circle: {
     radius: Length,
   },
-  Rectangle: {
+  Square: {
     size: Length,
   },
 })
 ```
 
-Now the Controller:
+You use your built Controller to create your data:
 
 ```ts
 //    v--------- 3. Instance
@@ -43,6 +54,13 @@ Now the Controller:
 const circle = Shape.Circle.create({ radius: 50 })
 // { _tag: 'Circle', radius: 50 }
 
+const square = Shape.Square.create({ size: 50 })
+// { _tag: 'Square', size: 5 }
+```
+
+There are other utility functions on the controller:
+
+```ts
 if (Shape.Circle.is(circle)) {
   console.log(`I Am Circle`)
 }
@@ -54,29 +72,16 @@ const squareFromTheOutsideWorld = Shape.Square.from.json({ _tag: 'Square', size:
 // { _tag: 'Square', size: 10 }
 ```
 
-Finally are the instances which you can see above are created by the controller. Instances are just data. They are _not_ like class instances that couple logic and data. All logic related to an ADT, like type guards, resides in the controller.
-
-If you don't need a full blown ADT but just one record, Alge can do that:
+You can use Alge for pattern matching too:
 
 ```ts
-//    v---------- 2. Record Controller
-//    |             v--------- 1. Record Builder
-const Circle = Alge.record(`Circle`, { radius: Length })
-```
-
-If you want to compose your ADT incrementally Alge can do that:
-
-```ts
-//    v---------- 2. Record Controller
-//    |             v--------- 1. Record Builder
-const Circle = Alge.record(`Circle`, { radius: Length })
-const Square = Alge.record(`Square`, { size: Length })
-//    v---------- 2. ADT Controller
-//    |            v--------- 1. ADT Builder
-const Shape = Alge.data(`Shape`, {
-  Circle,
-  Square,
-})
+const shape = Math.random() > 0.5 ? circle : square
+const result = Alge.match(shape)
+  .Circle({ radius: 13 }, () => `Got an unlucky circle!`)
+  .Circle((circle) => `Got a circle of radius ${circle.radius}!`)
+  .Square({ size: 13 }, () => `Got an unlucky square!`)
+  .Square((square) => `Got a square of size ${square.size}!`)
+  .done()
 ```
 
 This is just a taster. Places you can go next:
@@ -85,7 +90,7 @@ This is just a taster. Places you can go next:
 1. A formal [features breakdown](#features)
 1. [Code examples](/examples)
 1. A simple [introduction to Algebraic Data Types](#about-algebraic-data-types) (for those unfamiliar)
-1. A admittedly rambling 😃 [video introduction](https://youtu.be/fLlVQSJx4AU) if you like that format
+1. ~~A admittedly rambling 😃 [video introduction](https://youtu.be/fLlVQSJx4AU) if you like that format~~ **Outdated, I need to record a new one.**
 
    [![Video Cover](docs/assets/cover.png)](https://youtu.be/fLlVQSJx4AU)
 
@@ -116,6 +121,7 @@ This is just a taster. Places you can go next:
     - [Definition](#definition)
       - [Referencing Records](#referencing-records)
       - [Inline Records](#inline-records)
+      - [Referencing Zod Objects](#referencing-zod-objects)
     - [Construction](#construction)
     - [Chaining API](#chaining-api-1)
     - [Identity (`.is`, `.is$`)](#identity-is-is)
@@ -124,6 +130,11 @@ This is just a taster. Places you can go next:
       - [Usage (`to`, `from`)](#usage-to-from)
   - [Static Types](#static-types)
     - [Namespaces](#namespaces)
+  - [Pattern Matching](#pattern-matching)
+    - [Tag Matchers](#tag-matchers)
+    - [Data Matchers](#data-matchers)
+    - [Mixing Matchers](#mixing-matchers)
+    - [Done Versus Else](#done-versus-else)
 
 <!-- tocstop -->
 
@@ -729,6 +740,72 @@ namespace Shape {
 const doSomething = (shape: Shape): null | Shape.Circle => {
   // todo
 }
+```
+
+## Pattern Matching
+
+Use `.match` to branch on your ADT's variants or even branch multiple ways among a single variant based on different data patterns.
+
+- Pass your value to `Alge.match(yourValue)` to begin the pattern matching.
+- Use tag or data or both matchers (see below)
+- Finish the chain with `.done()` to statically verify variant exhaustiveness or `.else(...)` if you want to specify a fallback value.
+
+### Tag Matchers
+
+Tag Matchers simply branch based on the variant's tag (`_tag`). You call `.done()` to perform the exhaustiveness check. If you can't call this (because of static type error) then your pattern matching is not exhaustive. This catches bugs!
+
+```ts
+const result = Alge.match(shape)
+  .Circle((circle) => `Got a circle of radius ${circle.radius}!`)
+  .Square((square) => `Got a square of size ${square.size}!`)
+  .done()
+```
+
+### Data Matchers
+
+Data Matchers allow you to specify that the branch only matches when the actually data of the variant also matches your criteria.
+
+Since these kinds of matchers are dynamic you cannot use `.done` with them but instead must use `.else` to specify a fallback value in case they do not match.
+
+```ts
+const result = Alge.match(shape)
+  .Circle({ radius: 13 }, () => `Got an unlucky circle!`)
+  .Square({ size: 13 }, () => `Got an unlucky square!`)
+  .else({ ok: true })
+```
+
+### Mixing Matchers
+
+You can mix matchers. Order matters. More specific matchers must come before more general matchers. Alge automates these checks for you:
+
+- Cannot specify a data matcher _after_ a tag matcher (static & runtime enforcement)
+- Future Feature (#todo-issue)[https://github.com/jasonkuhrt/alge/issues/todo]: Cannot specify a more specific data matcher after a less specific one
+
+```ts
+const result = Alge.match(shape)
+  .Circle({ radius: 13 }, () => `Got an unlucky circle!`)
+  .Circle((circle) => `Got a circle of radius ${circle.radius}!`)
+  .Square({ size: 13 }, () => `Got an unlucky square!`)
+  .Square((square) => `Got a square of size ${square.size}!`)
+  .done()
+```
+
+### Done Versus Else
+
+When you don't want to be exhaustive, use `else` instead of `done`. The value you specify in `else` will be used if no matcher matches.
+
+```ts
+const result = Alge.match(shape)
+  .Circle((circle) => `Got a circle of radius ${circle.radius}!`)
+  .else(null)
+```
+
+If you don't want your else to be an eager value, make it lazy with a function:
+
+```ts
+const result = Alge.match(shape)
+  .Circle((circle) => `Got a circle of radius ${circle.radius}!`)
+  .else(() => (Math.random() > 0.5 ? 1 : 2))
 ```
 
 </br></br>
