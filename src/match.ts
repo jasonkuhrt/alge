@@ -1,3 +1,17 @@
+/*
+
+Terminology:
+
+- Match Builder
+- Matcher
+  - Tag Matcher
+  - Data Matcher
+- Pattern
+  - Tag
+  - Data
+- Handler
+ */
+
 import { SomeRecord } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
 import { inspect } from 'util'
