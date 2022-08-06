@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export type SomeADT = {
+export type SomeDataController = {
   name: string
   schema: SomeZodADT
 }

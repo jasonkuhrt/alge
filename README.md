@@ -731,6 +731,19 @@ const doSomething = (shape: Shape): null | Shape.Circle => {
 }
 ```
 
+## Pattern Matching
+
+### Terminology
+
+- Match Builder
+- Matcher
+  - Tag Matcher
+  - Data Matcher
+- Pattern
+  - Tag
+  - Data
+- Handler
+
 </br></br>
 
 ![alt](https://repobeats.axiom.co/api/embed/3c932f1cb76da4ad21328bfdd0ad1c6fbbe76a0b.svg 'repobeats analytics image')

@@ -20,3 +20,7 @@ export type $N = typeof $N
 
 export const a = A.create({ m: `m` })
 export const b = B.create({ n: 1 })
+export const ab = Math.random() > 0.5 ? a : b
+export type ab = typeof ab
+export type a = typeof a
+export type b = typeof b

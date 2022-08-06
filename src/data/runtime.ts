@@ -3,7 +3,7 @@ import { r } from '../lib/r.js'
 import { code, isEmpty, TupleToObject } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { record } from '../record/runtime.js'
-import { SomeRecord, SomeRecordController } from '../record/types/controller.js'
+import { SomeRecordInternal, SomeRecordController } from '../record/types/controller.js'
 import { SomeDecodeOrThrower, SomeDecoder, SomeEncoder, SomeRecordBuilder } from '../record/types/internal.js'
 import { Initial } from './types/Builder.js'
 import {
@@ -11,7 +11,7 @@ import {
   SomeShortHandRecordSchemaDefs,
   SomeShortHandRecordSchemas,
 } from './types/Controller.js'
-import { SomeADT } from './types/internal.js'
+import { SomeDataController } from './types/internal.js'
 import { inspect } from 'util'
 import { SomeZodObject } from 'zod'
 
@@ -98,7 +98,7 @@ export function data<Name extends string>(name: Name, shortHandRecordSchemaDefin
 
       const createAdtEncoderMethods = (codec: string): Record<string, SomeEncoder> => {
         const methods = {
-          [codec]: (data: SomeRecord) => {
+          [codec]: (data: SomeRecordInternal) => {
             for (const recordMethods of Object.values(recordsMethods)) {
               // @ts-expect-error todo
               // eslint-disable-next-line
@@ -174,7 +174,7 @@ const createEmptyRecordsError = (params: { name: string }) =>
     )} after your ADT has at least one record defined (via ${code(`.record()`)}).`
   )
 
-export type Infer<ADT extends SomeADT> = {
+export type Infer<ADT extends SomeDataController> = {
   // eslint-ignore-next-line
   '*': z.infer<ADT['schema']>
 } & TupleToObject<SchemaToTuple<ADT['schema']['_def']['options']>[number]>
