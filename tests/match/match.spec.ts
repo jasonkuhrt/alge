@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { Alge } from '../../src/index.js'
 import { SomeRecord } from '../../src/record/types/controller.js'
 import { A, a, ab, B, b } from '../__helpers__.js'
@@ -7,8 +9,6 @@ it(`is a function`, () => {
   expect(typeof Alge.match).toEqual(`function`)
   expectType<(adt: SomeRecord) => any>(Alge.match)
 })
-
-const type = <T>(): T => 0 as any
 
 it(`returns a Match Builder, an object with methods named according to the possible records in the value`, () => {
   const builder = Alge.match(ab)
@@ -100,7 +100,7 @@ describe(`.else`, () => {
     expect(builder.else).toBeDefined()
   })
   it(`is available if some data matchers have been defined`, () => {
-    const builder = Alge.match(ab).A({ m: '' }, () => 1)
+    const builder = Alge.match(ab).A({ m: `` }, () => 1)
     expectType<typeof builder.else>(
       0 as any as <ThisResult>(value: ThisResult | ((data: ab) => ThisResult)) => 1 | ThisResult
     )

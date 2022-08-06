@@ -18,7 +18,10 @@ export type DataMatcherDefinition = {
 export const match = <AlgebraicDataType extends SomeRecord>(
   algebraicDataType: AlgebraicDataType
 ): PreMatcher<AlgebraicDataType, never> => {
-  const elseBranch: { defined: boolean; value: unknown } = { defined: false, value: undefined }
+  const elseBranch: { defined: boolean; value: unknown | ((data: object) => unknown) } = {
+    defined: false,
+    value: undefined,
+  }
   const matcherStack: (DataMatcherDefinition | TagMatcherDefinition)[] = []
   // TODO unused
   const _dataMatchers: DataMatcherDefinition[] = []
@@ -37,7 +40,9 @@ export const match = <AlgebraicDataType extends SomeRecord>(
       }
     }
     if (elseBranch.defined) {
-      return typeof elseBranch.value === `function` ? elseBranch.value(algebraicDataType) : elseBranch.value
+      return typeof elseBranch.value === `function`
+        ? (elseBranch.value(algebraicDataType) as unknown)
+        : elseBranch.value
     }
     throw new Error(
       `No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://todo. The given data was:\n${inspect(
@@ -46,7 +51,7 @@ export const match = <AlgebraicDataType extends SomeRecord>(
     )
   }
 
-  const proxy: any = new Proxy(
+  const proxy = new Proxy(
     {},
     {
       get: (_target, property: string, _receiver) => {
@@ -101,7 +106,8 @@ export const match = <AlgebraicDataType extends SomeRecord>(
     }
   )
 
-  return proxy
+  // eslint-disable-next-line
+  return proxy as any
 }
 
 type PickRecordHavingTag<Tag extends string, ADT extends SomeRecord> = ADT extends { _tag: Tag } ? ADT : never
