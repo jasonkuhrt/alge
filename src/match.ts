@@ -130,7 +130,7 @@ type PickRecordHavingTag<Tag extends string, ADT extends SomeRecord> = ADT exten
 //prettier-ignore
 type PreMatcher<ADT extends SomeRecord, Result> = {
   [Tag in ADT['_tag']]:
-     (<ThisResult>(dataPattern: Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>, handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => PostMatcher<ADT, never, ThisResult | Result>) &
+     (<ThisResult, Pattern extends Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickRecordHavingTag<Tag, ADT>, test:Pattern) => ThisResult) => PostMatcher<ADT, never, ThisResult | Result>) &
      (<ThisResult>(handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => PostMatcher<ADT, Tag, ThisResult | Result>)
 }
 
@@ -143,7 +143,7 @@ type PreMatcher<ADT extends SomeRecord, Result> = {
 type PostMatcher<ADT extends SomeRecord, PreviousTagsMatched extends string, Result> = {
   [Tag in Exclude<ADT['_tag'], PreviousTagsMatched>]:
   (
-    (<ThisResult>(dataPattern: Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>, handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => PostMatcher<ADT, PreviousTagsMatched, '__init__' extends Result ? ThisResult : ThisResult | Result>) &
+    (<ThisResult, Pattern extends Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickRecordHavingTag<Tag, ADT>) => ThisResult) => PostMatcher<ADT, PreviousTagsMatched, '__init__' extends Result ? ThisResult : ThisResult | Result>) &
     (<ThisResult>(handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => PostMatcher<ADT, Tag|PreviousTagsMatched, ThisResult | Result>)
   )
   //      ^[1]                 ^[1]

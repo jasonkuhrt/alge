@@ -2,8 +2,9 @@
 
 import { Alge } from '../../src/index.js'
 import { SomeRecord } from '../../src/record/types/controller.js'
-import { A, a, ab, B, b } from '../__helpers__.js'
+import { $A, $AB, $B, A, a, ab, B, b } from '../__helpers__.js'
 import { expectType } from 'tsd'
+import { z } from 'zod'
 
 it(`is a function`, () => {
   expect(typeof Alge.match).toEqual(`function`)
@@ -71,13 +72,32 @@ describe(`.<tag> (Data Matcher)`, () => {
       const builder = Alge.match(a as ab).A({ m: `foo` }, () => 1)
       expectType<(dataPattern: a, handler: (data: a) => unknown) => any>(builder.A)
       expect(builder.A({ m: `m` }, () => 2).else(null)).toBe(2)
-      // expectType<(handler: (data: B) => unknown) => any>(builder.B)
-      // expect(typeof builder.B).toBe(`function`)
     })
   })
   it('_tag is omitted from the data that can be matched on', () => {
-    // @ts-expect-error _tag is not a valid property
-    Alge.match(ab).A({ m: '', _tag: 'x' }, () => 1)
+    // TODO We can manually test that _tag is not expected below but how do we create an automated test?
+    // We cannot get the parameters it seems because the function is overloaded
+    Alge.match(ab).A({ m: '' /* , _tag: 'A'  <-- not accepted but ignored */ }, () => 1)
+  })
+  it('narrows the data based on the match', () => {
+    const AB = Alge.data($AB)
+      .record($A)
+      .schema({ a: z.enum(['a', 'b', 'c']) })
+      .record($B)
+      .schema({ b: z.enum(['a', 'b', 'c']) })
+      .done()
+    const ab = Math.random() > 0.5 ? AB.A.create({ a: 'a' }) : AB.B.create({ b: 'b' })
+    const result = Alge.match(ab)
+      .A({ a: 'c' }, (a) => {
+        expectType<{ _tag: 'A'; a: 'c' }>(a)
+        return a
+      })
+      .B({ b: 'a' }, (a) => {
+        expectType<{ _tag: 'B'; b: 'a' }>(a)
+        return a
+      })
+      .else(null)
+    expectType<null | { _tag: 'B'; b: 'a' } | { _tag: 'A'; a: 'c' }>(result)
   })
 })
 
