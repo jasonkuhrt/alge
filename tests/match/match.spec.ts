@@ -75,6 +75,10 @@ describe(`.<tag> (Data Matcher)`, () => {
       // expect(typeof builder.B).toBe(`function`)
     })
   })
+  it('_tag is omitted from the data that can be matched on', () => {
+    // @ts-expect-error _tag is not a valid property
+    Alge.match(ab).A({ m: '', _tag: 'x' }, () => 1)
+  })
 })
 
 describe(`.else`, () => {

@@ -4,6 +4,8 @@ import { RecordController } from '../record/types/controller.js'
 import { SomeStoredRecord, StoredRecord } from '../record/types/StoredRecord.js'
 import { z } from 'zod'
 
+export type OmitTag<T> = Omit<T, '_tag'>
+
 export type ExtensionsBase = Record<string, unknown>
 
 export type SomeName = string
