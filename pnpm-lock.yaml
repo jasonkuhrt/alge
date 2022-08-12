@@ -11,7 +11,7 @@ specifiers:
   '@types/jest': 28.1.6
   '@types/lodash.ismatch': 4.4.7
   '@types/node': 17.0.39
-  '@types/semver': 7.3.11
+  '@types/semver': 7.3.12
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.33.0
   '@typescript-eslint/parser': 5.33.0
@@ -57,7 +57,7 @@ devDependencies:
   '@types/jest': 28.1.6
   '@types/lodash.ismatch': 4.4.7
   '@types/node': 17.0.39
-  '@types/semver': 7.3.11
+  '@types/semver': 7.3.12
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.33.0_njno5y7ry2l2lcmiu4tywxkwnq
   '@typescript-eslint/parser': 5.33.0_qugx7qdu5zevzvxaiqyxfiwquq
@@ -1370,8 +1370,8 @@ packages:
     resolution: {integrity: sha512-WLZZQdwo5P+H6R+bDDCFqFSlP5Jtk6gyXpE0R0KAVQbcMGmxpVsNX8dah640hY4+PpRG2+Ph3dcwDHzrOAOZ7A==}
     dev: true
 
-  /@types/semver/7.3.11:
-    resolution: {integrity: sha512-R9HhjC4aKx3jL0FLwU7x6qMTysTvLh7jesRslXmxgCOXZwyh5dsnmrPQQToMyess8D4U+8G9x9mBFZoC/1o/Tw==}
+  /@types/semver/7.3.12:
+    resolution: {integrity: sha512-WwA1MW0++RfXmCr12xeYOOC5baSC9mSb0ZqCquFzKhcoF4TvHu5MKOuXsncgZcpVFhB1pXd5hZmM0ryAoCp12A==}
     dev: true
 
   /@types/stack-utils/2.0.1:
