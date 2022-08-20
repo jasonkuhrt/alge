@@ -75,7 +75,7 @@ describe(`encoder`, () => {
           from: () => ({ size2: 1 }),
         })
         .codec(`somethingElse`, {
-          to: () => `todo`,
+          to: () => ``,
           from: () => ({ size2: 0 }),
         })
         .done()
