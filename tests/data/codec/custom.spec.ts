@@ -64,6 +64,29 @@ describe(`encoder`, () => {
         .done()
       expectType<(data: AB['A']) => string>(AB.A.to.foo)
     })
+    it(`two codecs works`, () => {
+      const Shape = Alge.data(`Shape`)
+        .record(`Square`)
+        .schema({
+          size: z.number().default(0),
+        })
+        .codec(`graphic`, {
+          to: () => ``,
+          from: () => ({ size2: 1 }),
+        })
+        .codec(`somethingElse`, {
+          to: () => `todo`,
+          from: () => ({ size2: 0 }),
+        })
+        .done()
+
+      expectType<(input: { _tag: 'Square'; size: number }) => string>(Shape.Square.to.graphic)
+      expectType<(input: { _tag: 'Square'; size: number }) => string>(Shape.Square.to.somethingElse)
+
+      const s = Shape.Square.create({ size: 1 })
+      expect(Shape.Square.to.graphic(s)).toEqual(``)
+      expect(Shape.Square.to.somethingElse(s)).toEqual(``)
+    })
     describe(`ADT level`, () => {
       it(`common encoders are available`, () => {
         type AB = Alge.Infer<typeof AB>

@@ -43,7 +43,7 @@ type Encoders<Names extends string[], V extends SomeStoredRecord> = Encoders_<{}
 
 type Encoders_<Obj, Names extends string[], V extends SomeStoredRecord> = Names extends []
   ? Obj
-  : Decoders_<Obj & Encoder_<Names[0], V>, Rest<Names>, V>
+  : Encoders_<Obj & Encoder_<Names[0], V>, Rest<Names>, V>
 
 type Encoder_<Name extends string, V extends SomeStoredRecord> = {
   [N in Name]: Encoder<V>
