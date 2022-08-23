@@ -1,6 +1,6 @@
 import { Errors } from '../Errors/index.js'
 import { r } from '../lib/r.js'
-import { code, isEmpty, TupleToObject } from '../lib/utils.js'
+import { code, inspect, isEmpty, TupleToObject } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { record } from '../record/runtime.js'
 import { SomeRecordController, SomeRecordInternal } from '../record/types/controller.js'
@@ -12,7 +12,6 @@ import {
   SomeShortHandRecordSchemas,
 } from './types/Controller.js'
 import { SomeDataController } from './types/internal.js'
-import { inspect } from 'util'
 import { SomeZodObject } from 'zod'
 
 export type SomeAdtMethods = {

@@ -13,9 +13,9 @@ Terminology:
  */
 
 import { OmitTag } from './core/types.js'
+import { inspect } from './lib/utils.js'
 import { SomeRecord } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
-import { inspect } from 'util'
 
 export type SomeMatchHandler = (data: object) => unknown
 export type TagMatcherDefinition = {
