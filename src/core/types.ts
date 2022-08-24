@@ -2,6 +2,7 @@ import { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
 import { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
 import { RecordController } from '../record/types/controller.js'
 import { SomeStoredRecord, StoredRecord } from '../record/types/StoredRecord.js'
+import { Exact } from 'type-fest'
 import { z } from 'zod'
 
 export type OmitTag<T> = Omit<T, '_tag'>
@@ -26,10 +27,11 @@ export type Encoder<V extends SomeStoredRecord> = EncoderDefinition<V>
 
 export type ADTEncoder<Vs extends StoredRecords> = (adt: StoredRecords.Union<Vs>) => string
 
-export type DecoderDefinition<V extends SomeStoredRecord> = (
+export type DecoderDefinition<R extends SomeStoredRecord> = (
   encodedData: string,
-  extensions: V[`extensions`] & { schema: V['schema']; name: V[`name`] }
-) => null | RecordController.GetConstructorInput<V>
+  extensions: R[`extensions`] & { schema: R['schema']; name: R[`name`] }
+  // TODO Exact<>
+) => RecordController.GetConstructorInput<R>
 
 export type Decoder<V extends SomeStoredRecord> = (value: string) => null | StoredRecord.GetType<V>
 
@@ -103,3 +105,24 @@ export namespace StoredRecords {
     [Index in keyof Rs]: Rs[Index][`schema`]
   }
 }
+
+// type X = () => RecordController.GetConstructorInput<
+//   StoredRecord.AddSchema<z.ZodObject<{ a: z.ZodNumber }>, StoredRecord.Create<'A'>>
+// >
+
+type Y = <T extends Exact<{ a: number }, T>>() => T
+
+const x: Y = () => ({ a: 1 })
+const y = x()
+type f = typeof y['a']
+
+const f = (): RecordController.GetConstructorInput<
+  StoredRecord.AddSchema<z.ZodObject<{ a: z.ZodNumber }>, StoredRecord.Create<'A'>>
+> => {
+  return {
+    a: true,
+    b: 1,
+  }
+}
+
+type GetType<T extends number> = T extends 1 ? { a: boolean } : { b: boolean }

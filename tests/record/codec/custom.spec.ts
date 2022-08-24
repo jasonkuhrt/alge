@@ -1,7 +1,7 @@
 import { Alge } from '../../../src/index.js'
 import { $A } from '../../__helpers__.js'
 import { expectType } from 'tsd'
-import { z } from 'zod'
+import { string, z } from 'zod'
 
 it(`adds custom encoders to the controller`, () => {
   const A = Alge.record($A)
@@ -105,6 +105,24 @@ describe(`decoder`, () => {
             // @ts-expect-error return does not conform to schema.
             from: () => ({}),
           })
+      })
+      it(`excess properties are rejected`, () => {
+        Alge.record($A)
+          .schema({ a: z.number().optional() })
+          .codec(`foo`, {
+            to: () => ``,
+            // @ts-expect-error
+            from: () => ({ aa: `` }),
+          })
+        expectType<
+          (
+            name: string,
+            config: {
+              to: () => string
+              from: () => { a?: number }
+            }
+          ) => any
+        >(Alge.record($A).schema({ a: z.number().optional() }).codec)
       })
       it(`null if decoding not possible`, () => {
         const A = Alge.record($A)
