@@ -217,7 +217,7 @@ describe(`decoder`, () => {
 
         expectType<(string: string) => AB['*']>(AB.from.fooOrThrow)
         expect(() => AB.from.fooOrThrow(``)).toThrowError(
-          `Failed to decode value \`''\` into any of the records for this ADT.`
+          `Failed to decode value \`""\` into any of the records for this ADT.`
         )
       })
     })
