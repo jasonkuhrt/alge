@@ -106,6 +106,16 @@ describe(`decoder`, () => {
             from: () => ({}),
           })
       })
+      it(`defaults are applied`, () => {
+        const A = Alge.record($A)
+          .schema({ a: z.number().default(1) })
+          .codec(`foo`, {
+            to: () => ``,
+            from: () => ({}),
+          })
+          .done()
+        expect(A.from.foo(``)).toMatchObject({ a: 1 })
+      })
       it(`null if decoding not possible`, () => {
         const A = Alge.record($A)
           .schema({ a: z.number() })
