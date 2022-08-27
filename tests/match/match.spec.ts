@@ -50,7 +50,7 @@ describe(`.<tag> (Data Matcher)`, () => {
       // @ts-expect-error ^^^
       expect(() => builder.A({ m: `` }, () => 1)).toThrowErrorMatchingInlineSnapshot(`
         "Cannot define this data matcher:
-        {\\"m\\":\\"\\"}
+        {"m":""}
         for A because it will never match because it comes after matching on A generally."
       `)
     })
@@ -208,7 +208,7 @@ describe(`.done`, () => {
         .done()
     ).toThrowErrorMatchingInlineSnapshot(`
       "No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://todo. The given data was:
-      {\\"bad\\":true}"
+      {"bad":true}"
     `)
   })
 })
