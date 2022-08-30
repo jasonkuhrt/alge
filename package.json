@@ -23,7 +23,7 @@
   },
   "scripts": {
     "ts-node": "ts-node-esm",
-    "reflect:toc": "markdown-toc README.md -i --maxdepth 4 && prettier --write README.md",
+    "build:toc": "markdown-toc README.md -i --maxdepth 4 && prettier --write README.md",
     "format": "pnpm format:prettier",
     "format:prettier": "prettier --write .",
     "format:check": "pnpm format:check:prettier",

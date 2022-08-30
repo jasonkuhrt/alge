@@ -5,24 +5,9 @@
 
 ## TL;DR
 
-Type safe library for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) (ADTs) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)). Schemas powered by [Zod](https://github.com/colinhacks/zod) <3.
+Library for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)). Schemas powered by [Zod](https://github.com/colinhacks/zod) <3.
 
-There are three distinct conceptual levels in Alge. Firstly there is a builder for defining your ADT in the first place. Secondly there is a controller for working with your defined ADT such as construction, type guards, and codecs. Finally there are the actual pure-data instances of your ADT.
-
-![Alge Anatomy](docs/assets/Alge%20Anatomy.png)
-
-Here's how it looks like in code.
-
-At its simplest you can create one off records:
-
-```ts
-import { Alge } from 'alge'
-import { z } from 'zod'
-
-const Circle = Alge.record(`Circle`, { radius: z.number().positive() })
-```
-
-But you can as easily make full blown ADTs too:
+An ADT is built like so:
 
 ```ts
 import { Alge } from 'alge'
@@ -30,8 +15,8 @@ import { z } from 'zod'
 
 const Length = z.number().positive()
 
-//           v---------- 2. ADT Controller
-//           |            v--------- 1. ADT Builder
+//           o---------- ADT Controller
+//           |            o--------- ADT Builder
 export const Shape = Alge.data(`Shape`, {
   Rectangle: {
     width: Length,
@@ -46,21 +31,20 @@ export const Shape = Alge.data(`Shape`, {
 })
 ```
 
-You use your built Controller to create your data:
+Building an ADT returns a _controller_. Controllers are an API for your data, like constructors and type guards. Constructed data is nothing special, just good old JavaScript POJOs.
 
 ```ts
-//    v--------- 3. Instance
-//    |        v--------- 2. ADT Controller
+//    o--------- Member Instance
+//    |        o--------- ADT Controller
+//    |        |     o-------- Member Namespace
+//    |        |     |      o-------- Constructor
+//    |        |     |      |
 const circle = Shape.Circle.create({ radius: 50 })
 // { _tag: 'Circle', radius: 50 }
 
 const square = Shape.Square.create({ size: 50 })
 // { _tag: 'Square', size: 5 }
-```
 
-There are other utility functions on the controller:
-
-```ts
 if (Shape.Circle.is(circle)) {
   console.log(`I Am Circle`)
 }
@@ -72,7 +56,13 @@ const squareFromTheOutsideWorld = Shape.Square.from.json({ _tag: 'Square', size:
 // { _tag: 'Square', size: 10 }
 ```
 
-You can use Alge for pattern matching too:
+You can infer the static types from the controller:
+
+```ts
+type Shape = Alge.infer<typeof Shape>
+```
+
+You can pattern match on your constructed data:
 
 ```ts
 const shape = Math.random() > 0.5 ? circle : square
@@ -82,6 +72,15 @@ const result = Alge.match(shape)
   .Square({ size: 13 }, () => `Got an unlucky square!`)
   .Square((square) => `Got a square of size ${square.size}!`)
   .done()
+```
+
+You can create individual records when you don't need full blown ADTs:
+
+```ts
+import { Alge } from 'alge'
+import { z } from 'zod'
+
+const Circle = Alge.record(`Circle`, { radius: z.number().positive() })
 ```
 
 This is just a taster. Places you can go next:
@@ -100,6 +99,7 @@ This is just a taster. Places you can go next:
 
 - [Installation](#installation)
 - [Roadmap](#roadmap)
+- [Features At a Glance](#features-at-a-glance)
 - [About Algebraic Data Types](#about-algebraic-data-types)
   - [What?](#what)
   - [Why?](#why)
@@ -132,7 +132,7 @@ This is just a taster. Places you can go next:
     - [Namespaces](#namespaces)
   - [Pattern Matching](#pattern-matching)
     - [Tag Matchers](#tag-matchers)
-    - [Data Matchers](#data-matchers)
+    - [Value Matchers](#value-matchers)
     - [Mixing Matchers](#mixing-matchers)
     - [Done Versus Else](#done-versus-else)
 
@@ -147,6 +147,20 @@ npm add alge
 ## Roadmap
 
 There is no timeline but there are priorities. Refer to the currently three [pinned issues](https://github.com/jasonkuhrt/alge/issues).
+
+## Features At a Glance
+
+- Use a "builder" API to define ADTs
+  - Use Zod for schema definition
+  - Define one or more codecs
+- Use the "controller" API to work with data
+  - Constructors
+  - Type guards
+  - Built in JSON codec
+  - Automatic ADT level codecs (for codecs common across members)
+- Pattern match on data
+  - Use tag matchers
+  - Use value matchers
 
 ## About Algebraic Data Types
 
@@ -761,9 +775,9 @@ const result = Alge.match(shape)
   .done()
 ```
 
-### Data Matchers
+### Value Matchers
 
-Data Matchers allow you to specify that the branch only matches when the actually data of the variant also matches your criteria.
+Value Matchers allow you to specify that the branch only matches when the actually data of the variant also matches your criteria.
 
 Since these kinds of matchers are dynamic you cannot use `.done` with them but instead must use `.else` to specify a fallback value in case they do not match.
 
@@ -778,7 +792,7 @@ const result = Alge.match(shape)
 
 You can mix matchers. Order matters. More specific matchers must come before more general matchers. Alge automates these checks for you:
 
-- Cannot specify a data matcher _after_ a tag matcher (static & runtime enforcement)
+- Cannot specify a value matcher _after_ a tag matcher (static & runtime enforcement)
 - Future Feature (#todo-issue)[https://github.com/jasonkuhrt/alge/issues/todo]: Cannot specify a more specific data matcher after a less specific one
 
 ```ts
