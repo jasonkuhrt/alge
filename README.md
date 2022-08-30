@@ -109,6 +109,7 @@ This is just a taster. Places you can go next:
     - [Definition (`.record`)](#definition-record)
     - [Construction (`.create`)](#construction-create)
     - [Input Defaults](#input-defaults)
+    - [Input Transformation](#input-transformation)
     - [Input Validation](#input-validation)
     - [Metadata](#metadata)
     - [Chaining API](#chaining-api)
@@ -430,6 +431,20 @@ const Circle = Alge.record('Circle', {
 
 const circle = Circle.create()
 // { _tag: 'circle', radius: 0 }
+```
+
+### Input Transformation
+
+You can use zod to perform input transformations:
+
+```ts
+const Url = Alge.record('Url', {
+  // ...
+  path: z
+    .string()
+    .optional()
+    .transform((path) => (path === undefined ? '/' : path.trim() === '' ? '/' : path.trim())),
+})
 ```
 
 ### Input Validation
