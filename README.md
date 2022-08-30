@@ -111,6 +111,7 @@ This is just a taster. Places you can go next:
     - [Input Defaults](#input-defaults)
     - [Input Transformation](#input-transformation)
     - [Input Validation](#input-validation)
+    - [Update](#update)
     - [Metadata](#metadata)
     - [Chaining API](#chaining-api)
     - [Codecs](#codecs)
@@ -454,6 +455,14 @@ Input is validated via Zod. For example a negative number where only positives a
 ```ts
 const circle = circle.create({ radius: -10 })
 // throws
+```
+
+### Update
+
+You can update records. Updating creates shallow copies of data. The validation, transformations, defaults etc. setup on the zod schema will re-run on the update function ensuring data integrity. Any errors there will be thrown.
+
+```ts
+const circleUpdated = circle.update(circle, { radius: 5 })
 ```
 
 ### Metadata

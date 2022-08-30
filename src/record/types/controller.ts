@@ -1,5 +1,5 @@
 import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
-import { Encoder, SomeName, StoredRecords } from '../../core/types.js'
+import { Encoder, OmitTag, SomeName, StoredRecords } from '../../core/types.js'
 import { OmitRequired, Rest } from '../../lib/utils.js'
 import { z } from '../../lib/z/index.js'
 import { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
@@ -24,9 +24,13 @@ export type SomeRecordController = {
   }
   name: string
   schema: SomeSchema
+  // !! HACK not-using any here results in test type errors that I don't understand yet.
   // eslint-disable-next-line
-  is: (value: any) => boolean
+  is: (record: any) => boolean
   is$: (value: unknown) => boolean
+  // !! HACK not-using any here results in test type errors that I don't understand yet.
+  // eslint-disable-next-line
+  update: (record: any, changes: object) => object
   // eslint-disable-next-line
   create: (params?: any) => any
   from: {
@@ -93,6 +97,11 @@ export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecor
   name: R[`name`]
   schema: R['schema']
   /**
+   * 
+   * @throws If zod schema violated: bad types, failed validation, throw from a transformer.
+   */
+  update(record: StoredRecord.GetType<R>, changes: Partial<OmitTag<StoredRecord.GetType<R>>>): StoredRecord.GetType<R>
+  /**
    * Decoders for this record. Decoders are used to transform other representations of your record back into a record instance.
    */
   from: {
@@ -101,13 +110,13 @@ export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecor
      *
      * @remarks This is a built in decoder.
      */
-    json: (value: string) => null | StoredRecord.GetType<R>
+    json(value: string): null | StoredRecord.GetType<R>
     /**
      * Decode JSON into this record. Throws if it fails for any reason.
      *
      * @remarks This is a built in decoder.
      */
-    jsonOrThrow: (value: string) => StoredRecord.GetType<R>
+    jsonOrThrow(value: string): StoredRecord.GetType<R>
   } & Decoders<R['codec'], R>
   // & {
   //   [I in IndexKeys<V['codec']> as AsString<V['codec'][I]>]: Decoder<V['codec']>,V>
@@ -121,7 +130,7 @@ export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecor
      *
      * @remarks This is a built in encoder.
      */
-    json: (record: StoredRecord.GetType<R>) => string
+    json(record: StoredRecord.GetType<R>): string
   } & Encoders<R['codec'], R>
   /**
    * Strict predicate/type guard for this record.

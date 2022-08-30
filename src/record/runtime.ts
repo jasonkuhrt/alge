@@ -100,8 +100,14 @@ export function record<Name extends string>(
           return current.schema.passthrough().parse(data) as object
         },
         //eslint-disable-next-line
-        is$: (value: unknown) => is(value, symbol),
-        is: (value: unknown) => is(value, symbol),
+        is$: (value) => is(value, symbol),
+        is: (record) => is(record, symbol),
+        update: (record, changes) => {
+          return controller.create({
+            ...record,
+            ...changes,
+          }) as object
+        },
         from: {
           json: (json: string) => {
             const data = tryOrNull(() => JSON.parse(json) as object)
