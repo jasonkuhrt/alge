@@ -38,8 +38,6 @@ export const match = <AlgebraicDataType extends SomeRecord>(
     value: undefined,
   }
   const matcherStack: (DataMatcherDefinition | TagMatcherDefinition)[] = []
-  // TODO unused
-  const _dataMatchers: DataMatcherDefinition[] = []
   const tagMatchers: Record<string, TagMatcherDefinition> = {}
 
   const execute = () => {
@@ -60,7 +58,7 @@ export const match = <AlgebraicDataType extends SomeRecord>(
         : elseBranch.value
     }
     throw new Error(
-      `No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://todo. The given data was:\n${inspect(
+      `No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://jasonkuhrt/alge. The given data was:\n${inspect(
         algebraicDataType
       )}`
     )
@@ -112,8 +110,6 @@ export const match = <AlgebraicDataType extends SomeRecord>(
 
           if (matcher._tag === `TagMatcherDefinition`) {
             tagMatchers[property] = matcher
-          } else {
-            _dataMatchers.push(matcher)
           }
           return proxy
         }
