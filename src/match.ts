@@ -13,7 +13,7 @@ Terminology:
  */
 
 import { OmitTag } from './core/types.js'
-import { inspect, ObjectValues } from './lib/utils.js'
+import { inspect } from './lib/utils.js'
 import { SomeRecord } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
 
