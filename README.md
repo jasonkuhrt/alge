@@ -89,9 +89,9 @@ This is just a taster. Places you can go next:
 1. A formal [features breakdown](#features)
 1. [Code examples](/examples)
 1. A simple [introduction to Algebraic Data Types](#about-algebraic-data-types) (for those unfamiliar)
-1. ~~A admittedly rambling 😃 [video introduction](https://youtu.be/fLlVQSJx4AU) if you like that format~~ **Outdated, I need to record a new one.**
+1. A [video introduction](https://youtu.be/fLlVQSJx4AU) if you like that format
 
-   [![Video Cover](docs/assets/cover.png)](https://youtu.be/fLlVQSJx4AU)
+   [![Video Cover](docs/assets/cover.jpg)](https://youtu.be/JWvy7JXE6vw)
 
 ## Contents
 
