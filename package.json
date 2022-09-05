@@ -37,7 +37,7 @@
     "build:cjs": "ts-node scripts/build-cjs",
     "build:esm": "tsc --project tsconfig.esm.json",
     "test": "vitest",
-    "clean": "rm -rf dist-cjs dist-esm node_modules/.cache",
+    "clean": "rm -rf dist node_modules/.cache",
     "release:pr": "dripip pr",
     "release:canary": "dripip preview",
     "release:stable": "dripip stable",
