@@ -1,5 +1,5 @@
 import { $A, $B, AB } from '../../../__helpers__.js'
-import { expectType } from 'tsd'
+import { expectType } from 'vite-plugin-vitest-typescript-assert/tsd'
 import { expect, it } from 'vitest'
 import { z } from 'zod'
 

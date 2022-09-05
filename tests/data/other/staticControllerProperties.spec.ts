@@ -1,6 +1,6 @@
 import { data } from '../../../src/index_.js'
 import { $A, $AB, $B } from '../../__helpers__.js'
-import { expectType } from 'tsd'
+import { expectType } from 'vite-plugin-vitest-typescript-assert/tsd'
 import { expect, it } from 'vitest'
 
 it(`The name is statically available.`, () => {

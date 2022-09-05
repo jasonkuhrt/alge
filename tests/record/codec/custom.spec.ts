@@ -1,6 +1,6 @@
 import { Alge } from '../../../src/index.js'
 import { $A } from '../../__helpers__.js'
-import { expectType } from 'tsd'
+import { expectType } from 'vite-plugin-vitest-typescript-assert/tsd'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 

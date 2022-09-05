@@ -1,6 +1,6 @@
 import { Alge } from '../../../src/index.js'
 import { $A, A } from '../../__helpers__.js'
-import { expectType } from 'tsd'
+import { expectType } from 'vite-plugin-vitest-typescript-assert/tsd'
 import { it } from 'vitest'
 
 it(`Can infer the ADT types from the runtime`, () => {

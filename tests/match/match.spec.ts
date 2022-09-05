@@ -2,13 +2,13 @@
 import { Alge } from '../../src/index.js'
 import { SomeRecord } from '../../src/record/types/controller.js'
 import { $A, $AB, $B, A, a, ab, B, b } from '../__helpers__.js'
-import { expectType } from 'tsd'
+import { expectType } from 'vite-plugin-vitest-typescript-assert/tsd'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`is a function`, () => {
   expect(typeof Alge.match).toEqual(`function`)
-  expectType<(adt: SomeRecord) => any>(Alge.match)
+  expectType<(adt: SomeRecord) => 1>(Alge.match)
 })
 
 it(`returns a Match Builder, an object with methods named according to the possible records in the value`, () => {
