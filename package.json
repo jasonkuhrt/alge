@@ -14,7 +14,7 @@
   "exports": {
     ".": {
       "require": {
-        "default": "./dist/cjs/index.js"
+        "default": "./dist/cjs/index.cjs"
       },
       "import": {
         "default": "./dist/esm/index.js"
