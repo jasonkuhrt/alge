@@ -26,7 +26,7 @@ export const isEmptySchema = (schema: z.SomeZodObject) => {
   return Object.keys(schema._def.shape()).filter((key) => key !== `_tag`).length > 0
 }
 
-export const tryOrNull = <T>(fn: () => T): T | null => {
+export const tryOrNull = <T extends unknown>(fn: () => T): T | null => {
   try {
     return fn()
   } catch {
@@ -38,15 +38,19 @@ export type Rest<x extends unknown[]> = x extends [infer _first, ...infer rest] 
 
 export type IndexKeys<A extends readonly unknown[]> = Exclude<keyof A, keyof []>
 
-export type OnlyStrings<x> = x extends string ? x : never
+export type OnlyStrings<x extends unknown> = x extends string ? x : never
 
-export type OmitRequired<T> = {
+export type OmitRequired<T extends unknown> = {
   [K in keyof T as undefined extends T[K] ? never : K]: T[K]
 }
 
-export type IsUnknown<T> = IsEqual<T, unknown>
+export type IsUnknown<T extends unknown> = IsEqual<T, unknown>
 
-export type IsEqual<T, U> = [T] extends [U] ? ([U] extends [T] ? true : false) : false
+export type IsEqual<T extends unknown, U extends unknown> = [T] extends [U]
+  ? [U] extends [T]
+    ? true
+    : false
+  : false
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TupleToObject<T extends [string, any]> = {
@@ -106,7 +110,7 @@ export const extendChain = (params: {
 export const applyDefaults = (input: object, defaults: object) => {
   const input_ = { ...input }
   for (const entry of Object.entries(defaults)) {
-    // @ts-expect-error dynammic
+    // @ts-expect-error dynamic
     // eslint-disable-next-line
     input_[entry[0]] = input_[entry[0]] === undefined ? entry[1] : input_[entry[0]]
   }

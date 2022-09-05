@@ -5,7 +5,6 @@
     "project": ["tsconfig.json"]
   },
   "plugins": [
-    "codegen",
     // This enables using new lint rules powered by the TypeScript compiler API.
     // https://github.com/typescript-eslint/typescript-eslint
     "@typescript-eslint",
@@ -39,10 +38,9 @@
   ],
   "overrides": [],
   "rules": {
-    "codegen/codegen": "error",
-    // note you must disable the base rule as it can report incorrect errors
+    // Enforce backticks
+    // Note you must disable the base rule as it can report incorrect errors.
     "quotes": "off",
-    "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/quotes": ["warn", "backtick"],
     "tsdoc/syntax": "warn",
     "simple-import-sort/imports": [
@@ -57,6 +55,8 @@
     // TypeScript makes these safe & effective
     "no-case-declarations": "off",
     // Same approach used by TypeScript noUnusedLocals
-    "@typescript-eslint/no-unused-vars": ["warn", { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }]
+    "@typescript-eslint/no-unused-vars": ["warn", { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }],
+    // Needed when working with .mts/.cts where a lone e.g. <T> is not allowed
+    "@typescript-eslint/no-unnecessary-type-constraint": "off"
   }
 }
