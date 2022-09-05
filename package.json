@@ -68,9 +68,9 @@
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-simple-import-sort": "8.0.0",
     "eslint-plugin-tsdoc": "0.2.16",
-    "execa": "^6.1.0",
-    "fast-glob": "^3.2.11",
-    "fs-jetpack": "^4.3.1",
+    "execa": "6.1.0",
+    "fast-glob": "3.2.11",
+    "fs-jetpack": "4.3.1",
     "markdown-toc": "1.2.0",
     "prettier": "2.7.1",
     "semver": "7.3.7",
@@ -78,6 +78,6 @@
     "ts-node": "10.9.1",
     "tsd": "0.23.0",
     "typescript": "4.8.2",
-    "vitest": "^0.23.1"
+    "vitest": "0.23.1"
   }
 }
