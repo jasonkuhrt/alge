@@ -1,9 +1,9 @@
 /* eslint-disable */
-
 import { Alge } from '../../src/index.js'
 import { SomeRecord } from '../../src/record/types/controller.js'
 import { $A, $AB, $B, A, a, ab, B, b } from '../__helpers__.js'
 import { expectType } from 'tsd'
+import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`is a function`, () => {
@@ -50,7 +50,7 @@ describe(`.<tag> (Data Matcher)`, () => {
       // @ts-expect-error ^^^
       expect(() => builder.A({ m: `` }, () => 1)).toThrowErrorMatchingInlineSnapshot(`
         "Cannot define this data matcher:
-        {"m":""}
+        {\\"m\\":\\"\\"}
         for A because it will never match because it comes after matching on A generally."
       `)
     })
@@ -211,8 +211,8 @@ describe(`.done`, () => {
         .B(() => 2 as const)
         .done()
     ).toThrowErrorMatchingInlineSnapshot(`
-      "No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://todo. The given data was:
-      {"bad":true}"
+      "No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://jasonkuhrt/alge. The given data was:
+      {\\"bad\\":true}"
     `)
   })
 })

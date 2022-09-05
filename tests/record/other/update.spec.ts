@@ -1,6 +1,7 @@
 import { Alge } from '../../../src/index.js'
 import { A, a } from '../../__helpers__.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`updates record by copy`, () => {
@@ -20,11 +21,11 @@ it(`updates triggers validate etc.`, () => {
   expect(() => A.update(a, { m: `updated` })).toThrowErrorMatchingInlineSnapshot(`
     "[
       {
-        "validation": "regex",
-        "code": "invalid_string",
-        "message": "Invalid",
-        "path": [
-          "m"
+        \\"validation\\": \\"regex\\",
+        \\"code\\": \\"invalid_string\\",
+        \\"message\\": \\"Invalid\\",
+        \\"path\\": [
+          \\"m\\"
         ]
       }
     ]"

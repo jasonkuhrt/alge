@@ -1,6 +1,7 @@
 import { data } from '../../../../src/index_.js'
 import { $A, $AB, $B, AB } from '../../../__helpers__.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`If schema not given (aka. no properties), then constructor does not accept input`, () => {

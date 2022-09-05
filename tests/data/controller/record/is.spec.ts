@@ -1,5 +1,6 @@
 import { $A, a, AB, b } from '../../../__helpers__.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 
 it(`.is() is a type guard / predicate function accepting only records of the ADT`, () => {
   const aOrB = Math.random() > 0.5 ? a : b

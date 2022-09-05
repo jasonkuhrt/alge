@@ -1,5 +1,6 @@
 import { AB } from '../../__helpers__.js'
 import { expectType } from 'tsd'
+import { describe, expect, it } from 'vitest'
 
 const a = AB.A.create({ m: `m` })
 

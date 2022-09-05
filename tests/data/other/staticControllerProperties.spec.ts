@@ -1,6 +1,7 @@
 import { data } from '../../../src/index_.js'
 import { $A, $AB, $B } from '../../__helpers__.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 
 it(`The name is statically available.`, () => {
   const A = data($AB).record($A).record($B).done()

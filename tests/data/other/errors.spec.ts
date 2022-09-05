@@ -1,5 +1,6 @@
 import { Alge } from '../../../src/index.js'
 import { $AB } from '../../__helpers__.js'
+import { describe, expect, it } from 'vitest'
 
 describe(`errors`, () => {
   it(`call .done() without any records`, () => {

@@ -1,5 +1,6 @@
 import { Alge } from '../../../src/index.js'
 import { $A, $AB } from '../../__helpers__.js'
+import { expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`is not available in chain until after a record schema`, () => {

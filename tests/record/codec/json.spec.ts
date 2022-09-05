@@ -1,5 +1,6 @@
 import { A } from '../../__helpers__.js'
 import { expectType } from 'tsd'
+import { describe, expect, it } from 'vitest'
 
 it(`is a built in encoder`, () => {
   const a = A.create({ m: `m` })

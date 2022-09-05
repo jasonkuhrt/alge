@@ -1,6 +1,7 @@
 import { Alge } from '../../../src/index.js'
 import { $A, A } from '../../__helpers__.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`If schema not given (aka. no properties), then constructor does not accept input`, () => {

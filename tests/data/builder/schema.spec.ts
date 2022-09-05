@@ -1,6 +1,7 @@
 import { Alge } from '../../../src/index.js'
 import { $AB } from '../../__helpers__.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`zod object schemas can be passed into shorthand builder`, () => {

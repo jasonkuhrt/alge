@@ -1,6 +1,7 @@
 import { Alge } from '../../../src/index.js'
 import { $A, $B, AB } from '../../__helpers__.js'
 import { expectType } from 'tsd'
+import { it } from 'vitest'
 
 it(`Can infer the ADT types from the runtime`, () => {
   expectType<Alge.Infer<typeof AB>>({

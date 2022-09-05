@@ -1,6 +1,7 @@
 import { Alge } from '../../../../src/index.js'
 import { $A, $AB, $B, AB } from '../../../__helpers__.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 import { z } from 'zod'
 
 it(`.schema points to a zod union schema combining all the defined records`, () => {

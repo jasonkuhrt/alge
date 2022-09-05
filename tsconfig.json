@@ -23,7 +23,7 @@
     "tsBuildInfoFile": "node_modules/.cache/.tsbuildinfo",
     "noErrorTruncation": true
   },
-  "include": ["src", "tests", "scripts", "jest.*", "examples/*"],
+  "include": ["src", "tests", "scripts", "examples/*"],
   // Prevent unwanted things like auto-import from built modules
   "exclude": ["dist"],
   "plugins": [

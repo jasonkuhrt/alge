@@ -1,5 +1,6 @@
 import { Alge } from '../../../src/index.js'
 import { expectType } from 'tsd'
+import { expect, it } from 'vitest'
 import { z } from 'zod'
 
 const $A = `A`
