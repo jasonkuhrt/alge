@@ -21,13 +21,13 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
       - run: pnpm lint:check
-  type-check:
+  types:
     needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
-      - run: pnpm type-check
+      - run: pnpm types:check
   test:
     needs: setup
     uses: ./.github/workflows/test.yml
