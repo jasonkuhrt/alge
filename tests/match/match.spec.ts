@@ -102,6 +102,10 @@ describe(`.<tag> (Data Matcher)`, () => {
 })
 
 describe(`.else`, () => {
+  it('does not receive tag X when a data matcher for X has been set', () => {
+    const builder = Alge.match(a as ab).A(() => 1)
+    builder.else((data) => expectType<B>(data))
+  })
   it(`not available if no matchers have been defined`, () => {
     const builder = Alge.match(ab)
     // @ts-expect-error Not available yet.
@@ -119,7 +123,7 @@ describe(`.else`, () => {
   it(`is available if some but not all tag matchers have been defined`, () => {
     const builder = Alge.match(ab).A(() => 1 as const)
     expectType<typeof builder.else>(
-      0 as any as <ThisResult>(value: ThisResult | ((data: ab) => ThisResult)) => 1 | ThisResult
+      0 as any as <ThisResult>(value: ThisResult | ((data: B) => ThisResult)) => 1 | ThisResult
     )
     expect(builder.else).toBeDefined()
   })

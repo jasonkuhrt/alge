@@ -13,7 +13,7 @@ Terminology:
  */
 
 import { OmitTag } from './core/types.js'
-import { inspect } from './lib/utils.js'
+import { inspect, ObjectValues } from './lib/utils.js'
 import { SomeRecord } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
 
@@ -151,6 +151,10 @@ type PostMatcher<ADT extends SomeRecord, PreviousTagsMatched extends string, Res
   ADT['_tag'] extends PreviousTagsMatched ? {
     done: () => Result
   } : {
-    else: <ThisResult extends unknown>(value: ThisResult| ((data: ADT) => ThisResult)) => Result|ThisResult
+    else: <ThisResult extends unknown>(value: ThisResult | ((data: ExcludeByTag<ADT, PreviousTagsMatched>) => ThisResult)) => Result | ThisResult
   }
 )
+
+type ExcludeByTag<Record extends SomeRecord, Tag extends string> = Record extends { _tag: Tag }
+  ? never
+  : Record
