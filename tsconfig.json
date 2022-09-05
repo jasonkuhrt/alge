@@ -2,7 +2,8 @@
   "extends": "@tsconfig/node16/tsconfig.json",
   "ts-node": {
     "experimentalResolver": true,
-    "swc": true
+    "swc": true,
+    "esm": true
   },
   "compilerOptions": {
     "module": "NodeNext",
