@@ -4,6 +4,7 @@ import { OmitRequired, Rest } from '../../lib/utils.js'
 import { z } from '../../lib/z/index.js'
 import { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
 import { SomeStoredRecord, StoredRecord } from './StoredRecord.js'
+import { Any } from 'ts-toolbelt'
 
 export type SomeRecord = {
   _tag: string
@@ -67,16 +68,17 @@ type DecoderMethods<Name extends string, R extends SomeStoredRecord> = {
 }
 
 export namespace RecordController {
-  export type CreateFromSchema<Name extends SomeName, Schema extends SomeSchema> = CreateFromStoredRecord<
-    StoredRecord.AddSchema<Schema, StoredRecord.Create<Name>>
+  export type CreateFromSchema<Name extends SomeName, Schema extends SomeSchema> = Any.Compute<
+    CreateFromStoredRecord<StoredRecord.AddSchema<Schema, StoredRecord.Create<Name>>>,
+    'flat'
   >
 
-  export type CreateFromSchemaDef<
-    Name extends SomeName,
-    SchemaDef extends SomeSchemaDef
-  > = CreateFromStoredRecord<StoredRecord.AddSchemaDef<SchemaDef, StoredRecord.Create<Name>>>
+  export type CreateFromSchemaDef<Name extends SomeName, SchemaDef extends SomeSchemaDef> = Any.Compute<
+    CreateFromStoredRecord<StoredRecord.AddSchemaDef<SchemaDef, StoredRecord.Create<Name>>>,
+    'flat'
+  >
 
-  export type CreateFromStoredRecord<R extends SomeStoredRecord> = RecordController<[R], R>
+  type CreateFromStoredRecord<R extends SomeStoredRecord> = RecordController<[R], R>
 
   export type GetConstructorInput<V extends SomeStoredRecord> = ApplyDefaults<
     V['defaults'],
@@ -95,16 +97,15 @@ export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecor
     codecs: [...string[]]
   }
   name: R[`name`]
-  schema: R['schema']
   /**
    * 
    * @throws If zod schema violated: bad types, failed validation, throw from a transformer.
    */
-  update(record: StoredRecord.GetType<R>, changes: Partial<OmitTag<StoredRecord.GetType<R>>>): StoredRecord.GetType<R>
+  update(record: StoredRecord.GetType<R>, changes: Any.Compute<Partial<OmitTag<StoredRecord.GetType<R>>>>): StoredRecord.GetType<R>
   /**
    * Decoders for this record. Decoders are used to transform other representations of your record back into a record instance.
    */
-  from: {
+  from: Any.Compute<{
     /**
      * Decode JSON into this record. If it fails for any reason, returns `null`.
      *
@@ -117,21 +118,21 @@ export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecor
      * @remarks This is a built in decoder.
      */
     jsonOrThrow(value: string): StoredRecord.GetType<R>
-  } & Decoders<R['codec'], R>
+  } & Decoders<R['codec'], R>>
   // & {
   //   [I in IndexKeys<V['codec']> as AsString<V['codec'][I]>]: Decoder<V['codec']>,V>
   // }
   /**
    * Encoders for this record. Encoders are used to transform your record into another representation.
    */
-  to: {
+  to: Any.Compute<{
     /**
      * Encode an instance of this record into JSON.
      *
      * @remarks This is a built in encoder.
      */
     json(record: StoredRecord.GetType<R>): string
-  } & Encoders<R['codec'], R>
+  } & Encoders<R['codec'], R>>
   /**
    * Strict predicate/type guard for this record.
    *
@@ -168,15 +169,18 @@ export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecor
       /**
        * TODO
        */
-      create(input?: RecordController.GetConstructorInput<R>): StoredRecord.GetType<R>
+      create(input?: Any.Compute<RecordController.GetConstructorInput<R>>): StoredRecord.GetType<R>
     }
   : {
       /**
        * TODO
        */
-      create(input: RecordController.GetConstructorInput<R>): StoredRecord.GetType<R>
+      create(input: Any.Compute<RecordController.GetConstructorInput<R>>): StoredRecord.GetType<R>
     }) &
-  R[`extensions`]
+  R[`extensions`] &
+  {
+    schema: R['schema']
+  }
 
 export type ApplyDefaults<Defaults, Input> = {
   [K in keyof Input as K extends keyof Defaults ? never : K]: Input[K]

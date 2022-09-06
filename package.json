@@ -46,6 +46,7 @@
   "dependencies": {
     "lodash.ismatch": "^4.4.0",
     "remeda": "^1.0.0",
+    "ts-toolbelt": "^9.6.0",
     "zod": "^3.17.3"
   },
   "devDependencies": {
