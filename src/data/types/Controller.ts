@@ -1,3 +1,4 @@
+import { Any } from 'ts-toolbelt'
 import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
 import { SomeName, StoredRecords } from '../../core/types.js'
 import { ObjectValues, OnlyStrings } from '../../lib/utils.js'
@@ -67,9 +68,12 @@ export namespace DataController {
 
 // prettier-ignore
 export type DataController<ADT extends StoredADT, Vs extends StoredRecords> =
-  ADT &
-  ADTMethods<Vs> &
-  RecordsMethods<Vs>
+  Any.Compute<
+    ADT &
+    RecordsMethods<Vs> &
+    ADTMethods<Vs>,
+    'flat'
+  >
 
 /**
  * Build up the API on the ADT itself:
@@ -81,9 +85,9 @@ export type DataController<ADT extends StoredADT, Vs extends StoredRecords> =
  */
 // prettier-ignore
 type ADTMethods<Vs extends StoredRecords> = {
+  from: Any.Compute<DecoderMethods<'json', Vs> & StoredRecords.GetAdtLevelDecoderMethods<Vs>>
+  to: Any.Compute<EncoderMethods<'json', Vs> & StoredRecords.GetAdtLevelEncoderMethods<Vs>>
   schema: StoredRecords.ZodUnion<Vs>
-  from: DecoderMethods<'json', Vs> & StoredRecords.GetAdtLevelDecoderMethods<Vs>
-  to: EncoderMethods<'json', Vs> & StoredRecords.GetAdtLevelEncoderMethods<Vs>
 }
 
 /**
@@ -95,8 +99,7 @@ type ADTMethods<Vs extends StoredRecords> = {
  * ```
  */
 export type RecordsMethods<Vs extends StoredRecords> = {
-  [V in Vs[number] as V[`name`]]: RecordController<Vs, V>
-  // [V in Vs[number] as V[`name`]]: V['schema']
+  [V in Vs[number] as V[`name`]]: Any.Compute<RecordController<Vs, V>, 'flat'>
 }
 
 // Helpers

@@ -31,6 +31,7 @@ specifiers:
   semver: 7.3.7
   semver-utils: 1.1.4
   ts-node: 10.9.1
+  ts-toolbelt: ^9.6.0
   tsd: 0.23.0
   typescript: 4.8.2
   vitest: 0.23.1
@@ -39,6 +40,7 @@ specifiers:
 dependencies:
   lodash.ismatch: 4.4.0
   remeda: 1.0.0
+  ts-toolbelt: 9.6.0
   zod: 3.17.10
 
 devDependencies:
@@ -4033,6 +4035,10 @@ packages:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: true
+
+  /ts-toolbelt/9.6.0:
+    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
+    dev: false
 
   /tsd/0.23.0:
     resolution: {integrity: sha512-dY4p7LbshRQ1hizr+xlbebgkfB0kT8wnQZW7LjBrOsmbws5mt1YYY4VSKoLYXyzYxObIOSQ3qns+tX8tP0Mz6g==}
