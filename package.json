@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@prisma-labs/prettier-config": "0.1.0",
-    "@swc/core": "1.2.247",
+    "@swc/core": "1.2.248",
     "@swc/helpers": "0.4.11",
     "@tsconfig/node16": "1.0.3",
     "@tsconfig/recommended": "1.0.1",
