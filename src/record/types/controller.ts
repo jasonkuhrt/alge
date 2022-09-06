@@ -1,10 +1,10 @@
-import { Any } from 'ts-toolbelt'
 import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
 import { Encoder, OmitTag, SomeName, StoredRecords } from '../../core/types.js'
 import { OmitRequired, Rest } from '../../lib/utils.js'
 import { z } from '../../lib/z/index.js'
 import { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
 import { SomeStoredRecord, StoredRecord } from './StoredRecord.js'
+import { Any } from 'ts-toolbelt'
 
 export type SomeRecord = {
   _tag: string
