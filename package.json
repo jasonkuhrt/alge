@@ -6,6 +6,7 @@
   "packageManager": "pnpm@7.11.0",
   "license": "MIT",
   "type": "module",
+  "types": "./dist/esm/index.d.ts",
   "files": [
     "src",
     "dist"
