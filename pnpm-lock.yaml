@@ -20,7 +20,7 @@ specifiers:
   eslint-plugin-only-warn: 1.0.3
   eslint-plugin-prefer-arrow: 1.2.3
   eslint-plugin-simple-import-sort: 8.0.0
-  eslint-plugin-tsdoc: 0.2.16
+  eslint-plugin-tsdoc: 0.2.17
   execa: 6.1.0
   fast-glob: 3.2.12
   fs-jetpack: 4.3.1
@@ -63,7 +63,7 @@ devDependencies:
   eslint-plugin-only-warn: 1.0.3
   eslint-plugin-prefer-arrow: 1.2.3_eslint@8.23.1
   eslint-plugin-simple-import-sort: 8.0.0_eslint@8.23.1
-  eslint-plugin-tsdoc: 0.2.16
+  eslint-plugin-tsdoc: 0.2.17
   execa: 6.1.0
   fast-glob: 3.2.12
   fs-jetpack: 4.3.1
@@ -406,17 +406,17 @@ packages:
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
     dev: true
 
-  /@microsoft/tsdoc-config/0.16.1:
-    resolution: {integrity: sha512-2RqkwiD4uN6MLnHFljqBlZIXlt/SaUT6cuogU1w2ARw4nKuuppSmR0+s+NC+7kXBQykd9zzu0P4HtBpZT5zBpQ==}
+  /@microsoft/tsdoc-config/0.16.2:
+    resolution: {integrity: sha512-OGiIzzoBLgWWR0UdRJX98oYO+XKGf7tiK4Zk6tQ/E4IJqGCe7dvkTvgDZV5cFJUzLGDOjeAXrnZoA6QkVySuxw==}
     dependencies:
-      '@microsoft/tsdoc': 0.14.1
+      '@microsoft/tsdoc': 0.14.2
       ajv: 6.12.6
       jju: 1.4.0
       resolve: 1.19.0
     dev: true
 
-  /@microsoft/tsdoc/0.14.1:
-    resolution: {integrity: sha512-6Wci+Tp3CgPt/B9B0a3J4s3yMgLNSku6w5TV6mN+61C71UqsRBv2FUibBf3tPGlNxebgPHMEUzKpb1ggE8KCKw==}
+  /@microsoft/tsdoc/0.14.2:
+    resolution: {integrity: sha512-9b8mPpKrfeGRuhFH5iO1iwCLeIIsV6+H1sRfxbkoGXIyQE2BTsPd9zqSqQJ+pv5sJ/hT5M1zvOFL02MnEezFug==}
     dev: true
 
   /@nodelib/fs.scandir/2.1.5:
@@ -1986,11 +1986,11 @@ packages:
       eslint: 8.23.1
     dev: true
 
-  /eslint-plugin-tsdoc/0.2.16:
-    resolution: {integrity: sha512-F/RWMnyDQuGlg82vQEFHQtGyWi7++XJKdYNn0ulIbyMOFqYIjoJOUdE6olORxgwgLkpJxsCJpJbTHgxJ/ggfXw==}
+  /eslint-plugin-tsdoc/0.2.17:
+    resolution: {integrity: sha512-xRmVi7Zx44lOBuYqG8vzTXuL6IdGOeF9nHX17bjJ8+VE6fsxpdGem0/SBTmAwgYMKYB1WBkqRJVQ+n8GK041pA==}
     dependencies:
-      '@microsoft/tsdoc': 0.14.1
-      '@microsoft/tsdoc-config': 0.16.1
+      '@microsoft/tsdoc': 0.14.2
+      '@microsoft/tsdoc-config': 0.16.2
     dev: true
 
   /eslint-rule-docs/1.1.235:
