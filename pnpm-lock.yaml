@@ -32,7 +32,7 @@ specifiers:
   semver-utils: 1.1.4
   ts-node: 10.9.1
   ts-toolbelt: ^9.6.0
-  tsd: 0.24.0
+  tsd: 0.24.1
   typescript: 4.8.3
   vitest: 0.23.2
   zod: ^3.17.3
@@ -72,7 +72,7 @@ devDependencies:
   semver: 7.3.7
   semver-utils: 1.1.4
   ts-node: 10.9.1_7sxqpl6d3o4fxf6xeqpknq4k74
-  tsd: 0.24.0
+  tsd: 0.24.1
   typescript: 4.8.3
   vitest: 0.23.2
 
@@ -4043,8 +4043,8 @@ packages:
     resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
     dev: false
 
-  /tsd/0.24.0:
-    resolution: {integrity: sha512-ae0qE9E0qGTjYP1fGz4TMWKlqK+bpw/MHqPZFAdsrCOmS1er1jDWsBgiKzOF7MqE4I601Gp2c9aKBoYPrM5Uxw==}
+  /tsd/0.24.1:
+    resolution: {integrity: sha512-sD+s81/2aM4RRhimCDttd4xpBNbUFWnoMSHk/o8kC8Ek23jljeRNWjsxFJmOmYLuLTN9swRt1b6iXfUXTcTiIA==}
     engines: {node: '>=14.16'}
     hasBin: true
     dependencies:
