@@ -132,11 +132,14 @@ This is just a taster. Places you can go next:
       - [Usage (`to`, `from`)](#usage-to-from)
   - [Static Types](#static-types)
     - [Namespaces](#namespaces)
-  - [Pattern Matching](#pattern-matching)
+  - [String Literal Union Pattern Matching](#string-literal-union-pattern-matching)
     - [Tag Matchers](#tag-matchers)
+    - [Done Versus Else](#done-versus-else)
+  - [ADT Pattern Matching](#adt-pattern-matching)
+    - [Tag Matchers](#tag-matchers-1)
     - [Value Matchers](#value-matchers)
     - [Mixing Matchers](#mixing-matchers)
-    - [Done Versus Else](#done-versus-else)
+    - [Done Versus Else](#done-versus-else-1)
 
 <!-- tocstop -->
 
@@ -780,13 +783,50 @@ const doSomething = (shape: Shape): null | Shape.Circle => {
 }
 ```
 
-## Pattern Matching
+## String Literal Union Pattern Matching
 
-Use `.match` to branch on your ADT's variants or even branch multiple ways among a single variant based on different data patterns.
+Use `.match` to dispatch code execution based on data patterns. Among other things you can match on unions of string literals. The flow is:
 
-- Pass your value to `Alge.match(yourValue)` to begin the pattern matching.
-- Use tag or data or both matchers (see below)
-- Finish the chain with `.done()` to statically verify variant exhaustiveness or `.else(...)` if you want to specify a fallback value.
+- Pass your value to `Alge.match` to begin the pattern matching.
+- Chain tag matchers
+- Finish with `.done()` to statically verify union exhaustiveness or `.else(...)` if you want to specify a fallback value.
+
+### Tag Matchers
+
+Tag Matchers simply branch based on the string literal. You call `.done()` to perform the exhaustiveness check. If you can't call this (because of static type error) then your pattern matching is not exhaustive. This catches bugs!
+
+```ts
+const randomThing = pickRandom(['lego', 'basketball', 'videoGame'])
+const sentence = Alge.match(randomThing)
+  .lego(() => `Got Lego!`)
+  .basketball(() => `Got Basketball`)
+  .videoGame(() => `Got video game!`)
+  .done()
+```
+
+### Done Versus Else
+
+When you don't want to be exhaustive, use `else` instead of `done`. The value you specify in `else` will be used if no matcher matches.
+
+```ts
+const randomThing = pickRandom(['lego', 'rockClimbing', 'hiking'])
+
+const sentence = Alge.match(randomThing)
+  .lego(() => `Got a toy!`)
+  .else((thing) => `Got an activity! (${thing})`)
+
+const maybeLego = Alge.match(randomThing)
+  .lego(() => 'Got Lego!')
+  .else(null)
+```
+
+## ADT Pattern Matching
+
+Use `.match` to dispatch code execution based on data patterns. Among other things You can match on your ADT's variants either by their tag or a data pattern. The flow is:
+
+- Pass your value to `Alge.match` to begin the pattern matching.
+- Chain tag or data (or both) matchers
+- Finish with `.done()` to statically verify variant exhaustiveness or `.else(...)` if you want to specify a fallback value.
 
 ### Tag Matchers
 
@@ -838,12 +878,12 @@ const result = Alge.match(shape)
   .else(null)
 ```
 
-If you don't want your else to be an eager value, make it lazy with a function:
+If you don't want your else to be an eager value, make it lazy with a function. Also this gives you access to the data (with its type statically narrowed):
 
 ```ts
 const result = Alge.match(shape)
   .Circle((circle) => `Got a circle of radius ${circle.radius}!`)
-  .else(() => (Math.random() > 0.5 ? 1 : 2))
+  .else((shape) => (Math.random() > 0.5 ? [1, shape] : [2, shape]))
 ```
 
 </br></br>
