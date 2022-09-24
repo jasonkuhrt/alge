@@ -121,7 +121,7 @@ describe(`.else`, () => {
     // @ts-expect-error ...
     // But we cannot enforce this at runtime since runtime does not
     // know the number of union members in the static type.
-    expect(builder.else).toBeUndefined()
+    expect(builder.else).toBeDefined()
   })
   it(`is available if some but not all tag matchers have been defined`, () => {
     const builder = Alge.match(ab).A(() => 1 as const)
