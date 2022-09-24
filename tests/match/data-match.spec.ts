@@ -114,11 +114,14 @@ describe(`.else`, () => {
     expect(builder.else).toBeUndefined()
   })
   it(`not available if all tag matchers have been defined`, () => {
-    const builder = Alge.match(ab)
+    // prettier-ignore
+    const builder = Alge.match(ab).A(() => 1).B(() => 2)
     // @ts-expect-error Not available yet.
     builder.else
-    // @ts-expect-error ^^^
-    expect(builder.else).toBeUndefined()
+    // @ts-expect-error ...
+    // But we cannot enforce this at runtime since runtime does not
+    // know the number of union members in the static type.
+    expect(builder.else).toBeDefined()
   })
   it(`is available if some but not all tag matchers have been defined`, () => {
     const builder = Alge.match(ab).A(() => 1 as const)
@@ -173,15 +176,13 @@ describe(`.done`, () => {
     expect(builder.done).toBeUndefined()
   })
   it(`not available if some tag matchers have not been defined`, () => {
-    const builder = Alge.match(ab)
-      .A(() => 1 as const)
-      .B(() => 2 as const)
+    const builder = Alge.match(ab).A(() => 1 as const)
     // @ts-expect-error Not available yet.
-    builder.else
+    builder.done
     // @ts-expect-error ...
     // But we cannot enforce this at runtime since runtime does not
     // know the number of union members in the static type.
-    expect(builder.else).toBeDefined()
+    expect(builder.done).toBeDefined()
   })
   it(`available if all tag matchers have been defined`, () => {
     const builder = Alge.match(ab)
