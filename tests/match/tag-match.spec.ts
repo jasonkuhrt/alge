@@ -6,11 +6,11 @@ import { describe, expect, it } from 'vitest'
 type B = 'B'
 type A = 'A'
 type Tag = A | B
-const aTag = 'A' as Tag
-const bTag = 'B' as Tag
+const tagA = 'A' as Tag
+const tagB = 'B' as Tag
 
 it(`returns a Match Builder, an object with methods named according to the possible tags`, () => {
-  const builder = Alge.match(aTag)
+  const builder = Alge.match(tagA)
   expect(typeof builder.A).toBe(`function`)
   expect(typeof builder.B).toBe(`function`)
   expectType<(handler: () => unknown) => any>(builder.A)
@@ -20,13 +20,13 @@ it(`returns a Match Builder, an object with methods named according to the possi
 describe(`.<tag> (Tag Matcher)`, () => {
   describe(`after a tag matcher`, () => {
     it(`cannot match the same tag again`, () => {
-      const builder = Alge.match(aTag).A(() => 1)
+      const builder = Alge.match(tagA).A(() => 1)
 
       // @ts-expect-error Already defined
       expect(() => builder.A(() => 1)).toThrowErrorMatchingInlineSnapshot(`"A has already been matched on."`)
     })
     it(`can match another tag`, () => {
-      const builder = Alge.match(aTag).A(() => 1 as const)
+      const builder = Alge.match(tagA).A(() => 1 as const)
       expectType<(handler: () => unknown) => any>(builder.B)
       expect(typeof builder.B).toBe(`function`)
     })
@@ -35,18 +35,18 @@ describe(`.<tag> (Tag Matcher)`, () => {
 
 describe(`.else`, () => {
   it('does not receive tag X when a data matcher for X has been set', () => {
-    const builder = Alge.match(aTag).A(() => 1)
+    const builder = Alge.match(tagA).A(() => 1)
     builder.else((tag) => expectType<'B'>(tag))
   })
   it(`not available if no matchers have been defined`, () => {
-    const builder = Alge.match(aTag)
+    const builder = Alge.match(tagA)
     // @ts-expect-error Not available yet.
     builder.else
     // @ts-expect-error ^^^
     expect(builder.else).toBeUndefined()
   })
   it(`not available if all tag matchers have been defined`, () => {
-    const builder = Alge.match(aTag)
+    const builder = Alge.match(tagA)
       .A(() => 1)
       .B(() => 2)
     // @ts-expect-error Not available yet.
@@ -55,45 +55,45 @@ describe(`.else`, () => {
     // expect(builder.else).toBeUndefined()
   })
   it(`is available if some but not all tag matchers have been defined`, () => {
-    const builder = Alge.match(aTag).A(() => 1 as const)
+    const builder = Alge.match(tagA).A(() => 1 as const)
     expectType<typeof builder.else>(
       0 as any as <ThisResult>(value: ThisResult | ((tags: B) => ThisResult)) => ThisResult | 1
     )
     expect(builder.else).toBeDefined()
   })
   it(`executes the matcher and returns else value if no matcher matched`, () => {
-    const builderA = Alge.match(aTag).A(() => 1 as const)
+    const builderA = Alge.match(tagA).A(() => 1 as const)
     expect(builderA.else(null)).toBe(1)
-    const builderB = Alge.match(bTag).A(() => 2 as const)
+    const builderB = Alge.match(tagB).A(() => 2 as const)
     expect(builderB.else(null)).toBeNull()
   })
   describe(`lazy value`, () => {
     it(`if else value is a function then it is considered a lazy value`, () => {
-      const builder = Alge.match(bTag).A(() => 1)
+      const builder = Alge.match(tagB).A(() => 1)
       expect(builder.else(() => 2)).toBe(2)
     })
     it(`receives the data as input`, () => {
-      const builder = Alge.match(bTag).A(() => 1)
+      const builder = Alge.match(tagB).A(() => 1)
       expect(
         builder.else((data) => {
           expectType<Tag>(data)
           return data
         })
-      ).toEqual(bTag)
+      ).toEqual(tagB)
     })
   })
 })
 
 describe(`.done`, () => {
   it(`not available if no matchers have been defined`, () => {
-    const builder = Alge.match(aTag)
+    const builder = Alge.match(tagA)
     // @ts-expect-error Not available yet.
     builder.done
     // @ts-expect-error ^^^
     expect(builder.done).toBeUndefined()
   })
   it(`not available if some tag matchers have not been defined`, () => {
-    const builder = Alge.match(aTag).A(() => 1 as const)
+    const builder = Alge.match(tagA).A(() => 1 as const)
     // @ts-expect-error Not available yet.
     builder.done
     // @ts-expect-error ...
@@ -102,20 +102,20 @@ describe(`.done`, () => {
     expect(builder.done).toBeDefined()
   })
   it(`available if all tag matchers have been defined`, () => {
-    const builder = Alge.match(aTag)
+    const builder = Alge.match(tagA)
       .A(() => 1 as const)
       .B(() => 2 as const)
     expectType<() => 1 | 2>(builder.done)
     expect(typeof builder.done).toBe(`function`)
   })
   it(`executes the matcher and returns the result`, () => {
-    const resultA = Alge.match(aTag)
+    const resultA = Alge.match(tagA)
       .A(() => 1 as const)
       .B(() => 2 as const)
       .done()
     expectType<1 | 2>(resultA)
     expect(resultA).toEqual(1)
-    const resultB = Alge.match(bTag)
+    const resultB = Alge.match(tagB)
       .A(() => 1 as const)
       .B(() => 2 as const)
       .done()

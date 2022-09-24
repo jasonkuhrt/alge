@@ -34,14 +34,14 @@ export interface DataMatcherDefinition {
 }
 
 // prettier-ignore
-export function match<Tag extends SomeTag>(algebraicDataType: Tag): ChainTagPreMatcher<Tag, never>
+export function match<Tag extends SomeTag>(tag: Tag): ChainTagPreMatcher<Tag, never>
 // prettier-ignore
 export function match<AlgebraicDataType extends SomeRecord>(algebraicDataType: AlgebraicDataType): ChainPreMatcher<AlgebraicDataType, never>
 // prettier-ignore
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function match <AlgebraicDataType extends SomeTag|SomeRecord>(algebraicDataType: AlgebraicDataType):
-  AlgebraicDataType extends string     ? ChainTagPreMatcher<AlgebraicDataType, never> :
-  AlgebraicDataType extends SomeRecord ? ChainPreMatcher<AlgebraicDataType, never> :
+export function match <AlgebraicDataTypeOrTag extends SomeTag|SomeRecord>(input: AlgebraicDataTypeOrTag):
+  AlgebraicDataTypeOrTag extends string     ? ChainTagPreMatcher<AlgebraicDataTypeOrTag, never> :
+  AlgebraicDataTypeOrTag extends SomeRecord ? ChainPreMatcher<AlgebraicDataTypeOrTag, never> :
   never {
 
   const elseBranch: { defined: boolean; value: unknown | ((data: object) => unknown) } = {
@@ -53,24 +53,24 @@ export function match <AlgebraicDataType extends SomeTag|SomeRecord>(algebraicDa
 
   const execute = () => {
     for (const matcher of matcherStack) {
-      if (typeof algebraicDataType === `string` && matcher.tag === algebraicDataType || typeof algebraicDataType === `object` && matcher.tag === algebraicDataType._tag) {
+      if (typeof input === `string` && matcher.tag === input || typeof input === `object` && matcher.tag === input._tag) {
         if (matcher._tag === `DataMatcherDefinition`) {
-          if (isMatch(algebraicDataType as SomeRecord, matcher.dataPattern)) {
-            return matcher.handler(algebraicDataType as SomeRecord)
+          if (isMatch(input as SomeRecord, matcher.dataPattern)) {
+            return matcher.handler(input as SomeRecord)
           }
         } else {
-          return matcher.handler(algebraicDataType)
+          return matcher.handler(input)
         }
       }
     }
     if (elseBranch.defined) {
       return typeof elseBranch.value === `function`
-        ? (elseBranch.value(algebraicDataType) as unknown)
+        ? (elseBranch.value(input) as unknown)
         : elseBranch.value
     }
     throw new Error(
       `No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://jasonkuhrt/alge. The given data was:\n${inspect(
-        algebraicDataType
+        input
       )}`
     )
   }
