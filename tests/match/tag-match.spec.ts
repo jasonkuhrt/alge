@@ -33,6 +33,14 @@ describe(`.<tag> (Tag Matcher)`, () => {
   })
 })
 
+describe(`.<tag> (Data Matcher)`, () => {
+  it('is not available', () => {
+    const builder = Alge.match(tagA)
+    // @ts-expect-error
+    builder.A({ x: 'foo' }, (data) => 1)
+  })
+})
+
 describe(`.else`, () => {
   it('does not receive tag X when a data matcher for X has been set', () => {
     const builder = Alge.match(tagA).A(() => 1)
