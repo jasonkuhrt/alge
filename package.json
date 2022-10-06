@@ -3,7 +3,7 @@
   "version": "0.0.0-dripip",
   "repository": "git@github.com:jasonkuhrt/alge.git",
   "author": "Jason Kuhrt",
-  "packageManager": "pnpm@7.13.1",
+  "packageManager": "pnpm@7.13.2",
   "license": "MIT",
   "type": "module",
   "types": "./dist/esm/index.d.ts",
