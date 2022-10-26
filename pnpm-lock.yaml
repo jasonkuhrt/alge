@@ -8,7 +8,7 @@ specifiers:
   '@tsconfig/recommended': 1.0.1
   '@types/lodash.ismatch': 4.4.7
   '@types/node': 18.11.6
-  '@types/semver': 7.3.12
+  '@types/semver': 7.3.13
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.41.0
   '@typescript-eslint/parser': 5.41.0
@@ -51,7 +51,7 @@ devDependencies:
   '@tsconfig/recommended': 1.0.1
   '@types/lodash.ismatch': 4.4.7
   '@types/node': 18.11.6
-  '@types/semver': 7.3.12
+  '@types/semver': 7.3.13
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.41.0_huremdigmcnkianavgfk3x6iou
   '@typescript-eslint/parser': 5.41.0_wyqvi574yv7oiwfeinomdzmc3m
@@ -929,8 +929,8 @@ packages:
     resolution: {integrity: sha512-WLZZQdwo5P+H6R+bDDCFqFSlP5Jtk6gyXpE0R0KAVQbcMGmxpVsNX8dah640hY4+PpRG2+Ph3dcwDHzrOAOZ7A==}
     dev: true
 
-  /@types/semver/7.3.12:
-    resolution: {integrity: sha512-WwA1MW0++RfXmCr12xeYOOC5baSC9mSb0ZqCquFzKhcoF4TvHu5MKOuXsncgZcpVFhB1pXd5hZmM0ryAoCp12A==}
+  /@types/semver/7.3.13:
+    resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
     dev: true
 
   /@types/stack-utils/2.0.1:
@@ -1119,7 +1119,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       '@types/json-schema': 7.0.11
-      '@types/semver': 7.3.12
+      '@types/semver': 7.3.13
       '@typescript-eslint/scope-manager': 5.41.0
       '@typescript-eslint/types': 5.41.0
       '@typescript-eslint/typescript-estree': 5.41.0_typescript@4.8.4
