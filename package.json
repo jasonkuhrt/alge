@@ -57,7 +57,7 @@
     "@tsconfig/node16": "1.0.3",
     "@tsconfig/recommended": "1.0.1",
     "@types/lodash.ismatch": "4.4.7",
-    "@types/node": "18.11.14",
+    "@types/node": "18.11.15",
     "@types/semver": "7.3.13",
     "@types/semver-utils": "1.1.1",
     "@typescript-eslint/eslint-plugin": "5.46.1",
