@@ -5,7 +5,7 @@
 
 > Hey 👋, FYI here are some other TypeScript-first libraries I've created that might interest you:
 >
-> [`@molt/command`](https://github.com/jasonkuhrt/molt) for building simple scripts and command lines.
+> [`@molt/command`](https://github.com/jasonkuhrt/molt/tree/main/packages/@molt/command) for building simple scripts and command lines.
 
 ## TL;DR
 
