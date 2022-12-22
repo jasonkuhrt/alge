@@ -3,6 +3,10 @@
 [![trunk](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml/badge.svg)](https://github.com/jasonkuhrt/alge/actions/workflows/trunk.yml)
 [![npm version](https://img.shields.io/npm/v/alge.svg)](https://www.npmjs.com/package/alge)
 
+> Hey 👋, FYI here are some other TypeScript-first libraries I've created that might interest you:
+>
+> [`@molt/command`](https://github.com/jasonkuhrt/molt) for building simple scripts and command lines.
+
 ## TL;DR
 
 Library for creating [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) in TypeScript. Pronounced "AL GEE" like [the plant](https://en.wikipedia.org/wiki/Algae) ([or whatever it is](https://www.indefenseofplants.com/blog/2018/2/20/are-algae-plants)). Schemas powered by [Zod](https://github.com/colinhacks/zod) <3.
