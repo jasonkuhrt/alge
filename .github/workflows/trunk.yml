@@ -3,10 +3,7 @@ on:
   push:
     branches: [main]
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml
   release-canary:
-    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: prisma-labs/dripip@master
