@@ -1,8 +1,8 @@
-import { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
-import { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
-import { RecordController } from '../record/types/controller.js'
-import { SomeStoredRecord, StoredRecord } from '../record/types/StoredRecord.js'
-import { z } from 'zod'
+import type { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
+import type { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
+import type { RecordController } from '../record/types/controller.js'
+import type { SomeStoredRecord, StoredRecord } from '../record/types/StoredRecord.js'
+import type { z } from 'zod'
 
 export type OmitTag<T> = Omit<T, '_tag'>
 

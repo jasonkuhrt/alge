@@ -1,10 +1,10 @@
-import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
-import { SomeName, StoredRecords } from '../../core/types.js'
-import { ObjectValues, OnlyStrings } from '../../lib/utils.js'
-import { RecordController } from '../../record/types/controller.js'
-import { StoredRecord } from '../../record/types/StoredRecord.js'
-import { StoredADT } from './Builder.js'
-import { Any } from 'ts-toolbelt'
+import type { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
+import type { SomeName, StoredRecords } from '../../core/types.js'
+import type { ObjectValues, OnlyStrings } from '../../lib/utils.js'
+import type { RecordController } from '../../record/types/controller.js'
+import type { StoredRecord } from '../../record/types/StoredRecord.js'
+import type { StoredADT } from './Builder.js'
+import type { Any } from 'ts-toolbelt'
 
 export type SomeShortHandRecordSchemaDefs = Record<string, SomeSchemaDef>
 

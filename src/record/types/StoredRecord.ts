@@ -1,10 +1,10 @@
 // prettier-ignore
 
-import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
-import { ExtensionsBase, SomeName } from '../../core/types.js'
-import { SomeDefaults } from './builder.js'
-import { SomeRecordController } from './controller.js'
-import { z } from 'zod'
+import type { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
+import type { ExtensionsBase, SomeName } from '../../core/types.js'
+import type { SomeDefaults } from './builder.js'
+import type { SomeRecordController } from './controller.js'
+import type { z } from 'zod'
 
 export type SomeStoredRecord = {
   name: string

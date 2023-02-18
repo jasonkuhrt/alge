@@ -1,8 +1,8 @@
-import { SomeSchema } from '../../core/internal.js'
-import { InputBase } from '../../core/types.js'
-import { SomeDefaults } from './builder.js'
-import { SomeRecordController } from './controller.js'
-import { z } from 'zod'
+import type { SomeSchema } from '../../core/internal.js'
+import type { InputBase } from '../../core/types.js'
+import type { SomeDefaults } from './builder.js'
+import type { SomeRecordController } from './controller.js'
+import type { z } from 'zod'
 
 export type SomeRecordConstructorInput = Record<string, unknown>
 

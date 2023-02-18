@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import type { z } from 'zod'
 
 export type SomeSchema = z.ZodObject<z.ZodRawShape>
 
