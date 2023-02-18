@@ -70,7 +70,7 @@ it(`the constructor can pass an explicit undefined which is still overridden by 
   // @ts-expect-error ...
   // Strictest type checking prevents `undefined` to optional key without
   // presence of union. In this test we don't care. That type setting is particular to users'
-  // projects. Here we're doing a runtime test. 
+  // projects. Here we're doing a runtime test.
   expect(A.create({ m: undefined, n: 1 })).toEqual({
     m: `m`,
     n: 1,
