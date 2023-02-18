@@ -1,18 +1,24 @@
 import { Errors } from '../Errors/index.js'
 import { r } from '../lib/r.js'
-import { code, inspect, isEmpty, TupleToObject } from '../lib/utils.js'
+import type { TupleToObject } from '../lib/utils.js'
+import { code, inspect, isEmpty } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { record } from '../record/runtime.js'
-import { SomeRecordController, SomeRecordInternal } from '../record/types/controller.js'
-import { SomeDecodeOrThrower, SomeDecoder, SomeEncoder, SomeRecordBuilder } from '../record/types/internal.js'
-import { Initial } from './types/Builder.js'
-import {
+import type { SomeRecordController, SomeRecordInternal } from '../record/types/controller.js'
+import type {
+  SomeDecodeOrThrower,
+  SomeDecoder,
+  SomeEncoder,
+  SomeRecordBuilder,
+} from '../record/types/internal.js'
+import type { Initial } from './types/Builder.js'
+import type {
   DataController,
   SomeShortHandRecordSchemaDefs,
   SomeShortHandRecordSchemas,
 } from './types/Controller.js'
-import { SomeDataController } from './types/internal.js'
-import { SomeZodObject } from 'zod'
+import type { SomeDataController } from './types/internal.js'
+import type { SomeZodObject } from 'zod'
 
 export type SomeAdtMethods = {
   name: string

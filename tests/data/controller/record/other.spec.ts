@@ -1,7 +1,7 @@
 import { $A, $B, AB } from '../../../__helpers__.js'
 import { expectType } from 'tsd'
 import { expect, it } from 'vitest'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 it(`._.symbol contains the unique symbol for this record`, () => {
   expectType<symbol>(AB.A._.symbol)

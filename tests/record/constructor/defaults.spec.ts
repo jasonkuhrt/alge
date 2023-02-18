@@ -66,7 +66,11 @@ it(`the constructor can override a given default`, () => {
     },
   })
 })
-it(`the constructor can pass an explicit undefined which is still overriden by the defaults`, () => {
+it(`the constructor can pass an explicit undefined which is still overridden by the defaults`, () => {
+  // @ts-expect-error ...
+  // Strictest type checking prevents `undefined` to optional key without
+  // presence of union. In this test we don't care. That type setting is particular to users'
+  // projects. Here we're doing a runtime test.
   expect(A.create({ m: undefined, n: 1 })).toEqual({
     m: `m`,
     n: 1,

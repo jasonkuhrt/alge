@@ -12,9 +12,9 @@ Terminology:
 - Handler
  */
 
-import { OmitTag } from './core/types.js'
+import type { OmitTag } from './core/types.js'
 import { inspect } from './lib/utils.js'
-import { SomeRecord } from './record/types/controller.js'
+import type { SomeRecord } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
 export type SomeTag = string
 

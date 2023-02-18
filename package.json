@@ -6,39 +6,37 @@
   "packageManager": "pnpm@7.27.1",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/esm/index.d.ts",
+  "types": "./build/esm/index.d.ts",
   "files": [
     "src",
-    "dist"
+    "build"
   ],
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/cjs/index.d.cts",
-        "default": "./dist/cjs/index.cjs"
+        "types": "./build/cjs/index.d.cts",
+        "default": "./build/cjs/index.cjs"
       },
       "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm/index.js"
       }
     }
   },
   "scripts": {
     "ts-node": "ts-node-esm",
     "build:toc": "markdown-toc README.md -i --maxdepth 4 && prettier --write README.md",
-    "format": "pnpm format:prettier",
-    "format:prettier": "prettier --write .",
-    "format:check": "pnpm format:check:prettier",
-    "format:check:prettier": "prettier --check .",
+    "format": "prettier --write .",
     "lint": "eslint . --ext .ts,.tsx --fix",
-    "lint:check": "eslint . --ext .ts,.tsx --max-warnings 0",
-    "types:check": "pnpm tsc --noEmit",
+    "check:format": "prettier --check .",
+    "check:lint": "eslint . --ext .ts,.tsx --max-warnings 0",
+    "check:types": "pnpm tsc --noEmit",
     "dev": "pnpm clean && tsc --build --watch tsconfig.cjs.json tsconfig.esm.json",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm",
-    "build:cjs": "ts-node scripts/build-cjs",
+    "build:cjs": "pnpm tsc --project tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > build/cjs/package.json",
     "build:esm": "tsc --project tsconfig.esm.json",
     "test": "vitest",
-    "clean": "rm -rf dist node_modules/.cache",
+    "clean": "tsc --build --clean && rm -rf build",
     "release:pr": "dripip pr",
     "release:canary": "dripip preview",
     "release:stable": "dripip stable",
@@ -54,8 +52,7 @@
     "@prisma-labs/prettier-config": "0.1.0",
     "@swc/core": "1.3.35",
     "@swc/helpers": "0.4.14",
-    "@tsconfig/node16": "1.0.3",
-    "@tsconfig/recommended": "1.0.2",
+    "@tsconfig/node16-strictest": "^1.0.4",
     "@types/lodash.ismatch": "4.4.7",
     "@types/node": "18.14.0",
     "@types/semver": "7.3.13",

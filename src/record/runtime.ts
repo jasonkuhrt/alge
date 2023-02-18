@@ -1,12 +1,16 @@
 import { is } from '../core/helpers.js'
-import { SomeSchema, SomeSchemaDef } from '../core/internal.js'
-import { ExtensionsBase } from '../core/types.js'
+import type { SomeSchema, SomeSchemaDef } from '../core/internal.js'
+import type { ExtensionsBase } from '../core/types.js'
 import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
-import { Initial } from './types/builder.js'
-import { RecordController, SomeRecordController } from './types/controller.js'
-import { SomeCodecDefinition, SomeDefaultsProvider, SomeRecordConstructorInput } from './types/internal.js'
-import { SomeStoredRecord } from './types/StoredRecord.js'
+import type { Initial } from './types/builder.js'
+import type { RecordController, SomeRecordController } from './types/controller.js'
+import type {
+  SomeCodecDefinition,
+  SomeDefaultsProvider,
+  SomeRecordConstructorInput,
+} from './types/internal.js'
+import type { SomeStoredRecord } from './types/StoredRecord.js'
 
 export type RecordBuildState = Omit<SomeStoredRecord, 'codec' | 'schema' | 'defaults'> & {
   codecs: [string, SomeCodecDefinition][]

@@ -2,11 +2,11 @@
  * This module is concerned with the static types for the API of building up an ADT.
  */
 
-import { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
-import { CodecImplementation, ExtensionsBase, SomeName, StoredRecords } from '../../core/types.js'
-import { SomeRecordController } from '../../record/types/controller.js'
-import { SomeStoredRecord, StoredRecord } from '../../record/types/StoredRecord.js'
-import { DataController } from './Controller.js'
+import type { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
+import type { CodecImplementation, ExtensionsBase, SomeName, StoredRecords } from '../../core/types.js'
+import type { SomeRecordController } from '../../record/types/controller.js'
+import type { SomeStoredRecord, StoredRecord } from '../../record/types/StoredRecord.js'
+import type { DataController } from './Controller.js'
 
 /**
  * The initial API for building an ADT.

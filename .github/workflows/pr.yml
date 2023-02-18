@@ -13,21 +13,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
-      - run: pnpm format:check:prettier
+      - run: pnpm check:format
   eslint:
     needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
-      - run: pnpm lint:check
+      - run: pnpm check:lint
   types:
     needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
-      - run: pnpm types:check
+      - run: pnpm check:types
   test:
     needs: setup
     uses: ./.github/workflows/test.yml

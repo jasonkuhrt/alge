@@ -1,5 +1,6 @@
-import { Alge } from '../../../src/index.js'
-import { $A, $B, AB } from '../../__helpers__.js'
+import type { Alge } from '../../../src/index.js'
+import type { AB } from '../../__helpers__.js'
+import { $A, $B } from '../../__helpers__.js'
 import { expectType } from 'tsd'
 import { it } from 'vitest'
 

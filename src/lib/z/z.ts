@@ -1,5 +1,5 @@
 export * from 'zod'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 export type Omit<
   T extends z.ZodObject<z.ZodRawShape>,
