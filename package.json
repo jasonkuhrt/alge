@@ -14,12 +14,22 @@
   "exports": {
     ".": {
       "require": {
-        "types": "./build/cjs/index.d.cts",
-        "default": "./build/cjs/index.cjs"
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
       },
       "import": {
         "types": "./build/esm/index.d.ts",
         "default": "./build/esm/index.js"
+      }
+    },
+    "./types": {
+      "require": {
+        "types": "./build/cjs/entrypoints/types.d.ts",
+        "default": "./build/cjs/entrypoints/types.js"
+      },
+      "import": {
+        "types": "./build/esm/entrypoints/types.d.ts",
+        "default": "./build/esm/entrypoints/types.js"
       }
     }
   },
