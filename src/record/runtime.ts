@@ -5,7 +5,11 @@ import { applyDefaults, extendChain, isEmptySchema, tryOrNull } from '../lib/uti
 import { z } from '../lib/z/index.js'
 import type { Initial } from './types/builder.js'
 import type { RecordController, SomeRecordController } from './types/controller.js'
-import type { SomeCodecDefinition, SomeDefaultsProvider, SomeRecordConstructorInput } from './types/internal.js'
+import type {
+  SomeCodecDefinition,
+  SomeDefaultsProvider,
+  SomeRecordConstructorInput,
+} from './types/internal.js'
 import type { SomeStoredRecord } from './types/StoredRecord.js'
 
 export type RecordBuildState = Omit<SomeStoredRecord, 'codec' | 'schema' | 'defaults'> & {

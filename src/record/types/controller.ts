@@ -2,7 +2,12 @@ import type { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
 import type { Encoder, OmitTag, SomeName, StoredRecords } from '../../core/types.js'
 import type { OmitRequired, Rest } from '../../lib/utils.js'
 import type { z } from '../../lib/z/index.js'
-import type { SomeDecodeOrThrowJson, SomeDecoderJson, SomeDefaultsProvider, SomeEncoderJson } from './internal.js'
+import type {
+  SomeDecodeOrThrowJson,
+  SomeDecoderJson,
+  SomeDefaultsProvider,
+  SomeEncoderJson,
+} from './internal.js'
 import type { SomeStoredRecord, StoredRecord } from './StoredRecord.js'
 import type { Any } from 'ts-toolbelt'
 

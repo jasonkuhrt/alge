@@ -22,6 +22,6 @@
     "tsBuildInfoFile": "node_modules/.cache/.tsbuildinfo",
     "noErrorTruncation": true
   },
-  "include": ["src", "tests", "scripts"],
+  "include": ["src", "tests", "scripts", "examples"],
   "exclude": ["build"]
 }

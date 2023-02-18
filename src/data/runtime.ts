@@ -1,11 +1,16 @@
 import { Errors } from '../Errors/index.js'
 import { r } from '../lib/r.js'
-import type { TupleToObject } from '../lib/utils.js';
+import type { TupleToObject } from '../lib/utils.js'
 import { code, inspect, isEmpty } from '../lib/utils.js'
 import { z } from '../lib/z/index.js'
 import { record } from '../record/runtime.js'
 import type { SomeRecordController, SomeRecordInternal } from '../record/types/controller.js'
-import type { SomeDecodeOrThrower, SomeDecoder, SomeEncoder, SomeRecordBuilder } from '../record/types/internal.js'
+import type {
+  SomeDecodeOrThrower,
+  SomeDecoder,
+  SomeEncoder,
+  SomeRecordBuilder,
+} from '../record/types/internal.js'
 import type { Initial } from './types/Builder.js'
 import type {
   DataController,
