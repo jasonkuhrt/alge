@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Alge } from '../../src/index.js'
-import { SomeRecord } from '../../src/record/types/controller.js'
+import type { SomeRecord } from '../../src/record/types/controller.js'
 import { $A, $AB, $B, A, a, ab, B, b } from '../__helpers__.js'
 import { expectType } from 'tsd'
 import { describe, expect, it } from 'vitest'
