@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
-      - run: pnpm check:format:prettier
+      - run: pnpm check:format
   eslint:
     needs: setup
     runs-on: ubuntu-latest
