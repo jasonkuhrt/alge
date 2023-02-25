@@ -36,7 +36,7 @@ describe(`.<tag> (Tag Matcher)`, () => {
 })
 
 describe(`.<tag> (Data Matcher)`, () => {
-  it.only(`Accepts a data pattern followed by the handler`, () => {
+  it(`Accepts a data pattern followed by the handler`, () => {
     const builder = Alge.match(a as ab)
     expectType<(dataPattern: a, handler: (data: a) => unknown) => any>(builder.A)
     expect(builder.A({ m: `m` }, () => 1).else(null)).toBe(1)
