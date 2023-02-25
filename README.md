@@ -832,9 +832,20 @@ Use `.match` to dispatch code execution based on data patterns. Among other thin
 - Chain tag or data (or both) matchers
 - Finish with `.done()` to statically verify variant exhaustiveness or `.else(...)` if you want to specify a fallback value.
 
+You can see some examples in action [here](./examples/Match.ts).
+
 ### Tag Matchers
 
-Tag Matchers simply branch based on the variant's tag (`_tag`). You call `.done()` to perform the exhaustiveness check. If you can't call this (because of static type error) then your pattern matching is not exhaustive. This catches bugs!
+Tag Matchers simply branch based on the variant's tag property. The tag property can be any of the following. The first one found in the following order is used. so for example if both `_kind` and `type` are present then `_kind` is considered the tag property.
+
+- `__typename` (this is helpful if you're working with GraphQL unions)
+- `_tag`
+- `_type`
+- `_kind`
+- `type`
+- `kind`
+
+You call `.done()` to perform the exhaustiveness check. If you can't call this (because of static type error) then your pattern matching is not exhaustive. This catches bugs!
 
 ```ts
 const result = Alge.match(shape)

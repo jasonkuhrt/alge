@@ -60,6 +60,11 @@
     // Needed when working with .mts/.cts where a lone e.g. <T> is not allowed
     "@typescript-eslint/no-unnecessary-type-constraint": "off",
     // Useful for organizing Types
-    "@typescript-eslint/no-namespace": "off"
+    "@typescript-eslint/no-namespace": "off",
+    // Turn training wheels off. When we want these we want these.
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
