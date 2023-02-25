@@ -19,16 +19,54 @@ const _fruitMatchResult = Alge.match(fruit)
  * You can work with different names for the discriminant property. See docs for all options. Here are a few examples:
  */
 
-type Shape = { type: `circle`; radius: number } | { type: `square`; size: number }
+/**
+ * Example with `type`
+ */
+
+type Shape =
+  | { type: `circle`; radius: number }
+  | { type: `square`; size: number }
+  | { type: `rectangle`; width: number; height: number }
 
 const shapes = [
   { type: `circle`, radius: 10 },
   { type: `square`, size: 20 },
+  { type: `rectangle`, width: 30, height: 40 },
 ] satisfies [Shape, ...Shape[]]
 
-const shape = Math.random() > 0.5 ? shapes[0] : shapes[1]
+const shape = shapes[Math.floor(Math.random() * shapes.length)]!
 
 const _shapeMatchResult = Alge.match(shape)
   .circle(() => `Do something with circle` as const)
   .square(() => `Do something with square` as const)
+  .rectangle(() => `Do something with rectangle` as const)
+  .done()
+
+/**
+ * Example with `kind`
+ */
+
+type Hero =
+  | { kind: 'superman' }
+  | { kind: 'batman' }
+  | { kind: 'spiderman' }
+  | { kind: 'wonderWoman' }
+  | { kind: 'flash' }
+
+const heroes = [
+  { kind: `superman` },
+  { kind: `batman` },
+  { kind: `spiderman` },
+  { kind: `wonderWoman` },
+  { kind: `flash` },
+] satisfies [Hero, ...Hero[]]
+
+const hero = heroes[Math.floor(Math.random() * heroes.length)]!
+
+const _heroMatchResult = Alge.match(hero)
+  .batman(() => `Do something with batman` as const)
+  .flash(() => `Do something with flash` as const)
+  .spiderman(() => `Do something with spiderman` as const)
+  .superman(() => `Do something with superman` as const)
+  .wonderWoman(() => `Do something with wonderWoman` as const)
   .done()

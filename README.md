@@ -832,6 +832,8 @@ Use `.match` to dispatch code execution based on data patterns. Among other thin
 - Chain tag or data (or both) matchers
 - Finish with `.done()` to statically verify variant exhaustiveness or `.else(...)` if you want to specify a fallback value.
 
+You can see some examples in action [here](./examples/Match.ts).
+
 ### Tag Matchers
 
 Tag Matchers simply branch based on the variant's tag property. The tag property can be any of the following. The first one found in the following order is used. so for example if both `_kind` and `type` are present then `_kind` is considered the tag property.
