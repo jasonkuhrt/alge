@@ -14,7 +14,8 @@ Terminology:
 
 import type { OmitTag } from './core/types.js'
 import { inspect } from './lib/utils.js'
-import type { SomeRecord } from './record/types/controller.js'
+import type { GetTag, GetTagProperty, SomeRecord, SomeTaggedRecord } from './record/types/controller.js'
+import { getTag } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
 export type SomeTag = string
 
@@ -36,10 +37,10 @@ export interface DataMatcherDefinition {
 // prettier-ignore
 export function match<Tag extends SomeTag>(tag: Tag): ChainTagPreMatcher<Tag, never>
 // prettier-ignore
-export function match<AlgebraicDataType extends SomeRecord>(algebraicDataType: AlgebraicDataType): ChainPreMatcher<AlgebraicDataType, never>
+export function match<AlgebraicDataType extends SomeTaggedRecord>(algebraicDataType: AlgebraicDataType): ChainPreMatcher<AlgebraicDataType, never>
 // prettier-ignore
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function match <AlgebraicDataTypeOrTag extends SomeTag|SomeRecord>(input: AlgebraicDataTypeOrTag):
+export function match <AlgebraicDataTypeOrTag extends SomeTag | SomeTaggedRecord>(input: AlgebraicDataTypeOrTag):
   AlgebraicDataTypeOrTag extends string     ? ChainTagPreMatcher<AlgebraicDataTypeOrTag, never> :
   AlgebraicDataTypeOrTag extends SomeRecord ? ChainPreMatcher<AlgebraicDataTypeOrTag, never> :
   never {
@@ -53,7 +54,7 @@ export function match <AlgebraicDataTypeOrTag extends SomeTag|SomeRecord>(input:
 
   const execute = () => {
     for (const matcher of matcherStack) {
-      if (typeof input === `string` && matcher.tag === input || typeof input === `object` && matcher.tag === input._tag) {
+      if (typeof input === `string` && matcher.tag === input || typeof input === `object` && matcher.tag === getTag(input)) {
         if (matcher._tag === `DataMatcherDefinition`) {
           if (isMatch(input as SomeRecord, matcher.dataPattern)) {
             return matcher.handler(input as SomeRecord)
@@ -132,11 +133,13 @@ export function match <AlgebraicDataTypeOrTag extends SomeTag|SomeRecord>(input:
   return proxy as any
 }
 
-type PickRecordHavingTag<Tag extends string, ADT extends SomeRecord> = ADT extends { _tag: Tag } ? ADT : never
+type PickRecordHavingTag<Tag extends string, ADT extends SomeTaggedRecord> = ADT extends { _tag: Tag }
+  ? ADT
+  : never
 
 //prettier-ignore
-type ChainPreMatcher<ADT extends SomeRecord, Result> = {
-  [Tag in ADT['_tag']]:
+type ChainPreMatcher<ADT extends SomeTaggedRecord, Result> = {
+  [Tag in GetTag<ADT>]:
      (<ThisResult extends unknown, Pattern extends Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickRecordHavingTag<Tag, ADT>, test:Pattern) => ThisResult) => ChainPostMatcher<ADT, never, ThisResult | Result>) &
      (<ThisResult extends unknown>(handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, Tag, ThisResult | Result>)
 }
@@ -147,15 +150,15 @@ type ChainPreMatcher<ADT extends SomeRecord, Result> = {
  *    never be called at runtime
  */
 //prettier-ignore
-type ChainPostMatcher<ADT extends SomeRecord, TagsPreviouslyMatched extends string, Result> = {
-  [Tag in Exclude<ADT['_tag'], TagsPreviouslyMatched>]:
+type ChainPostMatcher<ADT extends SomeTaggedRecord, TagsPreviouslyMatched extends string, Result> = {
+  [Tag in Exclude<GetTagProperty<ADT>, TagsPreviouslyMatched>]:
   (
     (<ThisResult extends unknown, Pattern extends Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, TagsPreviouslyMatched, '__init__' extends Result ? ThisResult : ThisResult | Result>) &
     (<ThisResult extends unknown>(handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, Tag|TagsPreviouslyMatched, ThisResult | Result>)
   )
   //      ^[1]                 ^[1]
 } & (
-  Exclude<ADT['_tag'], TagsPreviouslyMatched> extends never ? {
+  Exclude<GetTagProperty<ADT>, TagsPreviouslyMatched> extends never ? {
     done: () => Result
   } : {
     else: <ThisResult extends unknown>(value: ThisResult | ((data: ExcludeByTag<ADT, TagsPreviouslyMatched>) => ThisResult)) => Result | ThisResult
@@ -182,6 +185,8 @@ type ChainTagPostMatcher<Tags extends SomeTag, TagsPreviouslyMatched extends str
   }
 )
 
-type ExcludeByTag<Record extends SomeRecord, Tag extends string> = Record extends { _tag: Tag }
+// prettier-ignore
+type ExcludeByTag<TaggedRecord extends SomeTaggedRecord, Tag extends string> =
+  TaggedRecord extends { [k in GetTag<TaggedRecord>]: Tag }
   ? never
-  : Record
+  : TaggedRecord

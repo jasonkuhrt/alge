@@ -9,6 +9,57 @@ type Tag = A | B
 const tagA = 'A' as Tag
 const tagB = 'B' as Tag
 
+describe('accepted tag properties', () => {
+  it(`_tag`, () => {
+    const adt = Math.random() > 0.5 ? { _tag: 'A' as const } : { _tag: 'B' as const }
+    const builder = Alge.match(adt)
+    expect(typeof builder.A).toBe(`function`)
+    expect(typeof builder.B).toBe(`function`)
+    expectType<(handler: () => unknown) => any>(builder.A)
+    expectType<(handler: () => unknown) => any>(builder.B)
+  })
+  it(`__typename`, () => {
+    const adt = Math.random() > 0.5 ? { __typename: 'A' as const } : { __typename: 'B' as const }
+    const builder = Alge.match(adt)
+    expect(typeof builder.A).toBe(`function`)
+    expect(typeof builder.B).toBe(`function`)
+    expectType<(handler: () => unknown) => any>(builder.A)
+    expectType<(handler: () => unknown) => any>(builder.B)
+  })
+  it(`_type`, () => {
+    const adt = Math.random() > 0.5 ? { _type: 'A' as const } : { _type: 'B' as const }
+    const builder = Alge.match(adt)
+    expect(typeof builder.A).toBe(`function`)
+    expect(typeof builder.B).toBe(`function`)
+    expectType<(handler: () => unknown) => any>(builder.A)
+    expectType<(handler: () => unknown) => any>(builder.B)
+  })
+  it(`_kind`, () => {
+    const adt = Math.random() > 0.5 ? { _kind: 'A' as const } : { _kind: 'B' as const }
+    const builder = Alge.match(adt)
+    expect(typeof builder.A).toBe(`function`)
+    expect(typeof builder.B).toBe(`function`)
+    expectType<(handler: () => unknown) => any>(builder.A)
+    expectType<(handler: () => unknown) => any>(builder.B)
+  })
+  it(`type`, () => {
+    const adt = Math.random() > 0.5 ? { type: 'A' as const } : { type: 'B' as const }
+    const builder = Alge.match(adt)
+    expect(typeof builder.A).toBe(`function`)
+    expect(typeof builder.B).toBe(`function`)
+    expectType<(handler: () => unknown) => any>(builder.A)
+    expectType<(handler: () => unknown) => any>(builder.B)
+  })
+  it(`kind`, () => {
+    const adt = Math.random() > 0.5 ? { kind: 'A' as const } : { kind: 'B' as const }
+    const builder = Alge.match(adt)
+    expect(typeof builder.A).toBe(`function`)
+    expect(typeof builder.B).toBe(`function`)
+    expectType<(handler: () => unknown) => any>(builder.A)
+    expectType<(handler: () => unknown) => any>(builder.B)
+  })
+})
+
 it(`returns a Match Builder, an object with methods named according to the possible tags`, () => {
   const builder = Alge.match(tagA)
   expect(typeof builder.A).toBe(`function`)

@@ -11,8 +11,48 @@ import type {
 import type { SomeStoredRecord, StoredRecord } from './StoredRecord.js'
 import type { Any } from 'ts-toolbelt'
 
-export type SomeRecord = {
-  _tag: string
+const tagPropertyNames = [`__typename`, `_tag`, `_type`, `_kind`, `type`, `kind`]
+
+export const getTagProperty = <R extends SomeTaggedRecord>(taggedRecord: R): GetTagProperty<R> => {
+  return tagPropertyNames.find((propertyName) => propertyName in taggedRecord) as GetTagProperty<R>
+}
+
+export const getTag = <R extends SomeTaggedRecord>(taggedRecord: R): GetTagProperty<R> => {
+  const tagProperty = getTagProperty(taggedRecord)
+  // @ts-expect-error - should be there or fallback to undefined.
+  return taggedRecord[tagProperty] as GetTag<R>
+}
+
+// prettier-ignore
+export type GetTag<ADT extends SomeTaggedRecord> =
+  ADT extends { __typename : string } ? ADT['__typename']  :
+  ADT extends { _tag       : string } ? ADT['_tag']  :
+  ADT extends { _type      : string } ? ADT['_type'] :
+  ADT extends { _kind      : string } ? ADT['_kind'] :
+  ADT extends { type       : string } ? ADT['type']  :
+  ADT extends { kind       : string } ? ADT['kind']  :
+  never
+
+// prettier-ignore
+export type GetTagProperty<TaggedRecord extends SomeTaggedRecord> =
+  TaggedRecord extends { __typename: string } ? '__typename' :
+  TaggedRecord extends { _tag      : string } ? '_tag' :
+  TaggedRecord extends { _type     : string } ? '_tag' :
+  TaggedRecord extends { _kind     : string } ? '_tag' :
+  TaggedRecord extends { type      : string } ? '_tag' :
+  TaggedRecord extends { kind      : string } ? '_tag' :
+  never
+
+export type SomeTaggedRecord =
+  | SomeRecord<'__typename'>
+  | SomeRecord<'_tag'>
+  | SomeRecord<'_type'>
+  | SomeRecord<'_kind'>
+  | SomeRecord<'type'>
+  | SomeRecord<'kind'>
+
+export type SomeRecord<TagPropertyName extends string = '_tag'> = {
+  [PropertyName in TagPropertyName]: string
 }
 
 export type SomeRecordInternal = {
