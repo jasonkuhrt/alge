@@ -14,7 +14,7 @@ Terminology:
 
 import type { OmitTag } from './core/types.js'
 import { inspect } from './lib/utils.js'
-import type { GetTag, GetTagProperty, SomeRecord, SomeTaggedRecord } from './record/types/controller.js'
+import type { GetTag, SomeRecord, SomeTaggedRecord } from './record/types/controller.js'
 import { getTag } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
 export type SomeTag = string
@@ -151,14 +151,14 @@ type ChainPreMatcher<ADT extends SomeTaggedRecord, Result> = {
  */
 //prettier-ignore
 type ChainPostMatcher<ADT extends SomeTaggedRecord, TagsPreviouslyMatched extends string, Result> = {
-  [Tag in Exclude<GetTagProperty<ADT>, TagsPreviouslyMatched>]:
+  [Tag in Exclude<GetTag<ADT>, TagsPreviouslyMatched>]:
   (
     (<ThisResult extends unknown, Pattern extends Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, TagsPreviouslyMatched, '__init__' extends Result ? ThisResult : ThisResult | Result>) &
     (<ThisResult extends unknown>(handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, Tag|TagsPreviouslyMatched, ThisResult | Result>)
   )
   //      ^[1]                 ^[1]
 } & (
-  Exclude<GetTagProperty<ADT>, TagsPreviouslyMatched> extends never ? {
+  Exclude<GetTag<ADT>, TagsPreviouslyMatched> extends never ? {
     done: () => Result
   } : {
     else: <ThisResult extends unknown>(value: ThisResult | ((data: ExcludeByTag<ADT, TagsPreviouslyMatched>) => ThisResult)) => Result | ThisResult
