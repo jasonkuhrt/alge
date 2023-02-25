@@ -14,7 +14,7 @@ Terminology:
 
 import type { OmitTag } from './core/types.js'
 import { inspect } from './lib/utils.js'
-import type { GetTag, SomeRecord, SomeTaggedRecord } from './record/types/controller.js'
+import type { GetTag, GetTagProperty, SomeRecord, SomeTaggedRecord } from './record/types/controller.js'
 import { getTag } from './record/types/controller.js'
 import isMatch from 'lodash.ismatch'
 export type SomeTag = string
@@ -40,9 +40,9 @@ export function match<Tag extends SomeTag>(tag: Tag): ChainTagPreMatcher<Tag, ne
 export function match<AlgebraicDataType extends SomeTaggedRecord>(algebraicDataType: AlgebraicDataType): ChainPreMatcher<AlgebraicDataType, never>
 // prettier-ignore
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function match <AlgebraicDataTypeOrTag extends SomeTag | SomeTaggedRecord>(input: AlgebraicDataTypeOrTag):
-  AlgebraicDataTypeOrTag extends string     ? ChainTagPreMatcher<AlgebraicDataTypeOrTag, never> :
-  AlgebraicDataTypeOrTag extends SomeRecord ? ChainPreMatcher<AlgebraicDataTypeOrTag, never> :
+export function match <ADTOrTag extends SomeTag | SomeTaggedRecord>(input: ADTOrTag):
+  ADTOrTag extends string           ? ChainTagPreMatcher<ADTOrTag, never> :
+  ADTOrTag extends SomeTaggedRecord ? ChainPreMatcher<ADTOrTag, never> :
   never {
 
   const elseBranch: { defined: boolean; value: unknown | ((data: object) => unknown) } = {
@@ -187,6 +187,6 @@ type ChainTagPostMatcher<Tags extends SomeTag, TagsPreviouslyMatched extends str
 
 // prettier-ignore
 type ExcludeByTag<TaggedRecord extends SomeTaggedRecord, Tag extends string> =
-  TaggedRecord extends { [k in GetTag<TaggedRecord>]: Tag }
+  TaggedRecord extends { [k in GetTagProperty<TaggedRecord>]: Tag }
   ? never
   : TaggedRecord
