@@ -12,7 +12,7 @@ Terminology:
 - Handler
  */
 
-import type { OmitTag } from './core/types.js'
+import type { OmitWithTag2 } from './core/types.js'
 import { inspect } from './lib/utils.js'
 import type { GetTag, GetTagProperty, SomeRecord, SomeTaggedRecord } from './record/types/controller.js'
 import { getTag } from './record/types/controller.js'
@@ -35,16 +35,15 @@ export interface DataMatcherDefinition {
 }
 
 // prettier-ignore
-export function match<Tag extends SomeTag>(tag: Tag): ChainTagPreMatcher<Tag, never>
-// prettier-ignore
-export function match<AlgebraicDataType extends SomeTaggedRecord>(algebraicDataType: AlgebraicDataType): ChainPreMatcher<AlgebraicDataType, never>
-// prettier-ignore
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function match <ADTOrTag extends SomeTag | SomeTaggedRecord>(input: ADTOrTag):
-  ADTOrTag extends string           ? ChainTagPreMatcher<ADTOrTag, never> :
-  ADTOrTag extends SomeTaggedRecord ? ChainPreMatcher<ADTOrTag, never> :
-  never {
+interface Match {
+  <Tag extends SomeTag>(tag: Tag)                                                     : ChainTagPreMatcher<Tag, never>
+  <AlgebraicDataType extends SomeTaggedRecord>(algebraicDataType: AlgebraicDataType)  : ChainPreMatcher<AlgebraicDataType, never>
+}
 
+type MatchArgs = [input: SomeTag | SomeTaggedRecord]
+
+export const match: Match = (...args: MatchArgs) => {
+  const input = args[0]
   const elseBranch: { defined: boolean; value: unknown | ((data: object) => unknown) } = {
     defined: false,
     value: undefined,
@@ -54,7 +53,10 @@ export function match <ADTOrTag extends SomeTag | SomeTaggedRecord>(input: ADTOr
 
   const execute = () => {
     for (const matcher of matcherStack) {
-      if (typeof input === `string` && matcher.tag === input || typeof input === `object` && matcher.tag === getTag(input)) {
+      if (
+        (typeof input === `string` && matcher.tag === input) ||
+        (typeof input === `object` && matcher.tag === getTag(input))
+      ) {
         if (matcher._tag === `DataMatcherDefinition`) {
           if (isMatch(input as SomeRecord, matcher.dataPattern)) {
             return matcher.handler(input as SomeRecord)
@@ -65,9 +67,7 @@ export function match <ADTOrTag extends SomeTag | SomeTaggedRecord>(input: ADTOr
       }
     }
     if (elseBranch.defined) {
-      return typeof elseBranch.value === `function`
-        ? (elseBranch.value(input) as unknown)
-        : elseBranch.value
+      return typeof elseBranch.value === `function` ? (elseBranch.value(input) as unknown) : elseBranch.value
     }
     throw new Error(
       `No matcher matched on the given data. This should be impossible. Are you sure the runtime is not different than the static types? Please report a bug at https://jasonkuhrt/alge. The given data was:\n${inspect(
@@ -133,15 +133,17 @@ export function match <ADTOrTag extends SomeTag | SomeTaggedRecord>(input: ADTOr
   return proxy as any
 }
 
-type PickRecordHavingTag<Tag extends string, ADT extends SomeTaggedRecord> = ADT extends { _tag: Tag }
-  ? ADT
-  : never
+// prettier-ignore
+type PickWithTag<Tag extends string, ADT extends SomeTaggedRecord> =
+  ADT extends SomeTaggedRecord<Tag>
+    ? ADT
+    : never
 
 //prettier-ignore
 type ChainPreMatcher<ADT extends SomeTaggedRecord, Result> = {
   [Tag in GetTag<ADT>]:
-     (<ThisResult extends unknown, Pattern extends Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickRecordHavingTag<Tag, ADT>, test:Pattern) => ThisResult) => ChainPostMatcher<ADT, never, ThisResult | Result>) &
-     (<ThisResult extends unknown>(handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, Tag, ThisResult | Result>)
+     (<ThisResult extends unknown, Pattern extends Partial<OmitWithTag2<PickWithTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickWithTag<Tag, ADT>, test:Pattern) => ThisResult) => ChainPostMatcher<ADT, never, ThisResult | Result>) &
+     (<ThisResult extends unknown>(handler: (data: PickWithTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, Tag, ThisResult | Result>)
 }
 
 /**
@@ -153,8 +155,8 @@ type ChainPreMatcher<ADT extends SomeTaggedRecord, Result> = {
 type ChainPostMatcher<ADT extends SomeTaggedRecord, TagsPreviouslyMatched extends string, Result> = {
   [Tag in Exclude<GetTag<ADT>, TagsPreviouslyMatched>]:
   (
-    (<ThisResult extends unknown, Pattern extends Partial<OmitTag<PickRecordHavingTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, TagsPreviouslyMatched, '__init__' extends Result ? ThisResult : ThisResult | Result>) &
-    (<ThisResult extends unknown>(handler: (data: PickRecordHavingTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, Tag|TagsPreviouslyMatched, ThisResult | Result>)
+    (<ThisResult extends unknown, Pattern extends Partial<OmitWithTag2<PickWithTag<Tag, ADT>>>>(dataPattern: Pattern, handler: (data: Pattern & PickWithTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, TagsPreviouslyMatched, '__init__' extends Result ? ThisResult : ThisResult | Result>) &
+    (<ThisResult extends unknown>(handler: (data: PickWithTag<Tag, ADT>) => ThisResult) => ChainPostMatcher<ADT, Tag|TagsPreviouslyMatched, ThisResult | Result>)
   )
   //      ^[1]                 ^[1]
 } & (

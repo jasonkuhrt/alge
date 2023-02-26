@@ -1,5 +1,5 @@
 import type { SomeSchema, SomeSchemaDef } from '../../core/internal.js'
-import type { Encoder, OmitTag, SomeName, StoredRecords } from '../../core/types.js'
+import type { Encoder, OmitWithTag, SomeName, StoredRecords } from '../../core/types.js'
 import type { OmitRequired, Rest } from '../../lib/utils.js'
 import type { z } from '../../lib/z/index.js'
 import type {
@@ -43,16 +43,16 @@ export type GetTagProperty<TaggedRecord extends SomeTaggedRecord> =
   TaggedRecord extends { kind      : string } ? '_tag' :
   never
 
-export type SomeTaggedRecord =
-  | SomeRecord<'__typename'>
-  | SomeRecord<'_tag'>
-  | SomeRecord<'_type'>
-  | SomeRecord<'_kind'>
-  | SomeRecord<'type'>
-  | SomeRecord<'kind'>
+export type SomeTaggedRecord<Tag extends string = string> =
+  | SomeRecord<'__typename', Tag>
+  | SomeRecord<'_tag', Tag>
+  | SomeRecord<'_type', Tag>
+  | SomeRecord<'_kind', Tag>
+  | SomeRecord<'type', Tag>
+  | SomeRecord<'kind', Tag>
 
-export type SomeRecord<TagPropertyName extends string = '_tag'> = {
-  [PropertyName in TagPropertyName]: string
+export type SomeRecord<TagPropertyName extends string = '_tag', Tag extends string = string> = {
+  [PropertyName in TagPropertyName]: Tag
 }
 
 export type SomeRecordInternal = {
@@ -146,7 +146,7 @@ export type RecordController<Rs extends StoredRecords, R extends SomeStoredRecor
    * 
    * @throws If zod schema violated: bad types, failed validation, throw from a transformer.
    */
-  update(record: StoredRecord.GetType<R>, changes: Any.Compute<Partial<OmitTag<StoredRecord.GetType<R>>>>): StoredRecord.GetType<R>
+  update(record: StoredRecord.GetType<R>, changes: Any.Compute<Partial<OmitWithTag<StoredRecord.GetType<R>>>>): StoredRecord.GetType<R>
   /**
    * Decoders for this record. Decoders are used to transform other representations of your record back into a record instance.
    */

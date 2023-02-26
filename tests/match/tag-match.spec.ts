@@ -2,6 +2,7 @@
 import { Alge } from '../../src/index.js'
 import { expectType } from 'tsd'
 import { describe, expect, it } from 'vitest'
+import { I } from 'ts-toolbelt'
 
 type B = 'B'
 type A = 'A'
@@ -9,54 +10,42 @@ type Tag = A | B
 const tagA = 'A' as Tag
 const tagB = 'B' as Tag
 
+const cast = <T>(): T => 0 as any
+
 describe('accepted tag properties', () => {
   it(`_tag`, () => {
-    const adt = Math.random() > 0.5 ? { _tag: 'A' as const } : { _tag: 'B' as const }
+    type adt = { _tag: 'A'; a: 0 } | { _tag: 'B'; b: '' }
+    // prettier-ignore
+    const adts = [{ _tag: 'A', a: 0 }, { _tag: 'B', b: '' }] as const //satisfies [adt,...adt[]]
+    const adt = adts[Math.floor(Math.random() * adts.length)]!
     const builder = Alge.match(adt)
     expect(typeof builder.A).toBe(`function`)
     expect(typeof builder.B).toBe(`function`)
-    expectType<(handler: () => unknown) => any>(builder.A)
-    expectType<(handler: () => unknown) => any>(builder.B)
+    expectType<(handler: (data: { b: '' }) => unknown) => any>(builder.B)
+    const builder2 = builder.A(() => 'a')
+    // @ts-expect-error tag is omitted
+    builder2.B({ _tag: 'B' }, () => {})
   })
   it(`__typename`, () => {
-    const adt = Math.random() > 0.5 ? { __typename: 'A' as const } : { __typename: 'B' as const }
+    type adt = { __typename: 'A'; a: 0 } | { __typename: 'B'; b: '' }
+    // prettier-ignore
+    const adts = [{ __typename: 'A', a: 0 }, { __typename: 'B', b: '' }] as const //satisfies [adt,...adt[]]
+    const adt = adts[Math.floor(Math.random() * adts.length)]!
     const builder = Alge.match(adt)
     expect(typeof builder.A).toBe(`function`)
     expect(typeof builder.B).toBe(`function`)
-    expectType<(handler: () => unknown) => any>(builder.A)
-    expectType<(handler: () => unknown) => any>(builder.B)
-  })
-  it(`_type`, () => {
-    const adt = Math.random() > 0.5 ? { _type: 'A' as const } : { _type: 'B' as const }
-    const builder = Alge.match(adt)
-    expect(typeof builder.A).toBe(`function`)
-    expect(typeof builder.B).toBe(`function`)
-    expectType<(handler: () => unknown) => any>(builder.A)
-    expectType<(handler: () => unknown) => any>(builder.B)
-  })
-  it(`_kind`, () => {
-    const adt = Math.random() > 0.5 ? { _kind: 'A' as const } : { _kind: 'B' as const }
-    const builder = Alge.match(adt)
-    expect(typeof builder.A).toBe(`function`)
-    expect(typeof builder.B).toBe(`function`)
-    expectType<(handler: () => unknown) => any>(builder.A)
-    expectType<(handler: () => unknown) => any>(builder.B)
-  })
-  it(`type`, () => {
-    const adt = Math.random() > 0.5 ? { type: 'A' as const } : { type: 'B' as const }
-    const builder = Alge.match(adt)
-    expect(typeof builder.A).toBe(`function`)
-    expect(typeof builder.B).toBe(`function`)
-    expectType<(handler: () => unknown) => any>(builder.A)
-    expectType<(handler: () => unknown) => any>(builder.B)
-  })
-  it(`kind`, () => {
-    const adt = Math.random() > 0.5 ? { kind: 'A' as const } : { kind: 'B' as const }
-    const builder = Alge.match(adt)
-    expect(typeof builder.A).toBe(`function`)
-    expect(typeof builder.B).toBe(`function`)
-    expectType<(handler: () => unknown) => any>(builder.A)
-    expectType<(handler: () => unknown) => any>(builder.B)
+    expectType<(handler: (data: { a: 0 }) => unknown) => any>(builder.A)
+    expectType<(handler: (data: { b: '' }) => unknown) => any>(builder.B)
+    const builder2 = builder.A(() => 'a')
+    expect(typeof builder2.B).toBe(`function`)
+    // @ts-expect-error tag is omitted
+    builder2.B({ __typename: 'B' }, () => {})
+    builder2.B((data) => {
+      expectType<typeof data>(cast<{ __typename: 'B'; b: '' }>())
+    })
+    // TODO make this possible but having Match be immutable
+    // // @ts-expect-error tag is omitted
+    // builder2.B({ __typename: 'B' }, () => {})
   })
 })
 

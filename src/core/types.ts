@@ -1,10 +1,14 @@
 import type { DecoderMethods, EncoderMethods } from '../data/types/Controller.js'
 import type { AssertString, ObjectValues, UnionToIntersection } from '../lib/utils.js'
-import type { RecordController } from '../record/types/controller.js'
+import type { GetTagProperty, RecordController, SomeTaggedRecord } from '../record/types/controller.js'
 import type { SomeStoredRecord, StoredRecord } from '../record/types/StoredRecord.js'
 import type { z } from 'zod'
 
-export type OmitTag<T> = Omit<T, '_tag'>
+// prettier-ignore
+export type OmitWithTag2<TaggedRecord extends SomeTaggedRecord> =
+  Omit<TaggedRecord, GetTagProperty<TaggedRecord>>
+
+export type OmitWithTag<T> = Omit<T, '_tag'>
 
 export type ExtensionsBase = Record<string, unknown>
 
