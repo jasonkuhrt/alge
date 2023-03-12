@@ -20,7 +20,7 @@ specifiers:
   eslint-plugin-prefer-arrow: 1.2.3
   eslint-plugin-simple-import-sort: 10.0.0
   eslint-plugin-tsdoc: 0.2.17
-  execa: 7.0.0
+  execa: 7.1.0
   fast-glob: 3.2.12
   fs-jetpack: 5.1.0
   lodash.ismatch: ^4.4.0
@@ -62,7 +62,7 @@ devDependencies:
   eslint-plugin-prefer-arrow: 1.2.3_eslint@8.36.0
   eslint-plugin-simple-import-sort: 10.0.0_eslint@8.36.0
   eslint-plugin-tsdoc: 0.2.17
-  execa: 7.0.0
+  execa: 7.1.0
   fast-glob: 3.2.12
   fs-jetpack: 5.1.0
   markdown-toc: 1.2.0
@@ -2173,8 +2173,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /execa/7.0.0:
-    resolution: {integrity: sha512-tQbH0pH/8LHTnwTrsKWideqi6rFB/QNUawEwrn+WHyz7PX1Tuz2u7wfTvbaNBdP5JD5LVWxNo8/A8CHNZ3bV6g==}
+  /execa/7.1.0:
+    resolution: {integrity: sha512-T6nIJO3LHxUZ6ahVRaxXz9WLEruXLqdcluA+UuTptXmLM7nDAn9lx9IfkxPyzEL21583qSt4RmL44pO71EHaJQ==}
     engines: {node: ^14.18.0 || ^16.14.0 || >=18.0.0}
     dependencies:
       cross-spawn: 7.0.3
