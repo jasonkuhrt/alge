@@ -25,7 +25,7 @@ specifiers:
   fs-jetpack: 5.1.0
   lodash.ismatch: ^4.4.0
   markdown-toc: 1.2.0
-  prettier: 2.8.4
+  prettier: 2.8.5
   remeda: ^1.0.0
   semver: 7.3.8
   semver-utils: 1.1.4
@@ -66,7 +66,7 @@ devDependencies:
   fast-glob: 3.2.12
   fs-jetpack: 5.1.0
   markdown-toc: 1.2.0
-  prettier: 2.8.4
+  prettier: 2.8.5
   semver: 7.3.8
   semver-utils: 1.1.4
   ts-node: 10.9.1_72wjdbglblrsksmmmhzpvueijy
@@ -3570,8 +3570,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier/2.8.4:
-    resolution: {integrity: sha512-vIS4Rlc2FNh0BySk3Wkd6xmwxB0FpOndW5fisM5H8hsZSxU2VWVB5CWIkIjWvrHjIhxk2g3bfMKM87zNTrZddw==}
+  /prettier/2.8.5:
+    resolution: {integrity: sha512-3gzuxrHbKUePRBB4ZeU08VNkUcqEHaUaouNt0m7LGP4Hti/NuB07C7PPTM/LkWqXoJYJn2McEo5+kxPNrtQkLQ==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
