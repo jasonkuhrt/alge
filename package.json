@@ -71,7 +71,7 @@
     "@typescript-eslint/parser": "5.56.0",
     "dripip": "0.10.0",
     "eslint": "8.36.0",
-    "eslint-config-prisma": "^0.1.0",
+    "eslint-config-prisma": "0.1.0",
     "eslint-plugin-codegen": "0.17.0",
     "eslint-plugin-deprecation": "1.3.3",
     "eslint-plugin-only-warn": "1.1.0",
