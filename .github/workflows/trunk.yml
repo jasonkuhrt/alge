@@ -1,4 +1,6 @@
 name: trunk
+concurrency:
+  group: trunk
 on:
   push:
     branches: [main]
