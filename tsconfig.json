@@ -1,11 +1,26 @@
 {
-  "extends": "@tsconfig/node16-strictest/tsconfig.json",
+  // Wait for https://github.com/tsconfig/bases/issues/160
+  // "extends": "@tsconfig/node16-strictest/tsconfig.json",
   "ts-node": {
     "experimentalResolver": true,
     "swc": true,
     "esm": true
   },
   "compilerOptions": {
+    "lib": ["es2021"],
+    "target": "es2021",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
     // Use ESM
     "module": "NodeNext",
     "moduleResolution": "nodenext",
