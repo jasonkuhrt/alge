@@ -6,7 +6,7 @@ specifiers:
   '@swc/helpers': 0.4.14
   '@tsconfig/node16-strictest': 1.0.4
   '@types/lodash.ismatch': 4.4.7
-  '@types/node': 18.15.6
+  '@types/node': 18.15.7
   '@types/semver': 7.3.13
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.56.0
@@ -25,7 +25,7 @@ specifiers:
   fs-jetpack: 5.1.0
   lodash.ismatch: ^4.4.0
   markdown-toc: 1.2.0
-  prettier: 2.8.6
+  prettier: 2.8.7
   remeda: ^1.9.1
   semver: 7.3.8
   semver-utils: 1.1.4
@@ -48,7 +48,7 @@ devDependencies:
   '@swc/helpers': 0.4.14
   '@tsconfig/node16-strictest': 1.0.4
   '@types/lodash.ismatch': 4.4.7
-  '@types/node': 18.15.6
+  '@types/node': 18.15.7
   '@types/semver': 7.3.13
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.56.0_2hcjazgfnbtq42tcc73br2vup4
@@ -66,10 +66,10 @@ devDependencies:
   fast-glob: 3.2.12
   fs-jetpack: 5.1.0
   markdown-toc: 1.2.0
-  prettier: 2.8.6
+  prettier: 2.8.7
   semver: 7.3.8
   semver-utils: 1.1.4
-  ts-node: 10.9.1_lucejzhmfupe7vth74hqgglg74
+  ts-node: 10.9.1_syuuqf7463qqry3mw2iogcc56u
   tsd: 0.28.0
   typescript: 5.0.2
   vitest: 0.29.7
@@ -365,7 +365,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 18.15.6
+      '@types/node': 18.15.7
       '@types/yargs': 15.0.14
       chalk: 4.1.2
     dev: true
@@ -881,8 +881,8 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/node/18.15.6:
-    resolution: {integrity: sha512-YErOafCZpK4g+Rp3Q/PBgZNAsWKGunQTm9FA3/Pbcm0VCriTEzcrutQ/SxSc0rytAp0NoFWue669jmKhEtd0sA==}
+  /@types/node/18.15.7:
+    resolution: {integrity: sha512-LFmUbFunqmBn26wJZgZPYZPrDR1RwGOu2v79Mgcka1ndO6V0/cwjivPTc4yoK6n9kmw4/ls1r8cLrvh2iMibFA==}
     dev: true
 
   /@types/normalize-package-data/2.4.1:
@@ -896,7 +896,7 @@ packages:
   /@types/parse-github-url/1.0.0:
     resolution: {integrity: sha512-YNsYjdFmlfwIUGc47jfkb4BvFH9rdVbw80DxqSIQzQ3QpgaekmH2BcGKmEENzQRkeODoT/GiDrsJeztni+diAQ==}
     dependencies:
-      '@types/node': 18.15.6
+      '@types/node': 18.15.7
     dev: true
 
   /@types/semver-utils/1.1.1:
@@ -3593,8 +3593,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier/2.8.6:
-    resolution: {integrity: sha512-mtuzdiBbHwPEgl7NxWlqOkithPyp4VN93V7VeHVWBF+ad3I5avc0RVDT4oImXQy9H/AqxA2NSQH8pSxHW6FYbQ==}
+  /prettier/2.8.7:
+    resolution: {integrity: sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
@@ -4209,7 +4209,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /ts-node/10.9.1_lucejzhmfupe7vth74hqgglg74:
+  /ts-node/10.9.1_syuuqf7463qqry3mw2iogcc56u:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -4229,7 +4229,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 18.15.6
+      '@types/node': 18.15.7
       acorn: 8.8.0
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -4479,7 +4479,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.4
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.15.6
+      '@types/node': 18.15.7
       '@vitest/expect': 0.29.7
       '@vitest/runner': 0.29.7
       '@vitest/spy': 0.29.7
