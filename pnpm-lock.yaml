@@ -6,7 +6,7 @@ specifiers:
   '@swc/helpers': 0.4.14
   '@tsconfig/node16-strictest': 1.0.4
   '@types/lodash.ismatch': 4.4.7
-  '@types/node': 18.15.7
+  '@types/node': 18.15.10
   '@types/semver': 7.3.13
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.56.0
@@ -48,7 +48,7 @@ devDependencies:
   '@swc/helpers': 0.4.14
   '@tsconfig/node16-strictest': 1.0.4
   '@types/lodash.ismatch': 4.4.7
-  '@types/node': 18.15.7
+  '@types/node': 18.15.10
   '@types/semver': 7.3.13
   '@types/semver-utils': 1.1.1
   '@typescript-eslint/eslint-plugin': 5.56.0_2hcjazgfnbtq42tcc73br2vup4
@@ -69,7 +69,7 @@ devDependencies:
   prettier: 2.8.7
   semver: 7.3.8
   semver-utils: 1.1.4
-  ts-node: 10.9.1_syuuqf7463qqry3mw2iogcc56u
+  ts-node: 10.9.1_bzeu7iottrul24kcgbqa3ilf5a
   tsd: 0.28.0
   typescript: 5.0.2
   vitest: 0.29.7
@@ -365,7 +365,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 18.15.7
+      '@types/node': 18.15.10
       '@types/yargs': 15.0.14
       chalk: 4.1.2
     dev: true
@@ -881,8 +881,8 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/node/18.15.7:
-    resolution: {integrity: sha512-LFmUbFunqmBn26wJZgZPYZPrDR1RwGOu2v79Mgcka1ndO6V0/cwjivPTc4yoK6n9kmw4/ls1r8cLrvh2iMibFA==}
+  /@types/node/18.15.10:
+    resolution: {integrity: sha512-9avDaQJczATcXgfmMAW3MIWArOO7A+m90vuCFLr8AotWf8igO/mRoYukrk2cqZVtv38tHs33retzHEilM7FpeQ==}
     dev: true
 
   /@types/normalize-package-data/2.4.1:
@@ -896,7 +896,7 @@ packages:
   /@types/parse-github-url/1.0.0:
     resolution: {integrity: sha512-YNsYjdFmlfwIUGc47jfkb4BvFH9rdVbw80DxqSIQzQ3QpgaekmH2BcGKmEENzQRkeODoT/GiDrsJeztni+diAQ==}
     dependencies:
-      '@types/node': 18.15.7
+      '@types/node': 18.15.10
     dev: true
 
   /@types/semver-utils/1.1.1:
@@ -4209,7 +4209,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /ts-node/10.9.1_syuuqf7463qqry3mw2iogcc56u:
+  /ts-node/10.9.1_bzeu7iottrul24kcgbqa3ilf5a:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -4229,7 +4229,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 18.15.7
+      '@types/node': 18.15.10
       acorn: 8.8.0
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -4479,7 +4479,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.4
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.15.7
+      '@types/node': 18.15.10
       '@vitest/expect': 0.29.7
       '@vitest/runner': 0.29.7
       '@vitest/spy': 0.29.7
