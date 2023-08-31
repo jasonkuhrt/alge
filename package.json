@@ -86,7 +86,7 @@
     "semver": "7.5.4",
     "semver-utils": "1.1.4",
     "ts-node": "10.9.1",
-    "tsd": "0.28.1",
+    "tsd": "0.29.0",
     "typescript": "5.2.2",
     "vitest": "0.34.3"
   }
