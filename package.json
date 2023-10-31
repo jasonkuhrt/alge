@@ -64,7 +64,7 @@
     "@swc/helpers": "0.5.3",
     "@tsconfig/node16-strictest": "1.0.4",
     "@types/lodash.ismatch": "4.4.8",
-    "@types/node": "20.8.9",
+    "@types/node": "20.8.10",
     "@types/semver": "7.5.4",
     "@types/semver-utils": "1.1.2",
     "@typescript-eslint/eslint-plugin": "6.9.1",
