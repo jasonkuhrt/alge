@@ -32,8 +32,8 @@ devDependencies:
     specifier: 1.0.4
     version: 1.0.4
   '@types/lodash.ismatch':
-    specifier: 4.4.8
-    version: 4.4.8
+    specifier: 4.4.9
+    version: 4.4.9
   '@types/node':
     specifier: 20.8.10
     version: 20.8.10
@@ -59,8 +59,8 @@ devDependencies:
     specifier: 0.2.0
     version: 0.2.0(@typescript-eslint/eslint-plugin@6.10.0)(@typescript-eslint/parser@6.10.0)(eslint-plugin-deprecation@2.0.0)(eslint-plugin-only-warn@1.1.0)(eslint-plugin-prefer-arrow@1.2.3)(eslint-plugin-simple-import-sort@10.0.0)(eslint-plugin-tsdoc@0.2.17)(eslint@8.53.0)
   eslint-plugin-codegen:
-    specifier: 0.18.0
-    version: 0.18.0
+    specifier: 0.18.1
+    version: 0.18.1
   eslint-plugin-deprecation:
     specifier: 2.0.0
     version: 2.0.0(eslint@8.53.0)(typescript@5.2.2)
@@ -959,8 +959,8 @@ packages:
     resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}
     dev: true
 
-  /@types/lodash.ismatch@4.4.8:
-    resolution: {integrity: sha512-2+nMf4rIe+ZeRBzXsuBVLBFVkxiicqC8AIGkeN0QnGX8wSre4SwqEra6cXu1GyMy19pnR47Uh5yII7QiHO1dDw==}
+  /@types/lodash.ismatch@4.4.9:
+    resolution: {integrity: sha512-qWihnStOPKH8urljLGm6ZOEdN/5Bt4vxKR81tL3L4ArUNLvcf9RW3QSnPs21eix5BiqioSWq4aAXD4Iep+d0fw==}
     dependencies:
       '@types/lodash': 4.14.182
     dev: true
@@ -2102,8 +2102,8 @@ packages:
       supports-hyperlinks: 2.2.0
     dev: true
 
-  /eslint-plugin-codegen@0.18.0:
-    resolution: {integrity: sha512-AK7cVIcPK8LXAclA9rtZq4/Pk0qP7yYWCkvfbdF2t7efgyaKEP/qsOmLzuYSKBQ7msmk/g1hfoBKQ79HjuV37A==}
+  /eslint-plugin-codegen@0.18.1:
+    resolution: {integrity: sha512-Sy5nJ7tMahHWygM02w2gAO70MX6Lp0ZK0PD9kMpPPGtoQhyS2n1oN7s9zLpDx5pmFDf3woj6LadqztNpJ5RepQ==}
     engines: {node: '>=12.0.0'}
     dependencies:
       '@babel/core': 7.18.9
