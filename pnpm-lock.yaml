@@ -9,8 +9,8 @@ dependencies:
     specifier: ^4.4.0
     version: 4.4.0
   remeda:
-    specifier: ^1.9.1
-    version: 1.9.1
+    specifier: ^2.0.0
+    version: 2.0.0
   ts-toolbelt:
     specifier: ^9.6.0
     version: 9.6.0
@@ -3965,8 +3965,10 @@ packages:
       autolinker: 0.28.1
     dev: true
 
-  /remeda@1.9.1:
-    resolution: {integrity: sha512-n8vx5dg27jRCUYlM7RXQ9MbJCspb18/9wmrRTLKNNECivtAZBuxok0Ei6yV0jcFsnKLr8Y6oiuLyDXU1jt5UKw==}
+  /remeda@2.0.0:
+    resolution: {integrity: sha512-KBvW1gjFitqspnhSV+SLAy3g13Kj/NLb/3lLZyIIFC+D+qOYT7UnSQfNBc3+uh9KDBjFfu6lvcuV52TQhubuJg==}
+    dependencies:
+      type-fest: 4.18.3
     dev: false
 
   /repeat-element@1.1.4:
@@ -4553,6 +4555,11 @@ packages:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
     dev: true
+
+  /type-fest@4.18.3:
+    resolution: {integrity: sha512-Q08/0IrpvM+NMY9PA2rti9Jb+JejTddwmwmVQGskAlhtcrw1wsRzoR6ode6mR+OAabNa75w/dxedSUY2mlphaQ==}
+    engines: {node: '>=16'}
+    dev: false
 
   /typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
