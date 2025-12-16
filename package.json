@@ -56,7 +56,7 @@
     "lodash.ismatch": "^4.4.0",
     "remeda": "^1.9.1",
     "ts-toolbelt": "^9.6.0",
-    "zod": "^3.21.4"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@prisma-labs/prettier-config": "0.1.0",
